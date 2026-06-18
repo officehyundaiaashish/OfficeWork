@@ -1,11 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>index</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khanna Automart - Task Tracker</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-muted: #65676b;
+            --accent: #0084ff;
+            --border: #e4e6eb;
+            --success: #31a24c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 1rem 0.5rem;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        header {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--text-main);
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.75rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid #f0f2f5;
+            transition: background-color 0.2s ease;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox-wrapper {
+            margin-right: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 0.75rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-content {
+            flex: 1;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .task-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .completed .task-title,
+        .completed .task-note {
+            text-decoration: line-through;
+            color: #a0aabf;
+        }
+
+        .completed {
+            opacity: 0.6;
+        }
+
+        .progress-container {
+            max-width: 1200px;
+            margin: 0 auto 1rem auto;
+            background: var(--card-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 0.5rem;
+            z-index: 10;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 <body>
 
+    <header>
+        <h1>Khanna Automart - Task Tracker</h1>
+        <div class="subtitle">Daily Repair Order & Administration Tasks</div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-text">
+            <span>Overall Progress</span>
+            <span><span id="completed-count">0</span>/<span id="total-count">0</span> (<span id="progress-percentage">0%</span>)</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="board" id="board">
+        </div>
+
+    <script>
+        // Data structured directly from your handwritten notes
+        const tasksData = [
+            {
+                category: "📑 Billing & Invoicing",
+                tasks: [
+                    { id: "b1", title: "UK17 W 4144", note: "Catalytic Bill" },
+                    { id: "b2", title: "UK08 BJ 0071", note: "Battery Assy Bill" },
+                    { id: "b3", title: "UP11 DD 7656", note: "Bill (Also requires Warranty Punch)" },
+                    { id: "b4", title: "UK07 TD 3798", note: "Head Bill U/W (Proceed to Warranty Punch afterward)" },
+                    { id: "b5", title: "Kotdwar", note: "All Part Bill Pending" }
+                ]
+            },
+            {
+                category: "💻 Warranty Processing",
+                tasks: [
+                    { id: "w1", title: "Routine Warranty Punching", note: "General task" },
+                    { id: "w2", title: "UK08 Q 3066", note: "Battery Assy under goodwill warranty - Narendra" },
+                    { id: "w3", title: "UK17 W 7004", note: "Warranty Punch" },
+                    { id: "w4", title: "UP11 DD 7656", note: "Warranty Punch" },
+                    { id: "w5", title: "UK07 TD 3798", note: "Warranty Punch" },
+                    { id: "w6", title: "UP11 BW 5055", note: "Injector & Warranty Punch" },
+                    { id: "w7", title: "RO 202603989", note: "Tire Punc Power / Tie Rod & Warranty Punch" },
+                    { id: "w8", title: "RO 202603948", note: "Tire Punc Power / Tie Rod & Warranty Punch" }
+                ]
+            },
+            {
+                category: "📦 Parts Management",
+                tasks: [
+                    { id: "p1", title: "Warranty Part Tagging", note: "General task" },
+                    { id: "p2", title: "Suspense Part Sending **", note: "General task" },
+                    { id: "p3", title: "Mohd Osam", note: "Ambient Sensor (Pending allocation or fitting)" }
+                ]
+            },
+            {
+                category: "🗄️ Administration & Records",
+                tasks: [
+                    { id: "a1", title: "All R.O. Record Filing & Downloading **", note: "General task" }
+                ]
+            }
+        ];
+
+        // Load saved progress from local storage
+        const savedState = JSON.parse(localStorage.getItem('khannaTasks')) || {};
+
+        function renderBoard() {
+            const board = document.getElementById('board');
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            tasksData.forEach(section => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.textContent = section.category;
+                card.appendChild(header);
+
+                const list = document.createElement('ul');
+                list.className = 'task-list';
+
+                section.tasks.forEach(task => {
+                    totalTasks++;
+                    const isCompleted = savedState[task.id] === true;
+                    if (isCompleted) completedTasks++;
+
+                    const li = document.createElement('li');
+                    li.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                    
+                    li.innerHTML = `
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="${task.id}" ${isCompleted ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+                        </div>
+                        <label class="task-content" for="${task.id}">
+                            <span class="task-title">${task.title}</span>
+                            <span class="task-note">${task.note}</span>
+                        </label>
+                    `;
+                    list.appendChild(li);
+                });
+
+                card.appendChild(list);
+                board.appendChild(card);
+            });
+
+            updateProgress(completedTasks, totalTasks);
+        }
+
+        // Handle check/uncheck events
+        window.toggleTask = function(taskId) {
+            const checkbox = document.getElementById(taskId);
+            const taskItem = checkbox.closest('.task-item');
+            
+            // Update Visual UI
+            if (checkbox.checked) {
+                taskItem.classList.add('completed');
+                savedState[taskId] = true;
+            } else {
+                taskItem.classList.remove('completed');
+                savedState[taskId] = false;
+            }
+
+            // Save state to browser storage immediately
+            localStorage.setItem('khannaTasks', JSON.stringify(savedState));
+
+            // Recalculate progress bar
+            updateProgress();
+        };
+
+        function updateProgress(completed = null, total = null) {
+            if (total === null) {
+                total = document.querySelectorAll('input[type="checkbox"]').length;
+                completed = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            }
+
+            const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+            
+            document.getElementById('progress-percentage').textContent = `${percentage}%`;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+        }
+
+        // Initialize application on load
+        document.addEventListener('DOMContentLoaded', renderBoard);
+    </script>
 </body>
 </html>
