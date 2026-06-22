@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,44 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="theme-color" content="#0084ff">
     <title>Khanna Automart - Task Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f6f8fb;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-muted: #65676b;
             --accent: #0084ff;
             --accent-rgb: 0, 132, 255;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --hover: #f1f5f9;
-            --radius: 16px;
-            --radius-sm: 10px;
+            --border: #e4e6eb;
+            --success: #31a24c;
+            --danger: #e41e3f;
+            --warning: #f0a500;
+            --hover: #f5f6f7;
+            --radius: 12px;
+            --radius-sm: 8px;
             --density: 1;
             --font-scale: 1;
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-spring: 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            --max-width: 1200px;
-        }
-
-        /* Dark mode support */
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --hover: #1e293b;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
+            --shadow-xl: 0 20px 50px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.08);
+            --max-width: 1280px;
         }
 
         * {
@@ -61,14 +49,13 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             padding: calc(1.5rem * var(--density)) 1.5rem 2rem;
             line-height: 1.5;
             font-size: calc(14px * var(--font-scale));
             min-height: 100vh;
-            transition: background-color var(--transition-smooth);
         }
 
         .app-container {
@@ -76,20 +63,11 @@
             margin: 0 auto;
         }
 
-        /* ===== Header & Greeting Widget ===== */
+        /* ===== Header ===== */
         header {
-            margin-bottom: calc(1.5rem * var(--density));
-            text-align: left;
-            padding: 1.25rem;
-            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08) 0%, rgba(var(--accent-rgb), 0.02) 100%);
-            border-radius: var(--radius);
-            border: 1px solid rgba(var(--accent-rgb), 0.15);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            margin-bottom: calc(1.25rem * var(--density));
+            text-align: center;
+            padding: 1rem 0;
             animation: fadeSlideDown 0.5s var(--transition-smooth) both;
         }
 
@@ -98,43 +76,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .header-greeting-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
         h1 {
             color: var(--text-main);
             margin: 0;
-            font-size: calc(1.5rem * var(--font-scale));
+            font-size: calc(1.6rem * var(--font-scale));
             font-weight: 800;
             letter-spacing: -0.5px;
         }
 
         .subtitle {
             color: var(--text-muted);
-            margin: 0;
+            margin-top: 0.3rem;
             font-size: calc(0.85rem * var(--font-scale));
-            font-weight: 500;
-        }
-
-        .header-time-widget {
-            font-size: calc(0.82rem * var(--font-scale));
-            font-weight: 600;
-            color: var(--accent);
-            background: rgba(var(--accent-rgb), 0.12);
-            padding: 0.5rem 0.85rem;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .header-time-widget svg {
-            width: 14px;
-            height: 14px;
+            font-weight: 400;
         }
 
         /* ===== Top Controls ===== */
@@ -142,8 +96,8 @@
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
-            justify-content: flex-start;
-            margin-bottom: calc(1.5rem * var(--density));
+            justify-content: center;
+            margin-bottom: calc(1.25rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.05s both;
         }
 
@@ -165,7 +119,6 @@
             white-space: nowrap;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(var(--accent-rgb), 0.1);
         }
 
         .btn::after {
@@ -178,7 +131,7 @@
 
         .btn:hover { 
             transform: translateY(-1px); 
-            box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.25);
+            box-shadow: var(--shadow-md);
         }
         .btn:hover::after { background: rgba(255,255,255,0.08); }
         .btn:active { 
@@ -197,20 +150,15 @@
             background: var(--card-bg);
             color: var(--text-main);
             border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
         }
         .btn-secondary:hover { 
             background: var(--hover);
-            border-color: var(--text-muted);
-            box-shadow: var(--shadow-md);
+            border-color: #d0d3d8;
         }
 
-        .btn-danger { background: var(--danger); box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15); }
-        .btn-danger:hover { box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-        .btn-success { background: var(--success); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15); }
-        .btn-success:hover { box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
-        .btn-warning { background: var(--warning); color: #1c1e21; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.15); }
-        .btn-warning:hover { box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); color: #1c1e21; }
 
         .btn-sm {
             padding: calc(0.3rem * var(--density)) calc(0.65rem * var(--density));
@@ -223,13 +171,13 @@
             min-width: 34px;
             min-height: 34px;
             justify-content: center;
-            border-radius: var(--radius-sm);
+            border-radius: 6px;
             font-size: 1rem;
         }
 
         .mobile-menu-btn { display: none; }
 
-        /* ===== Progress Dashboard Widget ===== */
+        /* ===== Progress ===== */
         .progress-container {
             background: var(--card-bg);
             padding: calc(1rem * var(--density)) calc(1.25rem * var(--density));
@@ -239,31 +187,26 @@
             position: sticky;
             top: 0.75rem;
             z-index: 10;
-            margin-bottom: calc(1.25rem * var(--density));
+            margin-bottom: calc(1rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
-            backdrop-filter: blur(16px);
-            background: rgba(255, 255, 255, 0.85);
-        }
-
-        body.dark-mode .progress-container {
-            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.92);
         }
 
         .progress-bar {
-            height: 10px;
-            background: var(--hover);
-            border-radius: 6px;
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
             overflow: hidden;
-            margin-top: 0.75rem;
-            border: 1px solid var(--border);
+            margin-top: 0.6rem;
         }
 
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--success));
             width: 0%;
-            border-radius: 6px;
-            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
@@ -271,7 +214,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
             animation: shimmer 2s infinite;
         }
 
@@ -281,7 +224,7 @@
         }
 
         .progress-text {
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-main);
             font-size: calc(0.9rem * var(--font-scale));
             display: flex;
@@ -294,19 +237,18 @@
             gap: 0.5rem;
             font-size: calc(0.75rem * var(--font-scale));
             color: var(--text-muted);
-            margin-top: 0.6rem;
+            margin-top: 0.5rem;
             flex-wrap: wrap;
         }
 
         .stat-pill {
-            background: var(--hover);
-            padding: 0.25rem 0.65rem;
-            border-radius: 20px;
+            background: var(--bg-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            font-weight: 600;
-            border: 1px solid var(--border);
+            gap: 0.3rem;
+            font-weight: 500;
             transition: all var(--transition-fast);
         }
 
@@ -318,7 +260,7 @@
 
         .stat-pill.done-pill svg { color: var(--success); }
         .stat-pill.pending-pill svg { color: var(--accent); }
-        .stat-pill.today-pill svg { color: var(--warning); }
+        .stat-pill.today-pill svg { color: var(--success); }
         .stat-pill.overdue-pill svg { color: var(--danger); }
 
         /* ===== Filter Bar ===== */
@@ -332,52 +274,52 @@
             flex-wrap: wrap;
             align-items: center;
             font-size: calc(0.82rem * var(--font-scale));
-            margin-bottom: calc(1.5rem * var(--density));
+            margin-bottom: calc(1.25rem * var(--density));
             box-shadow: var(--shadow-sm);
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.15s both;
         }
 
         .filter-label {
             color: var(--text-muted);
-            font-weight: 700;
+            font-weight: 600;
             margin-right: 0.25rem;
         }
 
         .filter-btn {
             background: transparent;
             border: 1.5px solid var(--border);
-            padding: 0.4rem 0.9rem;
-            border-radius: 20px;
+            padding: 0.35rem 0.8rem;
+            border-radius: 16px;
             cursor: pointer;
             font-size: calc(0.8rem * var(--font-scale));
             color: var(--text-main);
             transition: all var(--transition-fast);
             font-family: inherit;
-            min-height: 32px;
-            font-weight: 600;
+            min-height: 30px;
+            font-weight: 500;
         }
 
         .filter-btn:hover { 
             background: var(--hover); 
-            border-color: var(--text-muted);
+            border-color: #d0d3d8;
         }
 
         .filter-btn.active {
             background: var(--accent);
             color: white;
             border-color: var(--accent);
-            box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.3);
+            box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
         }
 
         .search-input,
         .category-filter {
-            padding: 0.35rem 0.8rem;
+            padding: 0.35rem 0.7rem;
             border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             font-size: calc(0.82rem * var(--font-scale));
             margin-left: 0.5rem;
             font-family: inherit;
-            background: var(--card-bg);
+            background: white;
             color: var(--text-main);
             min-height: 34px;
             transition: all var(--transition-fast);
@@ -405,18 +347,15 @@
             transition: 
                 background var(--transition-smooth),
                 visibility 0s var(--transition-smooth);
-            backdrop-filter: blur(0px);
         }
 
         .modal-overlay.active {
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(0, 0, 0, 0.45);
             pointer-events: auto;
             visibility: visible;
-            backdrop-filter: blur(4px);
             transition: 
                 background var(--transition-smooth),
-                visibility 0s 0s,
-                backdrop-filter var(--transition-smooth);
+                visibility 0s 0s;
         }
 
         /* ===== Modal (desktop: centered dialog) ===== */
@@ -425,7 +364,7 @@
             border-radius: var(--radius);
             padding: calc(1.5rem * var(--density));
             width: 100%;
-            max-width: 520px;
+            max-width: 500px;
             max-height: calc(100vh - 3rem);
             overflow-y: auto;
             box-shadow: var(--shadow-xl);
@@ -434,7 +373,6 @@
             transition: 
                 transform var(--transition-spring),
                 opacity var(--transition-smooth);
-            border: 1px solid var(--border);
         }
 
         .modal-overlay.active .modal {
@@ -448,21 +386,19 @@
 
         .modal h2 {
             margin: 0 0 1.25rem 0;
-            font-size: calc(1.2rem * var(--font-scale));
+            font-size: calc(1.15rem * var(--font-scale));
             color: var(--text-main);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 0.5rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
         }
 
         .modal-close {
             background: var(--hover);
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             cursor: pointer;
             color: var(--text-main);
@@ -486,15 +422,15 @@
         }
 
         .form-group {
-            margin-bottom: calc(1.1rem * var(--density));
+            margin-bottom: calc(1rem * var(--density));
         }
 
         .form-group label {
             display: block;
             font-size: calc(0.82rem * var(--font-scale));
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-main);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.35rem;
         }
 
         .form-group input,
@@ -504,11 +440,11 @@
             padding: calc(0.6rem * var(--density)) calc(0.75rem * var(--density));
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            font-size: calc(0.92rem * var(--font-scale));
+            font-size: calc(0.95rem * var(--font-scale));
             font-family: inherit;
-            background: var(--bg-color);
+            background: white;
             color: var(--text-main);
-            min-height: 42px;
+            min-height: 44px;
             transition: all var(--transition-fast);
         }
 
@@ -520,71 +456,6 @@
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
-            background: var(--card-bg);
-        }
-
-        /* NLP Badge Styles */
-        .nlp-badge {
-            margin-top: 0.4rem;
-            font-size: 0.78rem;
-            color: var(--accent);
-            background: rgba(var(--accent-rgb), 0.08);
-            border: 1px dashed rgba(var(--accent-rgb), 0.3);
-            padding: 0.4rem 0.65rem;
-            border-radius: 6px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.4rem;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        .nlp-badge:hover {
-            background: rgba(var(--accent-rgb), 0.15);
-        }
-        .nlp-badge span {
-            font-weight: 600;
-        }
-
-        /* Quick Templates Styles */
-        .quick-templates-section {
-            margin-bottom: 1.25rem;
-        }
-        .quick-templates-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.4rem;
-        }
-        .quick-templates-list {
-            display: flex;
-            gap: 0.4rem;
-            overflow-x: auto;
-            padding-bottom: 0.4rem;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-        .quick-templates-list::-webkit-scrollbar {
-            display: none;
-        }
-        .quick-template-chip {
-            flex-shrink: 0;
-            background: var(--hover);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.65rem;
-            border-radius: 14px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            color: var(--text-main);
-        }
-        .quick-template-chip:hover {
-            background: rgba(var(--accent-rgb), 0.08);
-            border-color: var(--accent);
-            color: var(--accent);
         }
 
         .form-row {
@@ -633,7 +504,6 @@
             transition: 
                 transform var(--transition-spring),
                 opacity var(--transition-smooth);
-            border: 1px solid var(--border);
         }
 
         .modal-overlay.active .confirm-modal {
@@ -688,14 +558,14 @@
         .board {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: calc(1.25rem * var(--density));
+            gap: calc(1rem * var(--density));
             margin-top: 0.5rem;
         }
 
         .category-card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: calc(1.25rem * var(--density));
+            padding: calc(1.1rem * var(--density));
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
             transition: all var(--transition-smooth);
@@ -706,7 +576,7 @@
 
         .category-card:hover {
             box-shadow: var(--shadow-md);
-            border-color: rgba(var(--accent-rgb), 0.3);
+            border-color: #d0d3d8;
         }
 
         @keyframes cardEnter {
@@ -720,10 +590,9 @@
             margin-bottom: calc(0.75rem * var(--density));
             padding-bottom: 0.65rem;
             border-bottom: 2px solid var(--border);
-            font-weight: 800;
+            font-weight: 700;
             font-size: calc(1rem * var(--font-scale));
             color: var(--accent);
-            letter-spacing: -0.3px;
         }
 
         .category-count {
@@ -747,42 +616,41 @@
         .task-item {
             display: flex;
             align-items: flex-start;
-            padding: calc(0.75rem * var(--density)) 0;
-            border-bottom: 1px solid var(--border);
+            padding: calc(0.65rem * var(--density)) 0;
+            border-bottom: 1px solid #f0f2f5;
             transition: all var(--transition-fast);
-            gap: 0.65rem;
+            gap: 0.6rem;
             position: relative;
         }
 
         .task-item:last-child { border-bottom: none; }
 
         .task-item:hover {
-            background: rgba(var(--accent-rgb), 0.03);
-            border-radius: var(--radius-sm);
-            margin: 0 -0.4rem;
-            padding-left: 0.4rem;
-            padding-right: 0.4rem;
+            background: rgba(var(--accent-rgb), 0.02);
+            border-radius: 6px;
+            margin: 0 -0.3rem;
+            padding-left: 0.3rem;
+            padding-right: 0.3rem;
         }
 
         .checkbox-wrapper {
             display: flex;
             align-items: center;
-            padding-top: 0.15rem;
+            padding-top: 0.1rem;
         }
 
         input[type="checkbox"] {
             appearance: none;
             -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border: 2px solid var(--border);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #c4c7cc;
             border-radius: 50%;
             cursor: pointer;
             position: relative;
             transition: all var(--transition-fast);
             margin: 0;
             flex-shrink: 0;
-            background: var(--bg-color);
         }
 
         input[type="checkbox"]:hover {
@@ -798,7 +666,7 @@
 
         @keyframes checkBounce {
             0% { transform: scale(1); }
-            40% { transform: scale(1.15); }
+            40% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
 
@@ -806,11 +674,11 @@
             content: '';
             position: absolute;
             top: 4px;
-            left: 7px;
+            left: 6px;
             width: 5px;
             height: 9px;
             border: solid white;
-            border-width: 0 2.5px 2.5px 0;
+            border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
 
@@ -825,7 +693,7 @@
         .task-title {
             font-weight: 600;
             color: var(--text-main);
-            font-size: calc(0.92rem * var(--font-scale));
+            font-size: calc(0.9rem * var(--font-scale));
             word-wrap: break-word;
             overflow-wrap: anywhere;
             transition: all var(--transition-fast);
@@ -834,7 +702,7 @@
         .task-note {
             font-size: calc(0.78rem * var(--font-scale));
             color: var(--text-muted);
-            margin-top: 0.2rem;
+            margin-top: 0.15rem;
             word-wrap: break-word;
             overflow-wrap: anywhere;
             transition: all var(--transition-fast);
@@ -843,22 +711,21 @@
         .task-meta {
             display: flex;
             gap: 0.35rem;
-            margin-top: 0.45rem;
+            margin-top: 0.4rem;
             flex-wrap: wrap;
         }
 
         .meta-pill {
             font-size: calc(0.68rem * var(--font-scale));
-            padding: 0.15rem 0.55rem;
+            padding: 0.15rem 0.5rem;
             border-radius: 8px;
-            background: var(--hover);
+            background: var(--bg-color);
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 500;
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
             transition: all var(--transition-fast);
-            border: 1px solid var(--border);
         }
 
         .meta-pill svg {
@@ -866,18 +733,18 @@
             height: 11px;
         }
 
-        .meta-pill.time { background: rgba(var(--accent-rgb), 0.08); color: var(--accent); border-color: rgba(var(--accent-rgb), 0.15); }
-        .meta-pill.overdue { background: #ffebe8; color: var(--danger); border-color: #ffd8d3; }
-        .meta-pill.today { background: #e6f7ed; color: var(--success); border-color: #d1f4df; }
+        .meta-pill.time { background: #e7f3ff; color: var(--accent); }
+        .meta-pill.overdue { background: #ffebe8; color: var(--danger); }
+        .meta-pill.today { background: #e6f7ed; color: var(--success); }
 
         .completed .task-title,
         .completed .task-note,
         .completed .task-meta {
             text-decoration: line-through;
-            color: var(--text-muted);
+            color: #a0aabf;
         }
 
-        .completed { opacity: 0.5; transition: opacity 0.4s ease; }
+        .completed { opacity: 0.55; transition: opacity 0.4s ease; }
 
         .task-actions {
             display: flex;
@@ -897,7 +764,6 @@
             min-width: 30px;
             min-height: 30px;
             padding: 0.3rem;
-            border-radius: var(--radius-sm);
         }
 
         .task-actions .btn-icon svg {
@@ -907,7 +773,7 @@
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 3rem 2rem;
             color: var(--text-muted);
             font-size: calc(0.9rem * var(--font-scale));
             animation: fadeSlideDown 0.5s ease both;
@@ -926,10 +792,10 @@
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.6px;
-            padding: 0.6rem 0 0.3rem 0;
+            letter-spacing: 0.5px;
+            padding: 0.5rem 0 0.25rem 0;
             border-top: 1px dashed var(--border);
-            margin-top: 0.4rem;
+            margin-top: 0.35rem;
             display: flex;
             align-items: center;
             gap: 0.35rem;
@@ -949,11 +815,11 @@
             left: 50%;
             transform: translateX(-50%) translateY(80px);
             background: var(--text-main);
-            color: var(--bg-color);
+            color: white;
             padding: 0.75rem 1.4rem;
             border-radius: 24px;
             font-size: calc(0.85rem * var(--font-scale));
-            font-weight: 600;
+            font-weight: 500;
             transition: transform var(--transition-spring), opacity var(--transition-smooth);
             z-index: 200;
             box-shadow: var(--shadow-lg);
@@ -963,7 +829,6 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            border: 1px solid var(--border);
         }
 
         .toast.show {
@@ -977,19 +842,19 @@
             flex-shrink: 0;
         }
 
-        /* ===== Floating Action Button (Premium Mobile Floating Trigger) ===== */
+        /* ===== Floating Action Button ===== */
         .fab {
             position: fixed;
-            bottom: 2rem;
+            bottom: 1.5rem;
             right: 1.5rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.8) 100%);
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--accent);
             color: white;
             border: none;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.45);
+            box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.4);
             z-index: 50;
             display: none;
             align-items: center;
@@ -999,17 +864,17 @@
         }
 
         .fab svg {
-            width: 28px;
-            height: 28px;
-            transition: transform var(--transition-spring);
+            width: 26px;
+            height: 26px;
+            transition: transform var(--transition-fast);
         }
 
         .fab:hover { 
-            transform: scale(1.08) translateY(-2px); 
-            box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.5);
+            transform: scale(1.08); 
+            box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.5);
         }
         .fab:active { 
-            transform: scale(0.94) translateY(0); 
+            transform: scale(0.95); 
             transition-duration: 0.08s;
         }
 
@@ -1068,7 +933,6 @@
             flex: 1;
             font-size: calc(0.85rem * var(--font-scale));
             margin: 0;
-            font-weight: 600;
         }
 
         .slider-row input[type="range"] {
@@ -1078,7 +942,7 @@
         }
 
         .slider-value {
-            font-weight: 700;
+            font-weight: 600;
             color: var(--accent);
             font-size: calc(0.85rem * var(--font-scale));
             min-width: 36px;
@@ -1094,18 +958,18 @@
             flex: 1;
             padding: 0.55rem 0.5rem;
             border: 1.5px solid var(--border);
-            background: var(--card-bg);
+            background: white;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-family: inherit;
             font-size: calc(0.82rem * var(--font-scale));
             color: var(--text-main);
             transition: all var(--transition-fast);
-            font-weight: 600;
+            font-weight: 500;
         }
 
         .layout-toggle button:hover { 
-            border-color: var(--text-muted);
+            border-color: #c4c7cc;
             background: var(--hover);
         }
 
@@ -1113,19 +977,20 @@
             border-color: var(--accent);
             background: rgba(var(--accent-rgb), 0.08);
             color: var(--accent);
+            font-weight: 600;
         }
 
         /* ===== Scrollbar ===== */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        ::-webkit-scrollbar-thumb { background: #c4c7cc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a0a4aa; }
 
         /* ===== Mobile Responsive ===== */
         @media (max-width: 768px) {
             body { 
-                padding-left: 0.75rem; 
-                padding-right: 0.75rem; 
+                padding-left: 0.5rem; 
+                padding-right: 0.5rem; 
                 padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
             }
 
@@ -1137,7 +1002,7 @@
 
             .board {
                 grid-template-columns: 1fr;
-                gap: calc(1rem * var(--density));
+                gap: calc(0.75rem * var(--density));
             }
 
             .filter-bar {
@@ -1145,11 +1010,11 @@
                 flex-wrap: nowrap;
                 -webkit-overflow-scrolling: touch;
                 padding-bottom: 0.6rem;
-                scrollbar-width: none;
+                scrollbar-width: thin;
             }
-            .filter-bar::-webkit-scrollbar {
-                display: none;
-            }
+
+            .filter-bar::-webkit-scrollbar { height: 4px; }
+            .filter-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
             .filter-btn { flex-shrink: 0; }
 
@@ -1157,35 +1022,26 @@
             .category-filter {
                 margin-left: 0;
                 flex-shrink: 0;
-                min-width: 140px;
-                background: var(--card-bg);
+                min-width: 130px;
             }
 
             .fab { display: flex; }
 
             .task-actions { opacity: 1; transform: translateX(0); }
 
-            /* Bottom sheet on mobile with gestures */
+            /* Bottom sheet on mobile */
             .modal-overlay {
                 align-items: flex-end;
                 padding: 0;
             }
 
             .modal {
-                border-radius: 20px 20px 0 0;
-                max-height: 88vh;
+                border-radius: 16px 16px 0 0;
+                max-height: 90vh;
                 transform: translateY(100%);
                 opacity: 1;
                 padding-top: 0.5rem;
-                padding-bottom: calc(1.5rem * var(--density) + env(safe-area-inset-bottom, 0px));
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                transition: transform 0.4s cubic-bezier(0.32, 0.94, 0.6, 1);
-            }
-
-            .modal.dragging {
-                transition: none !important;
+                padding-bottom: calc(1.25rem * var(--density) + env(safe-area-inset-bottom, 0px));
             }
 
             .modal-overlay.active .modal {
@@ -1194,24 +1050,18 @@
 
             .modal-grip {
                 display: block;
-                width: 44px;
-                height: 5px;
+                width: 40px;
+                height: 4px;
                 background: var(--border);
-                border-radius: 3px;
-                margin: 0.5rem auto 1.25rem;
-                cursor: grab;
-                touch-action: none;
-            }
-            .modal-grip:active {
-                cursor: grabbing;
+                border-radius: 2px;
+                margin: 0.5rem auto 1rem;
             }
 
             .confirm-modal {
-                border-radius: 20px 20px 0 0;
+                border-radius: 16px 16px 0 0;
                 max-height: 60vh;
                 transform: translateY(100%);
                 opacity: 1;
-                transition: transform 0.4s cubic-bezier(0.32, 0.94, 0.6, 1);
             }
 
             .modal-overlay.active .confirm-modal {
@@ -1220,11 +1070,11 @@
 
             .progress-stats {
                 font-size: calc(0.68rem * var(--font-scale));
-                gap: 0.35rem;
+                gap: 0.3rem;
             }
-            .stat-pill { padding: 0.2rem 0.5rem; }
+            .stat-pill { padding: 0.15rem 0.45rem; }
 
-            h1 { font-size: calc(1.3rem * var(--font-scale)); }
+            h1 { font-size: calc(1.25rem * var(--font-scale)); }
         }
 
         @media (max-width: 380px) {
@@ -1233,26 +1083,20 @@
         }
 
         /* Compact layout option */
-        body.layout-compact .task-item { padding: 0.5rem 0; }
-        body.layout-compact .category-card { padding: 0.9rem; }
+        body.layout-compact .task-item { padding: 0.4rem 0; }
+        body.layout-compact .category-card { padding: 0.8rem; }
 
-        /* Wide layout option */
+        /* Wide layout option: 3 columns even on medium screens */
         @media (min-width: 769px) {
-            body.layout-wide .board { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+            body.layout-wide .board { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header>
-            <div class="header-greeting-wrap">
-                <h1 id="header-greeting">Khanna Automart - Task Tracker</h1>
-                <div class="subtitle">Daily Repair Order & Administration Tasks</div>
-            </div>
-            <div class="header-time-widget" id="header-time-widget">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span id="live-time-display">--:-- --</span>
-            </div>
+            <h1>Khanna Automart - Task Tracker</h1>
+            <div class="subtitle">Daily Repair Order & Administration Tasks</div>
         </header>
 
         <!-- Desktop top controls -->
@@ -1302,7 +1146,7 @@
                     <span id="stat-today">0</span>
                 </span>
                 <span class="stat-pill overdue-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     <span id="stat-overdue">0</span>
                 </span>
             </div>
@@ -1333,34 +1177,18 @@
     <!-- ===== Task Modal ===== -->
     <div class="modal-overlay" id="task-modal">
         <div class="modal">
-            <div class="modal-grip" id="task-modal-grip"></div>
+            <div class="modal-grip"></div>
             <h2>
                 <span id="modal-title">Add New Task</span>
                 <button class="modal-close" onclick="closeModal('task-modal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </h2>
-
-            <div class="quick-templates-section">
-                <div class="quick-templates-title">Quick Templates</div>
-                <div class="quick-templates-list">
-                    <div class="quick-template-chip" onclick="fillTemplate('UK17 W 4144', 'Billing & Invoicing', 'Catalytic Bill')">RO Bill</div>
-                    <div class="quick-template-chip" onclick="fillTemplate('Routine Warranty Punching', 'Warranty Processing', 'General task')">Warranty Punch</div>
-                    <div class="quick-template-chip" onclick="fillTemplate('Warranty Part Tagging', 'Parts Management', 'General task')">Part Tagging</div>
-                    <div class="quick-template-chip" onclick="fillTemplate('All R.O. Record Filing', 'Administration & Records', 'Filing & Downloading')">Record Filing</div>
-                    <div class="quick-template-chip" onclick="fillTemplate('Suspense Part Sending', 'Parts Management', 'General task')">Suspense Part</div>
-                </div>
-            </div>
-
             <form id="task-form" onsubmit="saveTask(event)">
                 <input type="hidden" id="task-id">
                 <div class="form-group">
                     <label for="task-title-input">Task Title *</label>
-                    <input type="text" id="task-title-input" required placeholder="e.g., UK17 W 4144" oninput="handleTitleInput(this.value)">
-                    <div class="nlp-badge" id="nlp-badge" onclick="applyNlpDetection()">
-                        <span>💡 Auto-detect: <span id="nlp-detected-text"></span></span>
-                        <span style="text-decoration: underline; font-weight: 700; margin-left: 0.5rem;">Apply</span>
-                    </div>
+                    <input type="text" id="task-title-input" required placeholder="e.g., UK17 W 4144">
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
@@ -1401,7 +1229,7 @@
     <!-- ===== Category Manager Modal ===== -->
     <div class="modal-overlay" id="category-modal">
         <div class="modal">
-            <div class="modal-grip" id="category-modal-grip"></div>
+            <div class="modal-grip"></div>
             <h2>
                 <span>Manage Categories</span>
                 <button class="modal-close" onclick="closeModal('category-modal')" aria-label="Close">
@@ -1428,21 +1256,13 @@
     <!-- ===== Theme / Customize Modal ===== -->
     <div class="modal-overlay" id="theme-modal">
         <div class="modal">
-            <div class="modal-grip" id="theme-modal-grip"></div>
+            <div class="modal-grip"></div>
             <h2>
                 <span>Customize</span>
                 <button class="modal-close" onclick="closeModal('theme-modal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </h2>
-
-            <div class="theme-section">
-                <div class="theme-section-title">Theme Mode</div>
-                <div class="layout-toggle">
-                    <button id="theme-light-btn" onclick="toggleDarkMode(false)">Light Mode</button>
-                    <button id="theme-dark-btn" onclick="toggleDarkMode(true)">Dark Mode</button>
-                </div>
-            </div>
 
             <div class="theme-section">
                 <div class="theme-section-title">Accent Color</div>
@@ -1547,9 +1367,9 @@
 
         const COLOR_PRESETS = [
             { name: 'blue',    hex: '#0084ff', rgb: '0, 132, 255' },
-            { name: 'green',   hex: '#10b981', rgb: '16, 185, 129' },
-            { name: 'red',     hex: '#ef4444', rgb: '239, 68, 68' },
-            { name: 'orange',  hex: '#f59e0b', rgb: '245, 158, 11' },
+            { name: 'green',   hex: '#31a24c', rgb: '49, 162, 76' },
+            { name: 'red',     hex: '#e41e3f', rgb: '228, 30, 63' },
+            { name: 'orange',  hex: '#f0a500', rgb: '240, 165, 0' },
             { name: 'purple',  hex: '#7c3aed', rgb: '124, 58, 237' },
             { name: 'pink',    hex: '#db2777', rgb: '219, 39, 119' },
             { name: 'teal',    hex: '#0d9488', rgb: '13, 148, 136' },
@@ -1566,14 +1386,13 @@
         let currentFilter = 'all';
         let confirmCallback = null;
 
-        // Theme state with Auto dark-mode detection
+        // Theme state
         const defaultTheme = {
             accentHex: '#0084ff',
             accentRgb: '0, 132, 255',
             layout: 'normal',
             fontScale: 100,
-            density: 100,
-            darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches
+            density: 100
         };
         let theme = JSON.parse(localStorage.getItem('khannaTheme')) || {...defaultTheme};
 
@@ -1847,8 +1666,6 @@
             document.getElementById('task-date-input').value = todayStr();
             document.getElementById('task-time-input').value = '';
             document.getElementById('delete-btn').style.display = 'none';
-            document.getElementById('nlp-badge').style.display = 'none';
-            detectedDateTime = null;
             populateCategoryDropdowns();
             if (categories.length) document.getElementById('task-category-input').value = categories[0];
             document.getElementById('task-modal').classList.add('active');
@@ -1864,8 +1681,6 @@
             document.getElementById('task-note-input').value = t.note || '';
             document.getElementById('task-date-input').value = t.date === 'legacy' ? todayStr() : t.date;
             document.getElementById('task-time-input').value = t.time || '';
-            document.getElementById('nlp-badge').style.display = 'none';
-            detectedDateTime = null;
             populateCategoryDropdowns();
             document.getElementById('task-category-input').value = t.category;
             document.getElementById('delete-btn').style.display = 'inline-flex';
@@ -2026,14 +1841,7 @@
             renderBoard();
         }
 
-        // ===== THEME & DARK MODE =====
-        function toggleDarkMode(isDark) {
-            theme.darkMode = isDark;
-            saveTheme();
-            applyTheme();
-            showToast(isDark ? 'Dark Mode active' : 'Light Mode active');
-        }
-
+        // ===== THEME =====
         function applyTheme() {
             const root = document.documentElement.style;
             root.setProperty('--accent', theme.accentHex);
@@ -2045,24 +1853,11 @@
             if (theme.layout === 'compact') document.body.classList.add('layout-compact');
             else if (theme.layout === 'wide') document.body.classList.add('layout-wide');
 
-            // Dark Mode toggle classes
-            if (theme.darkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('theme-dark-btn')?.classList.add('active');
-                document.getElementById('theme-light-btn')?.classList.remove('active');
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.getElementById('theme-light-btn')?.classList.add('active');
-                document.getElementById('theme-dark-btn')?.classList.remove('active');
-            }
-
             document.querySelectorAll('.color-swatch').forEach(s => {
                 s.classList.toggle('active', s.dataset.hex === theme.accentHex);
             });
             document.querySelectorAll('.layout-toggle button').forEach(b => {
-                if (b.dataset.layout) {
-                    b.classList.toggle('active', b.dataset.layout === theme.layout);
-                }
+                b.classList.toggle('active', b.dataset.layout === theme.layout);
             });
             document.getElementById('font-slider').value = theme.fontScale;
             document.getElementById('font-value').textContent = theme.fontScale + '%';
@@ -2116,10 +1911,7 @@
                 okClass: 'btn-warning'
             });
             if (!ok) return;
-            theme = {
-                ...defaultTheme,
-                darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches
-            };
+            theme = {...defaultTheme};
             saveTheme();
             applyTheme();
             showToast('Theme reset');
@@ -2183,264 +1975,10 @@
             e.target.value = '';
         }
 
-        // ===== SMART TIME & GREETING CLOCK =====
-        function startLiveClock() {
-            const greetingEl = document.getElementById('header-greeting');
-            const timeEl = document.getElementById('live-time-display');
-
-            const updateClock = () => {
-                const now = new Date();
-                
-                // Live time string formatting (HH:MM AM/PM)
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                timeEl.textContent = `${hours}:${minutes} ${ampm}`;
-
-                // Greeting string formatting based on hours
-                const currentHour = now.getHours();
-                let greeting = 'Khanna Automart';
-                if (currentHour >= 5 && currentHour < 12) {
-                    greeting = 'Good Morning, Giri! \u2600\ufe0f';
-                } else if (currentHour >= 12 && currentHour < 17) {
-                    greeting = 'Good Afternoon, Giri! \ud83c\udf24\ufe0f';
-                } else if (currentHour >= 17 && currentHour < 21) {
-                    greeting = 'Good Evening, Giri! \ud83c\udf19';
-                } else {
-                    greeting = 'Good Night, Giri! \ud83d\udca4';
-                }
-                greetingEl.textContent = greeting;
-            };
-
-            updateClock();
-            setInterval(updateClock, 10000); // Update every 10 seconds
-        }
-
-        // ===== SMART NATURAL LANGUAGE PROCESSING (NLP) =====
-        let detectedDateTime = null;
-
-        function parseNaturalDateTime(text) {
-            if (!text) return null;
-            const lower = text.toLowerCase();
-            
-            let targetDate = null;
-            let targetTime = null;
-            let dateLabel = '';
-            let timeLabel = '';
-
-            // Date Detection
-            const today = new Date();
-            
-            if (/\btoday\b|\btonight\b/i.test(lower)) {
-                targetDate = new Date(today);
-                dateLabel = 'Today';
-            } else if (/\btomorrow\b|\btmrw\b|\btmw\b/i.test(lower)) {
-                const nextDay = new Date(today);
-                nextDay.setDate(today.getDate() + 1);
-                targetDate = nextDay;
-                dateLabel = 'Tomorrow';
-            } else if (/\bday after tomorrow\b|\bday after tmrw\b/i.test(lower)) {
-                const afterDay = new Date(today);
-                afterDay.setDate(today.getDate() + 2);
-                targetDate = afterDay;
-                dateLabel = 'Day after tomorrow';
-            } else {
-                // Weekday matching
-                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-                const shortDays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-                
-                for (let i = 0; i < 7; i++) {
-                    const dayRegex = new RegExp('\\b' + days[i] + '\\b|\\b' + shortDays[i] + '\\b', 'i');
-                    if (dayRegex.test(lower)) {
-                        const currentDayIndex = today.getDay();
-                        let daysToAdd = i - currentDayIndex;
-                        if (daysToAdd <= 0) daysToAdd += 7;
-                        
-                        const target = new Date(today);
-                        target.setDate(today.getDate() + daysToAdd);
-                        targetDate = target;
-                        dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1);
-                        break;
-                    }
-                }
-            }
-
-            // Time Detection: "at 4pm", "3:30 pm", "at 14:00"
-            const timeMatch = lower.match(/\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i) || 
-                              lower.match(/\b(?:at\s+)(\d{1,2})(?::(\d{2}))?\b/i);
-
-            if (timeMatch) {
-                let hours = parseInt(timeMatch[1]);
-                const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-                const ampm = timeMatch[3];
-
-                if (ampm) {
-                    if (ampm.toLowerCase() === 'pm' && hours < 12) hours += 12;
-                    if (ampm.toLowerCase() === 'am' && hours === 12) hours = 0;
-                } else {
-                    // Context guess: <= 7 assume PM (e.g., "at 4" -> 4 PM)
-                    if (hours <= 7) hours += 12;
-                }
-
-                const hh = String(hours).padStart(2, '0');
-                const mm = String(minutes).padStart(2, '0');
-                targetTime = `${hh}:${mm}`;
-                timeLabel = formatTime(targetTime);
-            }
-
-            if (targetDate || targetTime) {
-                let dateStr = '';
-                if (targetDate) {
-                    const yyyy = targetDate.getFullYear();
-                    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-                    const dd = String(targetDate.getDate()).padStart(2, '0');
-                    dateStr = `${yyyy}-${mm}-${dd}`;
-                } else {
-                    const yyyy = today.getFullYear();
-                    const mm = String(today.getMonth() + 1).padStart(2, '0');
-                    const dd = String(today.getDate()).padStart(2, '0');
-                    dateStr = `${yyyy}-${mm}-${dd}`;
-                    dateLabel = 'Today';
-                }
-                
-                return {
-                    date: dateStr,
-                    time: targetTime || '',
-                    label: `${dateLabel}${timeLabel ? ' at ' + timeLabel : ''}`
-                };
-            }
-            
-            return null;
-        }
-
-        function handleTitleInput(val) {
-            const nlp = parseNaturalDateTime(val);
-            const badge = document.getElementById('nlp-badge');
-            const textSpan = document.getElementById('nlp-detected-text');
-            
-            if (nlp) {
-                detectedDateTime = nlp;
-                textSpan.textContent = nlp.label;
-                badge.style.display = 'inline-flex';
-            } else {
-                detectedDateTime = null;
-                badge.style.display = 'none';
-            }
-        }
-
-        function applyNlpDetection() {
-            if (!detectedDateTime) return;
-            
-            if (detectedDateTime.date) {
-                document.getElementById('task-date-input').value = detectedDateTime.date;
-            }
-            if (detectedDateTime.time) {
-                document.getElementById('task-time-input').value = detectedDateTime.time;
-            }
-            
-            // Subtle flash highlight animation
-            const dateInput = document.getElementById('task-date-input');
-            const timeInput = document.getElementById('task-time-input');
-            
-            [dateInput, timeInput].forEach(el => {
-                el.style.borderColor = 'var(--success)';
-                el.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.25)';
-                setTimeout(() => {
-                    el.style.borderColor = '';
-                    el.style.boxShadow = '';
-                }, 1000);
-            });
-            
-            showToast('Applied detected time details');
-            document.getElementById('nlp-badge').style.display = 'none';
-            detectedDateTime = null;
-        }
-
-        function fillTemplate(title, category, note) {
-            const titleInput = document.getElementById('task-title-input');
-            titleInput.value = title;
-            document.getElementById('task-category-input').value = category;
-            document.getElementById('task-note-input').value = note;
-            
-            handleTitleInput(title);
-            titleInput.focus();
-        }
-
-        // ===== SWIPE GESTURE-BASED BOTTOM SHEETS ON MOBILE =====
-        function initBottomSheetGestures() {
-            const overlays = ['task-modal', 'category-modal', 'theme-modal'];
-            overlays.forEach(id => {
-                const overlay = document.getElementById(id);
-                if (!overlay) return;
-                const modal = overlay.querySelector('.modal');
-                const grip = overlay.querySelector('.modal-grip');
-                if (!modal || !grip) return;
-
-                let startY = 0;
-                let currentY = 0;
-                let isDragging = false;
-
-                const onTouchStart = (e) => {
-                    const touch = e.touches[0];
-                    const rect = modal.getBoundingClientRect();
-                    // Intercept touches on the grip or at the top of the modal sheet, or when modal scroll is at the top
-                    if (e.target === grip || (touch.clientY - rect.top < 60) || modal.scrollTop <= 0) {
-                        startY = touch.clientY;
-                        isDragging = true;
-                        modal.classList.add('dragging');
-                    }
-                };
-
-                const onTouchMove = (e) => {
-                    if (!isDragging) return;
-                    const touch = e.touches[0];
-                    const deltaY = touch.clientY - startY;
-
-                    // Dismiss drag is only downwards (deltaY > 0)
-                    if (deltaY > 0 && modal.scrollTop <= 0) {
-                        if (e.cancelable) e.preventDefault();
-                        modal.style.transform = `translateY(${deltaY}px)`;
-                        const opacity = Math.max(0, 0.4 - (deltaY / 400));
-                        overlay.style.background = `rgba(15, 23, 42, ${opacity})`;
-                    } else {
-                        // Cancel drag gesture if scrolling content
-                        isDragging = false;
-                        modal.classList.remove('dragging');
-                        modal.style.transform = '';
-                        overlay.style.background = '';
-                    }
-                };
-
-                const onTouchEnd = (e) => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    modal.classList.remove('dragging');
-
-                    const touch = e.changedTouches[0];
-                    const deltaY = touch.clientY - startY;
-
-                    // If dragged down past 140px, trigger close action
-                    if (deltaY > 140) {
-                        closeModal(id);
-                    }
-                    modal.style.transform = '';
-                    overlay.style.background = '';
-                };
-
-                grip.addEventListener('touchstart', onTouchStart, { passive: true });
-                modal.addEventListener('touchstart', onTouchStart, { passive: true });
-                window.addEventListener('touchmove', onTouchMove, { passive: false });
-                window.addEventListener('touchend', onTouchEnd, { passive: true });
-            });
-        }
-
         // ===== INIT =====
         populateCategoryDropdowns();
         applyTheme();
         renderBoard();
-        startLiveClock();
-        initBottomSheetGestures();
 
         // Keyboard shortcuts
         document.addEventListener('keydown', e => {
