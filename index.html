@@ -110,6 +110,27 @@
             transform: scale(1.05) rotate(-3deg);
         }
 
+        @keyframes logoSuccess {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(1.15) rotate(-15deg); }
+            60% { transform: scale(0.95) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .logo-success-animate {
+            animation: logoSuccess 0.6s var(--transition-spring);
+        }
+
+        @keyframes syncPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(var(--accent-rgb), 0)); }
+            50% { transform: scale(1.2); color: var(--success); filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.4)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(var(--accent-rgb), 0)); }
+        }
+
+        .sync-success-animate {
+            animation: syncPulse 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .logo-icon-wrap svg {
             width: 26px;
             height: 26px;
@@ -267,12 +288,19 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
-            position: sticky;
-            top: 0.75rem;
-            z-index: 10;
             margin-bottom: calc(1rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
             background: var(--card-bg);
+        }
+
+        .sticky-header-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            background-color: var(--bg-color);
+            padding-top: calc(1.5rem * var(--density));
+            margin-top: calc(-1.5rem * var(--density));
+            padding-bottom: 0.25rem;
         }
 
         .progress-bar {
@@ -1187,15 +1215,7 @@
             }
 
             .top-controls {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .top-controls .btn {
-                width: 100%;
-                max-width: 320px;
-                justify-content: center;
+                display: none !important;
             }
 
             .mobile-menu-btn {
@@ -1308,38 +1328,68 @@
 </head>
 <body>
     <div class="app-container">
-        <header class="app-header">
-            <div class="header-logo-container">
-                <div class="logo-icon-wrap">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-                        <circle cx="7" cy="17" r="2" />
-                        <circle cx="15" cy="17" r="2" />
-                        <path d="M9 17h4" />
-                        <polyline points="8 9 11 12 17 6" stroke="#31a24c" stroke-width="2.5" />
-                    </svg>
+        <div class="sticky-header-wrapper">
+            <header class="app-header">
+                <div class="header-logo-container">
+                    <div class="logo-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+                            <circle cx="7" cy="17" r="2" />
+                            <circle cx="15" cy="17" r="2" />
+                            <path d="M9 17h4" />
+                            <polyline points="8 9 11 12 17 6" stroke="#31a24c" stroke-width="2.5" />
+                        </svg>
+                    </div>
+                    <h1>Tasker</h1>
                 </div>
-                <h1>Tasker</h1>
+                <div class="header-actions">
+                    <button class="header-action-btn" onclick="openTrashModal()" title="Recycle Bin">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                    <button class="header-action-btn" onclick="openSupabaseModal()" title="Supabase Sync">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.74-3.5-3.5-3.5-2.42 0-4.5 1.72-4.5 4.09C5.3 11.86 3 13.74 3 16.5A3.5 3.5 0 0 0 6.5 20h11"/><path d="M12 11v6m-3-3l3 3 3-3"/></svg>
+                    </button>
+                    <button class="header-action-btn" onclick="openThemeModal()" title="Customize">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </button>
+                    <button class="header-action-btn" onclick="exportData()" title="Export">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                    <label class="header-action-btn" style="cursor:pointer; margin:0;" title="Import">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+                    </label>
+                </div>
+            </header>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Overall Progress</span>
+                    <span><span id="completed-count">0</span>/<span id="total-count">0</span> (<span id="progress-percentage">0%</span>)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-stats">
+                    <span class="stat-pill done-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span id="stat-done">0</span>
+                    </span>
+                    <span class="stat-pill pending-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span id="stat-pending">0</span>
+                    </span>
+                    <span class="stat-pill today-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span id="stat-today">0</span>
+                    </span>
+                    <span class="stat-pill overdue-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span id="stat-overdue">0</span>
+                    </span>
+                </div>
             </div>
-            <div class="header-actions">
-                <button class="header-action-btn" onclick="openTrashModal()" title="Recycle Bin">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                </button>
-                <button class="header-action-btn" onclick="openSupabaseModal()" title="Supabase Sync">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.74-3.5-3.5-3.5-2.42 0-4.5 1.72-4.5 4.09C5.3 11.86 3 13.74 3 16.5A3.5 3.5 0 0 0 6.5 20h11"/><path d="M12 11v6m-3-3l3 3 3-3"/></svg>
-                </button>
-                <button class="header-action-btn" onclick="openThemeModal()" title="Customize">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                </button>
-                <button class="header-action-btn" onclick="exportData()" title="Export">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </button>
-                <label class="header-action-btn" style="cursor:pointer; margin:0;" title="Import">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
-                </label>
-            </div>
-        </header>
+        </div>
 
         <!-- Desktop top controls -->
         <div class="top-controls">
@@ -1347,34 +1397,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add New Task
             </button>
-        </div>
-
-        <div class="progress-container">
-            <div class="progress-text">
-                <span>Overall Progress</span>
-                <span><span id="completed-count">0</span>/<span id="total-count">0</span> (<span id="progress-percentage">0%</span>)</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <div class="progress-stats">
-                <span class="stat-pill done-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span id="stat-done">0</span>
-                </span>
-                <span class="stat-pill pending-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span id="stat-pending">0</span>
-                </span>
-                <span class="stat-pill today-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span id="stat-today">0</span>
-                </span>
-                <span class="stat-pill overdue-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span id="stat-overdue">0</span>
-                </span>
-            </div>
         </div>
 
         <div class="filter-bar">
@@ -1707,6 +1729,30 @@
             window._toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
         }
 
+        function animateSyncSuccess() {
+            const logo = document.querySelector('.logo-icon-wrap');
+            if (logo) {
+                logo.classList.remove('logo-success-animate');
+                void logo.offsetWidth; // Trigger reflow
+                logo.classList.add('logo-success-animate');
+                setTimeout(() => {
+                    logo.classList.remove('logo-success-animate');
+                }, 700);
+            }
+            const syncBtn = document.querySelector('button[title="Supabase Sync"]');
+            if (syncBtn) {
+                const svg = syncBtn.querySelector('svg');
+                if (svg) {
+                    svg.classList.remove('sync-success-animate');
+                    void svg.offsetWidth; // Trigger reflow
+                    svg.classList.add('sync-success-animate');
+                    setTimeout(() => {
+                        svg.classList.remove('sync-success-animate');
+                    }, 800);
+                }
+            }
+        }
+
         function uid() { return 't' + Date.now() + Math.floor(Math.random() * 1000); }
 
         function escapeHtml(s) {
@@ -1879,7 +1925,12 @@
             const client = getSupabase();
             if (client) {
                 client.from('tasks').upsert(sanitizeTask(t)).then(({ error }) => {
-                    if (error) console.error('Supabase auto-save error:', error);
+                    if (error) {
+                        console.error('Supabase auto-save error:', error);
+                        showToast('Sync failed: ' + error.message);
+                    } else {
+                        animateSyncSuccess();
+                    }
                 });
             }
         }
@@ -1968,7 +2019,12 @@
             const client = getSupabase();
             if (client && taskObj) {
                 client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
-                    if (error) console.error('Supabase auto-save error:', error);
+                    if (error) {
+                        console.error('Supabase auto-save error:', error);
+                        showToast('Sync failed: ' + error.message);
+                    } else {
+                        animateSyncSuccess();
+                    }
                 });
             }
         }
@@ -1999,7 +2055,12 @@
                 const client = getSupabase();
                 if (client) {
                     client.from('tasks').delete().eq('id', taskId).then(({ error }) => {
-                        if (error) console.error('Supabase auto-delete error:', error);
+                        if (error) {
+                            console.error('Supabase auto-delete error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        } else {
+                            animateSyncSuccess();
+                        }
                     });
                 }
             }
@@ -2032,7 +2093,12 @@
                 const client = getSupabase();
                 if (client) {
                     client.from('tasks').delete().eq('id', id).then(({ error }) => {
-                        if (error) console.error('Supabase auto-delete error:', error);
+                        if (error) {
+                            console.error('Supabase auto-delete error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        } else {
+                            animateSyncSuccess();
+                        }
                     });
                 }
             }
@@ -2163,6 +2229,7 @@
                 dot.style.background = 'var(--danger)';
                 txt.textContent = 'Connection Error';
                 console.error(e);
+                showToast('Supabase connection failed: ' + e.message);
             }
         }
 
@@ -2227,7 +2294,11 @@
                 saveTasks();
                 renderBoard();
                 updateSupabaseStatus();
+
+                // Animate logo and sync icon on success
+                animateSyncSuccess();
             } catch (e) {
+                showToast('Sync failed: ' + e.message);
                 console.error('Supabase sync error:', e);
             } finally {
                 btn.textContent = originalText;
@@ -2384,16 +2455,30 @@
             const client = getSupabase();
             if (client) {
                 client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
-                    if (error) console.error('Supabase auto-save error:', error);
+                    if (error) {
+                        console.error('Supabase auto-save error:', error);
+                        showToast('Sync failed: ' + error.message);
+                    } else {
+                        animateSyncSuccess();
+                    }
                 });
             }
         }
 
-        function clearTrash() {
-            deletedTasks = [];
-            saveDeletedTasks();
-            renderTrashList();
-            showToast('Trash emptied');
+        async function clearTrash() {
+            if (deletedTasks.length === 0) return;
+            const ok = await customConfirm({
+                title: 'Empty Recycle Bin?',
+                message: 'All tasks in the Recycle Bin will be permanently deleted.\n\nThis action cannot be undone.',
+                okText: 'Empty Bin',
+                okClass: 'btn-danger'
+            });
+            if (ok) {
+                deletedTasks = [];
+                saveDeletedTasks();
+                renderTrashList();
+                showToast('Trash emptied');
+            }
         }
 
         // ===== INIT =====
