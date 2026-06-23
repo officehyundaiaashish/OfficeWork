@@ -1323,9 +1323,102 @@
         body.layout-compact .task-item { padding: 0.4rem 0; }
         body.layout-compact .day-card { padding: 0.8rem; }
 
-        /* Wide layout option: 3 columns even on medium screens */
-        @media (min-width: 769px) {
-            body.layout-wide .board { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        /* ===== PWA Install Banner ===== */
+        .pwa-banner {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            width: calc(100% - 2.5rem);
+            max-width: 480px;
+            z-index: 150;
+            opacity: 0;
+            transition: transform var(--transition-spring), opacity var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .pwa-banner.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pwa-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .pwa-logo-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15), rgba(49, 162, 76, 0.15));
+            border-radius: 9px;
+            color: var(--accent);
+            flex-shrink: 0;
+            border: 1.5px solid rgba(var(--accent-rgb), 0.2);
+        }
+
+        .pwa-logo-wrap svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .pwa-text-wrap {
+            min-width: 0;
+            text-align: left;
+        }
+
+        .pwa-title {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        .pwa-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-banner-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        .pwa-banner-actions .btn {
+            min-height: 32px;
+            font-size: 0.78rem;
+        }
+
+        @media (max-width: 768px) {
+            .pwa-banner {
+                bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+
+            .pwa-banner-actions {
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -1597,6 +1690,32 @@
                 <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
                 <button class="btn btn-danger" id="confirm-ok">Delete</button>
             </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="pwa-banner">
+        <div class="pwa-banner-content">
+            <div class="pwa-logo-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="url(#logo-grad-pwa)" stroke-width="2.5"/>
+                    <path d="M7.5 12.5l3 3 6-6" stroke="currentColor" stroke-width="3"/>
+                    <defs>
+                        <linearGradient id="logo-grad-pwa" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="var(--accent)"/>
+                            <stop offset="1" stop-color="#31a24c"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="pwa-text-wrap">
+                <div class="pwa-title">Install Tasker</div>
+                <div class="pwa-desc">Add Tasker to your home screen for quick offline access.</div>
+            </div>
+        </div>
+        <div class="pwa-banner-actions">
+            <button class="btn btn-secondary btn-sm" onclick="dismissPwaPrompt()">Later</button>
+            <button class="btn btn-success btn-sm" onclick="triggerPwaInstall()">Install</button>
         </div>
     </div>
 
@@ -2611,6 +2730,34 @@
                 document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
             }
         });
+
+        // PWA Install Prompt Flow
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const pwaChoice = localStorage.getItem('pwaPromptChoice');
+            if (pwaChoice !== 'dismissed') {
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) banner.classList.add('show');
+            }
+        });
+
+        function dismissPwaPrompt() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.remove('show');
+            localStorage.setItem('pwaPromptChoice', 'dismissed');
+        }
+
+        async function triggerPwaInstall() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.remove('show');
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to PWA install: ${outcome}`);
+            deferredPrompt = null;
+        }
 
         // PWA Service Worker Registration (Blob-based inline)
         if ('serviceWorker' in navigator) {
