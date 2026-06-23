@@ -3044,6 +3044,7 @@
             }
             const t = tasks.find(x => x.id === taskId);
             if (!t) return;
+            const wasCompleted = t.completed;
             t.completed = !t.completed;
             if (t.completed) {
                 t.completedAt = Date.now();
@@ -3054,6 +3055,20 @@
             saveTasks();
             renderBoard();
             showToast(t.completed ? 'Task completed' : 'Marked pending');
+
+            try {
+                if (t.completed) {
+                    const doneSound = new Audio('done.wav');
+                    doneSound.volume = 0.7;
+                    doneSound.play().catch(() => {});
+                } else {
+                    const notDoneSound = new Audio('notdone.wav');
+                    notDoneSound.volume = 0.7;
+                    notDoneSound.play().catch(() => {});
+                }
+            } catch (e) {
+                console.warn('Sound playback failed:', e);
+            }
 
             upsertTaskToSupabase(t);
         }
