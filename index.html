@@ -1003,6 +1003,7 @@
             background: transparent;
             user-select: none;
             touch-action: pan-y;
+            -webkit-user-select: none;
         }
 
         .swipe-background {
@@ -1185,12 +1186,19 @@
         .completed .task-note,
         .completed .task-meta {
             text-decoration: line-through;
-            color: var(--text-muted);
+            color: var(--text-muted) !important;
+            opacity: 0.7;
         }
 
         .completed {
-            opacity: 0.55;
+            opacity: 0.6;
             transition: opacity 0.4s ease;
+        }
+
+        /* In dark/night mode, completed tasks — keep card readable */
+        :root.theme-dark .task-item.completed,
+        :root.theme-night .task-item.completed {
+            background: var(--hover);
         }
 
         .task-actions {
@@ -2608,14 +2616,17 @@
                 if (!isSwiping) return;
                 const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
                 const diffX = clientX - startX;
-                
+
                 if (Math.abs(diffX) > 8) {
+                    // Lock to horizontal swipe — prevent vertical scroll
+                    if (e.cancelable) e.preventDefault();
+
                     currentX = diffX;
                     if (currentX > maxSwipe) currentX = maxSwipe;
                     if (currentX < -maxSwipe) currentX = -maxSwipe;
-                    
+
                     taskItem.style.transform = `translateX(${currentX}px)`;
-                    
+
                     if (currentX > 0) {
                         rightBg.style.opacity = '1';
                         leftBg.style.opacity = '0';
@@ -2667,8 +2678,8 @@
             }
             
             taskItem.addEventListener('touchstart', handleStart, { passive: true });
-            taskItem.addEventListener('touchmove', handleMove, { passive: true });
-            taskItem.addEventListener('touchend', handleEnd);
+            taskItem.addEventListener('touchmove', handleMove, { passive: false });
+            taskItem.addEventListener('touchend', handleEnd, { passive: false });
             taskItem.addEventListener('mousedown', handleStart);
         }
 
