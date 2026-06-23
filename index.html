@@ -2158,6 +2158,15 @@
                     <span style="font-size: 0.75rem; color: var(--text-muted);">Max: Photo 200MB | Video 50MB | Doc 100MB | Text 50MB</span>
                     <input type="file" id="transfer-file-input" style="display: none;" onchange="handleFileSelect(event)" multiple>
                 </div>
+                <div id="transfer-upload-progress" style="display:none; margin-top: 1rem; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--hover); font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span id="upload-progress-status" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 75%;">Uploading files...</span>
+                        <span id="upload-progress-percent">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                        <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s ease;"></div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="board transfer-only-el" id="transfer-board"></div>
@@ -2636,9 +2645,10 @@
         function isToday(t) { return t.date === todayStr(); }
         function isUpcoming(t) { return t.date > todayStr() && t.date !== 'legacy'; }
 
-        function showToast(msg) {
+        function showToast(msg, isError = false) {
             const t = document.getElementById('toast');
-            t.innerHTML = ICONS.check + ' ' + escapeHtml(msg);
+            const icon = isError ? ICONS.alertTriangle : ICONS.check;
+            t.innerHTML = icon + ' ' + escapeHtml(msg);
             t.classList.add('show');
             clearTimeout(window._toastTimer);
             window._toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
@@ -4475,49 +4485,121 @@
             showToast('Text shared');
         }
 
+        let uploadQueue = [];
+        let isUploading = false;
+
         function handleFileSelect(e) {
             const files = e.target.files;
             if (files.length) {
                 for (let i = 0; i < files.length; i++) {
-                    handleUploadedFile(files[i]);
+                    uploadQueue.push(files[i]);
                 }
+                processUploadQueue();
             }
         }
 
-        function handleUploadedFile(file) {
-            const sizeInMB = file.size / (1024 * 1024);
-            const mime = file.type;
-            let type = 'document';
-            let limit = 100; // default doc limit 100MB
-            
-            if (mime.startsWith('image/')) {
-                type = 'photo';
-                limit = 200;
-            } else if (mime.startsWith('video/')) {
-                type = 'video';
-                limit = 50;
+        async function processUploadQueue() {
+            if (isUploading || uploadQueue.length === 0) return;
+            isUploading = true;
+
+            const progressContainer = document.getElementById('transfer-upload-progress');
+            const progressStatus = document.getElementById('upload-progress-status');
+            const progressPercent = document.getElementById('upload-progress-percent');
+            const progressFill = document.getElementById('upload-progress-fill');
+
+            if (progressContainer) progressContainer.style.display = 'block';
+
+            while (uploadQueue.length > 0) {
+                const file = uploadQueue.shift();
+                
+                if (progressStatus) progressStatus.textContent = `Reading: ${file.name}`;
+                if (progressPercent) progressPercent.textContent = `0%`;
+                if (progressFill) progressFill.style.width = `0%`;
+
+                try {
+                    await uploadSingleFile(file, (percent, stage) => {
+                        if (progressStatus) progressStatus.textContent = `${stage}: ${file.name}`;
+                        if (progressPercent) progressPercent.textContent = `${percent}%`;
+                        if (progressFill) progressFill.style.width = `${percent}%`;
+                    });
+                } catch (err) {
+                    console.error('File upload failed:', err);
+                    showToast(`Failed to upload ${file.name}: ${err.message || err}`, true);
+                }
             }
-            
-            if (sizeInMB > limit) {
-                showToast(`File too large! ${type.toUpperCase()} limit is ${limit}MB.`);
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                createTransferRecord({
-                    type: type,
-                    fileName: file.name,
-                    mimeType: mime,
-                    size: file.size,
-                    content: base64Data
-                });
-            };
-            reader.onerror = function() {
-                showToast('Failed to read file.');
-            };
-            reader.readAsDataURL(file);
+
+            if (progressContainer) progressContainer.style.display = 'none';
+            isUploading = false;
+
+            const fileInput = document.getElementById('transfer-file-input');
+            if (fileInput) fileInput.value = '';
+        }
+
+        function uploadSingleFile(file, onProgress) {
+            return new Promise((resolve, reject) => {
+                const sizeInMB = file.size / (1024 * 1024);
+                const mime = file.type;
+                let type = 'document';
+                let limit = 100; // default doc limit 100MB
+                
+                if (mime.startsWith('image/')) {
+                    type = 'photo';
+                    limit = 200;
+                } else if (mime.startsWith('video/')) {
+                    type = 'video';
+                    limit = 50;
+                }
+                
+                if (sizeInMB > limit) {
+                    reject(`Exceeds ${limit}MB limit`);
+                    return;
+                }
+
+                onProgress(10, 'Reading');
+                const reader = new FileReader();
+
+                reader.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 40) + 10; // 10% to 50%
+                        onProgress(percent, 'Reading');
+                    }
+                };
+
+                reader.onload = async function(e) {
+                    onProgress(50, 'Uploading');
+                    const base64Data = e.target.result;
+                    const now = Date.now();
+                    const transferObj = {
+                        id: '_transfer_' + uid(),
+                        title: file.name,
+                        note: JSON.stringify({ type, content: base64Data, size: file.size, mimeType: mime }),
+                        date: todayStr(),
+                        time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                        completed: false,
+                        createdAt: now,
+                        addedAt: now
+                    };
+
+                    transfers.unshift(transferObj);
+                    saveTransfers();
+                    renderTransferBoard();
+
+                    onProgress(70, 'Syncing');
+                    try {
+                        await upsertTransferToSupabase(transferObj);
+                        onProgress(100, 'Finished');
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                reader.onerror = function() {
+                    reject('File read error');
+                };
+
+                reader.readAsDataURL(file);
+            });
         }
 
         function createTransferRecord({ type, fileName = '', mimeType = '', size = 0, content }) {
@@ -4537,24 +4619,30 @@
             saveTransfers();
             renderTransferBoard();
             
-            // Sync to supabase
-            upsertTransferToSupabase(transferObj);
+            upsertTransferToSupabase(transferObj).catch(err => {
+                console.error('Failed to sync transfer record:', err);
+            });
         }
 
         function upsertTransferToSupabase(transferObj) {
             const client = getSupabase();
-            if (!client || !transferObj) return;
-            client.from('tasks').upsert(sanitizeTask(transferObj, true)).then(({ error }) => {
+            if (!client || !transferObj) return Promise.reject('Supabase is not configured');
+            return client.from('tasks').upsert(sanitizeTask(transferObj, true)).then(({ error }) => {
                 if (error) {
                     if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                        client.from('tasks').upsert(sanitizeTask(transferObj, false)).then(({ error: retryError }) => {
-                            if (!retryError) {
+                        return client.from('tasks').upsert(sanitizeTask(transferObj, false)).then(({ error: retryError }) => {
+                            if (retryError) {
+                                showToast('Sync failed: ' + retryError.message, true);
+                                throw retryError;
+                            } else {
                                 animateSyncSuccess();
                                 broadcastChange(transferObj.id, 'upsert');
                             }
                         });
                     } else {
                         console.error('Supabase transfer sync error:', error);
+                        showToast('Sync failed: ' + error.message, true);
+                        throw error;
                     }
                 } else {
                     animateSyncSuccess();
@@ -4586,8 +4674,9 @@
                 const files = dt.files;
                 if (files.length) {
                     for (let i = 0; i < files.length; i++) {
-                        handleUploadedFile(files[i]);
+                        uploadQueue.push(files[i]);
                     }
+                    processUploadQueue();
                 }
             }, false);
         }
