@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="theme-color" content="#f0f2f5">
     <title>Tasker - Premium Task Manager</title>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href='data:application/json,{"name":"Tasker","short_name":"Tasker","start_url":".","display":"standalone","background_color":"#f0f2f5","theme_color":"#f0f2f5","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%230084ff%27 stroke-width=%272.5%27><circle cx=%2712%27 cy=%2712%27 r=%2710%27 stroke=%27%230084ff%27/><path d=%27M7.5 12.5l3 3 6-6%27 stroke=%27%230084ff%27 stroke-width=%273%27/></svg>","sizes":"192x192","type":"image/svg+xml"},{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%230084ff%27 stroke-width=%272.5%27><circle cx=%2712%27 cy=%2712%27 r=%2710%27 stroke=%27%230084ff%27/><path d=%27M7.5 12.5l3 3 6-6%27 stroke=%27%230084ff%27 stroke-width=%273%27/></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="icon.svg">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -2316,10 +2315,20 @@
         }
 
         function updateSupabaseConfig() {
-            theme.supabaseUrl = document.getElementById('sb-url-input').value.trim();
-            theme.supabaseKey = document.getElementById('sb-key-input').value.trim();
+            const oldUrl = theme.supabaseUrl;
+            const oldKey = theme.supabaseKey;
+            const newUrl = document.getElementById('sb-url-input').value.trim();
+            const newKey = document.getElementById('sb-key-input').value.trim();
+
+            theme.supabaseUrl = newUrl;
+            theme.supabaseKey = newKey;
             saveTheme();
             supabaseClient = null;
+
+            if (newUrl && newKey && (newUrl !== oldUrl || newKey !== oldKey)) {
+                localStorage.setItem('supabaseCredentialsEntered', 'true');
+            }
+
             updateSupabaseStatus();
         }
 
@@ -2445,50 +2454,60 @@
 
                 // Filter out settings records for task list merging
                 const remoteTasks = remoteRecords.filter(r => !r.id.startsWith('_settings_'));
-                const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
-                const localMap = new Map(tasks.map(t => [t.id, t]));
+                const isFirstSync = localStorage.getItem('supabaseCredentialsEntered') === 'true';
 
-                const toUpsert = [];
-                const merged = [];
-                const allIds = new Set([...localMap.keys(), ...remoteMap.keys()]);
+                if (isFirstSync && remoteTasks.length > 0) {
+                    // SERVER DATA IS PRIME: Completely overwrite local tasks with remote tasks
+                    tasks = remoteTasks.map(sanitizeTask);
+                    saveTasks();
+                    renderBoard();
+                    localStorage.removeItem('supabaseCredentialsEntered');
+                } else {
+                    // Normal bidirectional merge, but server data takes absolute priority in case of conflicts
+                    const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
+                    const localMap = new Map(tasks.map(t => [t.id, t]));
 
-                for (const id of allIds) {
-                    const local = localMap.get(id);
-                    const remote = remoteMap.get(id);
+                    const toUpsert = [];
+                    const merged = [];
+                    const allIds = new Set([...localMap.keys(), ...remoteMap.keys()]);
 
-                    if (local && remote) {
-                        const mergedTask = {
-                            id: local.id,
-                            title: local.title || remote.title,
-                            note: local.note || remote.note,
-                            date: local.date || remote.date,
-                            time: local.time || remote.time,
-                            completed: local.completed || remote.completed,
-                            createdAt: local.createdAt || remote.createdAt
-                        };
-                        const sanitized = sanitizeTask(mergedTask);
-                        merged.push(sanitized);
-                        if (local.completed !== remote.completed || local.title !== remote.title || local.note !== remote.note || local.date !== remote.date || local.time !== remote.time) {
+                    for (const id of allIds) {
+                        const local = localMap.get(id);
+                        const remote = remoteMap.get(id);
+
+                        if (local && remote) {
+                            // SERVER DATA IS PRIME: Remote data takes absolute precedence
+                            const mergedTask = {
+                                id: remote.id,
+                                title: remote.title,
+                                note: remote.note,
+                                date: remote.date,
+                                time: remote.time,
+                                completed: remote.completed,
+                                createdAt: remote.createdAt
+                            };
+                            merged.push(mergedTask);
+                        } else if (local) {
+                            // Only upload local tasks that are not seed tasks (e.g. have a timestamp or standard uid format)
+                            const sanitized = sanitizeTask(local);
+                            merged.push(sanitized);
                             toUpsert.push(sanitized);
+                        } else if (remote) {
+                            const sanitized = sanitizeTask(remote);
+                            merged.push(sanitized);
                         }
-                    } else if (local) {
-                        const sanitized = sanitizeTask(local);
-                        merged.push(sanitized);
-                        toUpsert.push(sanitized);
-                    } else if (remote) {
-                        const sanitized = sanitizeTask(remote);
-                        merged.push(sanitized);
                     }
-                }
 
-                if (toUpsert.length > 0) {
-                    const { error: upsertError } = await client.from('tasks').upsert(toUpsert);
-                    if (upsertError) throw upsertError;
-                }
+                    if (toUpsert.length > 0) {
+                        const { error: upsertError } = await client.from('tasks').upsert(toUpsert);
+                        if (upsertError) throw upsertError;
+                    }
 
-                tasks = merged;
-                saveTasks();
-                renderBoard();
+                    tasks = merged;
+                    saveTasks();
+                    renderBoard();
+                    if (isFirstSync) localStorage.removeItem('supabaseCredentialsEntered');
+                }
 
                 // Upload local settings & deletedTasks to Supabase to keep them fully in sync
                 const settingsRecord = {
