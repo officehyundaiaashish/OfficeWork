@@ -59,6 +59,7 @@
             --text-muted: #9ca3af;
             --border: #1f2937;
             --hover: #1e293b;
+            --calendar-icon-filter: invert(1);
         }
 
         /* Morning Theme (5:00 - 11:59) */
@@ -99,6 +100,7 @@
             --text-muted: #9ca3af;
             --border: #1f2937;
             --hover: #1e293b;
+            --calendar-icon-filter: invert(1);
         }
 
         .greeting-banner {
@@ -739,10 +741,16 @@
             border-radius: var(--radius-sm);
             font-size: calc(0.95rem * var(--font-scale));
             font-family: inherit;
-            background: white;
+            background: var(--card-bg);
             color: var(--text-main);
             min-height: 44px;
             transition: all var(--transition-fast);
+        }
+
+        .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+        .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: var(--calendar-icon-filter, none);
+            cursor: pointer;
         }
 
         .form-group textarea {
@@ -1890,8 +1898,7 @@
                 <input type="hidden" id="task-id">
                 <div class="form-group">
                     <label for="task-title-input">Task Title *</label>
-                    <input type="text" id="task-title-input" name="task-title-ignore" required placeholder="e.g., UK17 W 4144"
-                        autocomplete="off" autofill="off" data-lpignore="true" data-1p-ignore="true" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <textarea id="task-title-input" rows="1" required placeholder="e.g., UK17 W 4144" style="resize: none; min-height: 44px; height: 44px; padding-top: calc(0.85rem * var(--density)); white-space: nowrap; overflow: hidden;" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
@@ -3661,6 +3668,17 @@
         applyTheme();
         renderBoard();
         displayGreeting();
+
+        // Submit task form on Enter inside the title textarea (prevents newlines)
+        const titleInputEl = document.getElementById('task-title-input');
+        if (titleInputEl) {
+            titleInputEl.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('task-form').requestSubmit();
+                }
+            });
+        }
 
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
