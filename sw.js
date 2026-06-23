@@ -1,11 +1,11 @@
-const CACHE_NAME = "tasker-v2";
+const CACHE_NAME = "tasker-v3";
 const ASSETS = [
   "./",
   "./index.html",
-  "./icon.svg",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./manifest.json"
+  "./icon.svg?v=2",
+  "./icon-192.png?v=2",
+  "./icon-512.png?v=2",
+  "./manifest.json?v=2"
 ];
 
 self.addEventListener("install", e => {
