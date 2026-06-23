@@ -1427,7 +1427,15 @@
         // ===== MIGRATION =====
         function loadTasks() {
             const newFormat = JSON.parse(localStorage.getItem('khannaTasksV2'));
-            if (newFormat && Array.isArray(newFormat)) return newFormat;
+            if (newFormat && Array.isArray(newFormat)) {
+                // Extract unique categories from existing tasks if localStorage is empty
+                if (!localStorage.getItem('khannaCategories')) {
+                    const uniqueCats = [...new Set(newFormat.map(t => t.category))];
+                    categories = uniqueCats.length > 0 ? uniqueCats : [...DEFAULT_CATEGORIES];
+                    saveCategories();
+                }
+                return newFormat;
+            }
 
             const oldState = JSON.parse(localStorage.getItem('khannaTasks')) || {};
             const today = new Date().toISOString().split('T')[0];
