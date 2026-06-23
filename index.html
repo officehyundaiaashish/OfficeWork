@@ -161,7 +161,6 @@
         body {
             margin: 0;
             padding: 0;
-            overscroll-behavior-y: none;
         }
 
         body {
@@ -2043,7 +2042,7 @@
                 <div class="theme-section-title">Text Size</div>
                 <div class="slider-row">
                     <label>Font scale</label>
-                    <input type="range" id="font-slider" min="85" max="130" step="5" oninput="setFontScale(this.value)">
+                    <input type="range" id="font-slider" min="60" max="130" step="5" oninput="setFontScale(this.value)">
                     <span class="slider-value" id="font-value">100%</span>
                 </div>
             </div>
@@ -2052,7 +2051,7 @@
                 <div class="theme-section-title">Spacing</div>
                 <div class="slider-row">
                     <label>Density</label>
-                    <input type="range" id="density-slider" min="80" max="120" step="10"
+                    <input type="range" id="density-slider" min="55" max="120" step="5"
                         oninput="setDensity(this.value)">
                     <span class="slider-value" id="density-value">100%</span>
                 </div>
@@ -2340,14 +2339,17 @@
             const d = new Date(dateStr + 'T00:00:00');
             const today = new Date(todayStr() + 'T00:00:00');
             const diffDays = Math.round((d - today) / (1000 * 60 * 60 * 24));
-            if (diffDays === 0) return 'Today';
-            if (diffDays === 1) return 'Tomorrow';
-            if (diffDays === -1) return 'Yesterday';
-            const opt = { weekday: 'short', month: 'short', day: 'numeric' };
-            if (Math.abs(diffDays) > 365) opt.year = 'numeric';
-            if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days \u00B7 ${d.toLocaleDateString('en-US', opt)}`;
-            if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago \u00B7 ${d.toLocaleDateString('en-US', opt)}`;
-            return d.toLocaleDateString('en-US', opt);
+            // Format as DD-MM-YYYY
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const formatted = `${dd}-${mm}-${yyyy}`;
+            if (diffDays === 0) return `Today \u00B7 ${formatted}`;
+            if (diffDays === 1) return `Tomorrow \u00B7 ${formatted}`;
+            if (diffDays === -1) return `Yesterday \u00B7 ${formatted}`;
+            if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days \u00B7 ${formatted}`;
+            if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago \u00B7 ${formatted}`;
+            return formatted;
         }
 
         function formatTime(t) {
@@ -2359,7 +2361,13 @@
             return `${hour12}:${m} ${ampm}`;
         }
 
-        function isOverdue(t) { return !t.completed && t.date !== 'legacy' && t.date < todayStr(); }
+        function isOverdue(t) {
+            if (t.completed || t.date === 'legacy') return false;
+            const today = new Date(todayStr() + 'T00:00:00');
+            const taskDate = new Date(t.date + 'T00:00:00');
+            const diffDays = Math.round((today - taskDate) / (1000 * 60 * 60 * 24));
+            return diffDays >= 4;
+        }
         function isToday(t) { return t.date === todayStr(); }
         function isUpcoming(t) { return t.date > todayStr() && t.date !== 'legacy'; }
 
@@ -3815,7 +3823,7 @@
         function displayStaleWarning() {
             const banner = document.getElementById('stale-warning-banner');
             if (!banner) return;
-            const STALE_DAYS = 3;
+            const STALE_DAYS = 4;
             const now = Date.now();
             const stale = tasks.filter(t => {
                 if (t.completed) return false;
