@@ -52,16 +52,20 @@
 
         /* Default / System / Light Mode */
         :root.theme-light {
+            color-scheme: light;
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-main: #1c1e21;
             --text-muted: #65676b;
             --border: #e4e6eb;
             --hover: #f5f6f7;
+            --toast-bg: #1c1e21;
+            --toast-text: #ffffff;
         }
 
         /* Dark Mode */
         :root.theme-dark {
+            color-scheme: dark;
             --bg-color: #0b0f19;
             --card-bg: #151d30;
             --text-main: #f3f4f6;
@@ -82,36 +86,46 @@
 
         /* Morning Theme (5:00 - 11:59) */
         :root.theme-morning {
+            color-scheme: light;
             --bg-color: #fcf9f2;
             --card-bg: #ffffff;
             --text-main: #2c2a29;
             --text-muted: #7c7267;
             --border: #f1eae0;
             --hover: #f8f4eb;
+            --toast-bg: #2c2a29;
+            --toast-text: #ffffff;
         }
 
         /* Afternoon Theme (12:00 - 16:59) */
         :root.theme-afternoon {
+            color-scheme: light;
             --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
             --hover: #f1f5f9;
+            --toast-bg: #0f172a;
+            --toast-text: #ffffff;
         }
 
         /* Evening Theme (17:00 - 20:59) */
         :root.theme-evening {
+            color-scheme: light;
             --bg-color: #fdf5f2;
             --card-bg: #fffbf8;
             --text-main: #3c2f2f;
             --text-muted: #8c736e;
             --border: #f8e9e2;
             --hover: #faf0ea;
+            --toast-bg: #3c2f2f;
+            --toast-text: #ffffff;
         }
 
         /* Night Theme (21:00 - 4:59) */
         :root.theme-night {
+            color-scheme: dark;
             --bg-color: #0b0f19;
             --card-bg: #151d30;
             --text-main: #f3f4f6;
@@ -485,6 +499,7 @@
             border-radius: 4px;
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
         }
 
         .progress-fill::after {
@@ -773,6 +788,22 @@
             transition: all var(--transition-fast);
         }
 
+        .form-group input[type="date"],
+        .form-group input[type="time"] {
+            color: var(--text-main);
+            -webkit-text-fill-color: var(--text-main);
+        }
+
+        /* Autofill overrides for dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important;
+            -webkit-text-fill-color: var(--text-main) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .form-group input[type="date"]::-webkit-calendar-picker-indicator,
         .form-group input[type="time"]::-webkit-calendar-picker-indicator {
             filter: var(--calendar-icon-filter, none);
@@ -1004,6 +1035,14 @@
             user-select: none;
             touch-action: pan-y;
             -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .task-item,
+        .task-item * {
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            user-select: none;
         }
 
         .swipe-background {
@@ -1085,8 +1124,8 @@
         }
 
         input[type="checkbox"]:checked {
-            background-color: var(--success);
-            border-color: var(--success);
+            background-color: var(--accent);
+            border-color: var(--accent);
             animation: checkBounce 0.3s var(--transition-spring);
         }
 
@@ -1393,6 +1432,42 @@
         .fab:active {
             transform: scale(0.95);
             transition-duration: 0.08s;
+        }
+
+        .select-mode-fab {
+            display: none !important;
+        }
+        
+        .select-mode-fab.active {
+            display: flex !important;
+            animation: popIn 0.3s var(--transition-spring);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Task Item Multi-Select Styles */
+        .task-item-container.selecting-mode .swipe-background {
+            display: none !important;
+        }
+        
+        .task-item-container.selecting-mode .task-item {
+            transform: none !important;
+            cursor: pointer;
+            transition: all var(--transition-fast) !important;
+        }
+        
+        .task-item-container.selecting-mode .task-item.selected {
+            border-color: var(--accent) !important;
+            background: rgba(var(--accent-rgb), 0.12) !important;
+            transform: scale(0.97) !important;
+            box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.15) !important;
+        }
+        
+        .task-item-container.selecting-mode input[type="checkbox"] {
+            pointer-events: none;
         }
 
         /* ===== Theme / Customization Panel ===== */
@@ -1943,11 +2018,27 @@
     </div>
 
     <!-- Floating Action Button (mobile) -->
-    <button class="fab" onclick="openAddModal()" aria-label="Add Task">
+    <button class="fab" id="add-task-fab" onclick="openAddModal()" aria-label="Add Task">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
             stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+    </button>
+
+    <!-- Multi-Select Floating Buttons -->
+    <button class="fab select-mode-fab" id="delete-selected-fab" onclick="deleteSelectedTasks()" aria-label="Delete Selected Tasks" style="background: var(--danger);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+        </svg>
+        <span id="delete-selected-count" style="position: absolute; top: -5px; right: -5px; background: white; color: var(--danger); font-size: 0.72rem; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1.5px solid var(--danger);">0</span>
+    </button>
+
+    <button class="fab select-mode-fab" id="cancel-select-fab" onclick="exitSelectionMode()" aria-label="Cancel Selection Mode" style="right: auto; left: 1.5rem; background: var(--card-bg); color: var(--text-main); border: 1.5px solid var(--border);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
         </svg>
     </button>
 
@@ -2285,6 +2376,8 @@
         let tasks = [];
         let currentFilter = 'all';
         let confirmCallback = null;
+        let isSelectMode = false;
+        const selectedTaskIds = new Set();
 
         // Theme state
         const defaultTheme = {
@@ -2553,7 +2646,7 @@
 
         function buildTaskItem(task) {
             const li = document.createElement('li');
-            li.className = 'task-item-container';
+            li.className = 'task-item-container' + (isSelectMode ? ' selecting-mode' : '');
             li.dataset.id = task.id;
 
             const metaPills = [];
@@ -2568,15 +2661,15 @@
                 <div class="swipe-background swipe-right-bg">
                     <span class="swipe-action-icon">${ICONS.trash}</span>
                 </div>
-                <div class="task-item ${task.completed ? 'completed' : ''}">
+                <div class="task-item ${task.completed ? 'completed' : ''} ${(isSelectMode && selectedTaskIds.has(task.id)) ? 'selected' : ''}" onclick="handleTaskItemClick(event, '${task.id}')">
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="chk-${task.id}" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')">
                     </div>
-                    <label class="task-content" for="chk-${task.id}">
+                    <div class="task-content">
                         <span class="task-title">${escapeHtml(task.title)}</span>
                         ${task.note ? `<span class="task-note">${escapeHtml(task.note)}</span>` : ''}
                         ${metaPills.length ? `<div class="task-meta">${metaPills.join('')}</div>` : ''}
-                    </label>
+                    </div>
                     <div class="task-actions">
                         <button class="action-btn edit-btn" title="Edit" onclick="editTask('${task.id}')">${ICONS.edit}</button>
                         <button class="action-btn delete-btn" title="Delete" onclick="confirmDelete('${task.id}')">${ICONS.trash}</button>
@@ -2593,18 +2686,36 @@
             const taskId = container.dataset.id;
             
             let startX = 0;
+            let startY = 0;
             let currentX = 0;
             let isSwiping = false;
+            let moved = false;
+            let pressTimer = null;
             const threshold = 65; // px to trigger action
             const maxSwipe = 90; // max visual offset
             
             function handleStart(e) {
+                if (isSelectMode) return;
                 if (e.target.closest('input[type="checkbox"], .checkbox-wrapper, .task-actions, .action-btn')) return;
                 startX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                startY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
                 isSwiping = true;
+                moved = false;
                 taskItem.style.transition = 'none';
                 leftBg.style.opacity = '0';
                 rightBg.style.opacity = '0';
+                
+                clearTimeout(pressTimer);
+                pressTimer = setTimeout(() => {
+                    if (isSwiping && !moved && !isSelectMode) {
+                        isSwiping = false;
+                        taskItem.style.transform = 'translateX(0)';
+                        enterSelectionMode(taskId);
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    }
+                }, 600);
                 
                 if (e.type === 'mousedown') {
                     window.addEventListener('mousemove', handleMove);
@@ -2615,7 +2726,14 @@
             function handleMove(e) {
                 if (!isSwiping) return;
                 const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
                 const diffX = clientX - startX;
+                const diffY = clientY - startY;
+
+                if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
+                    moved = true;
+                    clearTimeout(pressTimer);
+                }
 
                 if (Math.abs(diffX) > 8) {
                     // Lock to horizontal swipe — prevent vertical scroll
@@ -2642,6 +2760,7 @@
             }
             
             function handleEnd(e) {
+                clearTimeout(pressTimer);
                 if (!isSwiping) return;
                 isSwiping = false;
                 taskItem.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
@@ -2680,10 +2799,15 @@
             taskItem.addEventListener('touchstart', handleStart, { passive: true });
             taskItem.addEventListener('touchmove', handleMove, { passive: false });
             taskItem.addEventListener('touchend', handleEnd, { passive: false });
+            taskItem.addEventListener('touchcancel', handleEnd);
             taskItem.addEventListener('mousedown', handleStart);
         }
 
         function toggleTask(taskId) {
+            if (isSelectMode) {
+                toggleSelectTask(taskId);
+                return;
+            }
             const t = tasks.find(x => x.id === taskId);
             if (!t) return;
             t.completed = !t.completed;
@@ -2697,27 +2821,14 @@
             renderBoard();
             showToast(t.completed ? 'Task completed' : 'Marked pending');
 
-            const client = getSupabase();
-            if (client) {
-                client.from('tasks').upsert(sanitizeTask(t, true)).then(({ error }) => {
-                    if (error) {
-                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                            client.from('tasks').upsert(sanitizeTask(t, false)).then(({ error: retryError }) => {
-                                if (retryError) {
-                                    console.error('Supabase auto-save error on retry:', retryError);
-                                    showToast('Sync failed: ' + retryError.message);
-                                } else {
-                                    animateSyncSuccess();
-                                }
-                            });
-                        } else {
-                            console.error('Supabase auto-save error:', error);
-                            showToast('Sync failed: ' + error.message);
-                        }
-                    } else {
-                        animateSyncSuccess();
-                    }
-                });
+            upsertTaskToSupabase(t);
+        }
+
+        function handleTaskItemClick(e, taskId) {
+            if (e.target.closest('.task-actions, .action-btn')) return;
+            if (isSelectMode) {
+                e.preventDefault();
+                toggleSelectTask(taskId);
             }
         }
 
@@ -2742,6 +2853,7 @@
 
         // ===== TASK MODAL =====
         function openAddModal() {
+            if (isSelectMode) exitSelectionMode();
             document.getElementById('modal-title').textContent = 'Add New Task';
             document.getElementById('task-id').value = '';
             document.getElementById('task-title-input').value = '';
@@ -2804,30 +2916,7 @@
             closeModal('task-modal');
             renderBoard();
 
-            const client = getSupabase();
-            if (client && taskObj) {
-                const payloadWithMeta = sanitizeTask(taskObj, true);
-                client.from('tasks').upsert(payloadWithMeta).then(({ error }) => {
-                    if (error) {
-                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                            const payloadWithoutMeta = sanitizeTask(taskObj, false);
-                            client.from('tasks').upsert(payloadWithoutMeta).then(({ error: retryError }) => {
-                                if (retryError) {
-                                    console.error('Supabase auto-save error on retry:', retryError);
-                                    showToast('Sync failed: ' + retryError.message);
-                                } else {
-                                    animateSyncSuccess();
-                                }
-                            });
-                        } else {
-                            console.error('Supabase auto-save error:', error);
-                            showToast('Sync failed: ' + error.message);
-                        }
-                    } else {
-                        animateSyncSuccess();
-                    }
-                });
-            }
+            upsertTaskToSupabase(taskObj);
         }
 
         async function confirmDelete(taskId) {
@@ -3153,6 +3242,30 @@
                 if (t.addedAt !== undefined) res.addedAt = t.addedAt;
             }
             return res;
+        }
+
+        function upsertTaskToSupabase(taskObj) {
+            const client = getSupabase();
+            if (!client || !taskObj) return;
+            client.from('tasks').upsert(sanitizeTask(taskObj, true)).then(({ error }) => {
+                if (error) {
+                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                        client.from('tasks').upsert(sanitizeTask(taskObj, false)).then(({ error: retryError }) => {
+                            if (retryError) {
+                                console.error('Supabase auto-save error on retry:', retryError);
+                                showToast('Sync failed: ' + retryError.message);
+                            } else {
+                                animateSyncSuccess();
+                            }
+                        });
+                    } else {
+                        console.error('Supabase auto-save error:', error);
+                        showToast('Sync failed: ' + error.message);
+                    }
+                } else {
+                    animateSyncSuccess();
+                }
+            });
         }
 
         function getSupabase() {
@@ -3608,17 +3721,7 @@
             renderBoard();
             showToast('Task restored');
 
-            const client = getSupabase();
-            if (client) {
-                client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
-                    if (error) {
-                        console.error('Supabase auto-save error:', error);
-                        showToast('Sync failed: ' + error.message);
-                    } else {
-                        animateSyncSuccess();
-                    }
-                });
-            }
+            upsertTaskToSupabase(taskObj);
             syncDeletedTasksToSupabase();
         }
 
@@ -3635,6 +3738,120 @@
                 saveDeletedTasks();
                 renderTrashList();
                 showToast('Trash emptied');
+                syncDeletedTasksToSupabase();
+            }
+        }
+
+        // ===== MULTI-SELECT MODE =====
+        function enterSelectionMode(initialTaskId) {
+            isSelectMode = true;
+            selectedTaskIds.clear();
+            
+            // Add selecting-mode class to all task item containers
+            document.querySelectorAll('.task-item-container').forEach(el => {
+                el.classList.add('selecting-mode');
+            });
+            
+            // Show select mode FABs, hide add FAB
+            const addFab = document.getElementById('add-task-fab');
+            const delFab = document.getElementById('delete-selected-fab');
+            const cancelFab = document.getElementById('cancel-select-fab');
+            
+            if (addFab) addFab.style.display = 'none';
+            if (delFab) delFab.classList.add('active');
+            if (cancelFab) cancelFab.classList.add('active');
+            
+            if (initialTaskId) {
+                toggleSelectTask(initialTaskId);
+            }
+        }
+
+        function toggleSelectTask(taskId) {
+            if (!isSelectMode) return;
+            
+            const el = document.querySelector(`.task-item-container[data-id="${taskId}"]`);
+            const taskItem = el ? el.querySelector('.task-item') : null;
+            
+            if (selectedTaskIds.has(taskId)) {
+                selectedTaskIds.delete(taskId);
+                if (taskItem) taskItem.classList.remove('selected');
+            } else {
+                selectedTaskIds.add(taskId);
+                if (taskItem) taskItem.classList.add('selected');
+            }
+            
+            // Update counter badge
+            const countEl = document.getElementById('delete-selected-count');
+            if (countEl) {
+                countEl.textContent = selectedTaskIds.size;
+            }
+        }
+
+        function exitSelectionMode() {
+            isSelectMode = false;
+            selectedTaskIds.clear();
+            
+            // Remove selecting-mode and selected classes
+            document.querySelectorAll('.task-item-container').forEach(el => {
+                el.classList.remove('selecting-mode');
+                const taskItem = el.querySelector('.task-item');
+                if (taskItem) taskItem.classList.remove('selected');
+            });
+            
+            // Show add FAB, hide select FABs
+            const addFab = document.getElementById('add-task-fab');
+            const delFab = document.getElementById('delete-selected-fab');
+            const cancelFab = document.getElementById('cancel-select-fab');
+            
+            if (addFab) addFab.style.display = 'flex';
+            if (delFab) delFab.classList.remove('active');
+            if (cancelFab) cancelFab.classList.remove('active');
+        }
+
+        async function deleteSelectedTasks() {
+            if (selectedTaskIds.size === 0) {
+                showToast('No tasks selected');
+                return;
+            }
+            
+            const count = selectedTaskIds.size;
+            const ok = await customConfirm({
+                title: `Delete ${count} Task${count > 1 ? 's' : ''}?`,
+                message: `The selected task${count > 1 ? 's' : ''} will be permanently removed.\n\nThis action cannot be undone.`,
+                okText: 'Delete All',
+                okClass: 'btn-danger'
+            });
+            
+            if (ok) {
+                const idsToDelete = Array.from(selectedTaskIds);
+                
+                idsToDelete.forEach(id => {
+                    const t = tasks.find(x => x.id === id);
+                    if (t) {
+                        deletedTasks.unshift(t);
+                    }
+                });
+                if (deletedTasks.length > 50) {
+                    deletedTasks = deletedTasks.slice(0, 50);
+                }
+                saveDeletedTasks();
+                
+                tasks = tasks.filter(x => !selectedTaskIds.has(x.id));
+                saveTasks();
+                
+                const client = getSupabase();
+                if (client) {
+                    client.from('tasks').delete().in('id', idsToDelete).then(({ error }) => {
+                        if (error) {
+                            console.error('Supabase batch delete error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        }
+                    });
+                }
+                
+                exitSelectionMode();
+                renderBoard();
+                showToast(`${count} task${count > 1 ? 's' : ''} deleted`);
                 syncDeletedTasksToSupabase();
             }
         }
@@ -3897,7 +4114,11 @@
             const inField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
             if (e.key === 'n' && !inField) { e.preventDefault(); openAddModal(); }
             if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+                if (isSelectMode) {
+                    exitSelectionMode();
+                } else {
+                    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+                }
             }
         });
 
