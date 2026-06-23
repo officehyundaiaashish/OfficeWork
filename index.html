@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="theme-color" content="#0084ff">
     <title>Khanna Automart - Task Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -1321,6 +1322,9 @@
                 <h1>Tasker</h1>
             </div>
             <div class="header-actions">
+                <button class="header-action-btn" onclick="openSupabaseModal()" title="Supabase Sync">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.74-3.5-3.5-3.5-2.42 0-4.5 1.72-4.5 4.09C5.3 11.86 3 13.74 3 16.5A3.5 3.5 0 0 0 6.5 20h11"/><path d="M12 11v6m-3-3l3 3 3-3"/></svg>
+                </button>
                 <button class="header-action-btn" onclick="openThemeModal()" title="Customize">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                 </button>
@@ -1491,6 +1495,43 @@
         </div>
     </div>
 
+    <!-- ===== Supabase Modal ===== -->
+    <div class="modal-overlay" id="supabase-modal">
+        <div class="modal">
+            <div class="modal-grip"></div>
+            <h2>
+                <span>Supabase Sync</span>
+                <button class="modal-close" onclick="closeModal('supabase-modal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </h2>
+            <div class="theme-section">
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="sb-url-input">Supabase URL</label>
+                        <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateSupabaseConfig()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="sb-key-input">Supabase Anon Key</label>
+                        <input type="password" id="sb-key-input" placeholder="your-anon-key" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateSupabaseConfig()">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+                        <span id="supabase-status-pill" class="stat-pill" style="font-size:0.78rem; background:var(--bg-color); padding:0.3rem 0.6rem; border-radius:12px;">
+                            <span id="sb-status-dot" style="width:8px; height:8px; background:#a0a4aa; border-radius:50%; display:inline-block; margin-right:4px;"></span>
+                            <span id="sb-status-text">Disconnected</span>
+                        </span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="syncWithSupabase()" id="sb-sync-btn" style="min-height:30px;">
+                            Sync Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-success" onclick="closeModal('supabase-modal')">Done</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== Confirm Dialog ===== -->
     <div class="modal-overlay" id="confirm-modal">
         <div class="confirm-modal">
@@ -1572,7 +1613,9 @@
             accentRgb: '0, 132, 255',
             layout: 'normal',
             fontScale: 100,
-            density: 100
+            density: 100,
+            supabaseUrl: '',
+            supabaseKey: ''
         };
         let theme = JSON.parse(localStorage.getItem('khannaTheme')) || {...defaultTheme};
 
@@ -1807,6 +1850,13 @@
             saveTasks();
             renderBoard();
             showToast(t.completed ? 'Task completed' : 'Marked pending');
+
+            const client = getSupabase();
+            if (client) {
+                client.from('tasks').upsert(sanitizeTask(t)).then(({ error }) => {
+                    if (error) console.error('Supabase auto-save error:', error);
+                });
+            }
         }
 
         function updateProgress() {
@@ -1870,22 +1920,32 @@
                 return;
             }
 
+            let taskObj = null;
             if (id) {
                 const t = tasks.find(x => x.id === id);
                 if (t) {
                     Object.assign(t, { title, note, date, time });
+                    taskObj = t;
                 }
                 showToast('Task updated');
             } else {
-                tasks.push({
+                taskObj = {
                     id: uid(), title, note, date, time,
                     completed: false, createdAt: Date.now()
-                });
+                };
+                tasks.push(taskObj);
                 showToast('Task added');
             }
             saveTasks();
             closeModal('task-modal');
             renderBoard();
+
+            const client = getSupabase();
+            if (client && taskObj) {
+                client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
+                    if (error) console.error('Supabase auto-save error:', error);
+                });
+            }
         }
 
         async function confirmDelete(taskId) {
@@ -1902,6 +1962,13 @@
                 saveTasks();
                 renderBoard();
                 showToast('Task deleted');
+
+                const client = getSupabase();
+                if (client) {
+                    client.from('tasks').delete().eq('id', taskId).then(({ error }) => {
+                        if (error) console.error('Supabase auto-delete error:', error);
+                    });
+                }
             }
         }
 
@@ -1920,6 +1987,13 @@
                 closeModal('task-modal');
                 renderBoard();
                 showToast('Task deleted');
+
+                const client = getSupabase();
+                if (client) {
+                    client.from('tasks').delete().eq('id', id).then(({ error }) => {
+                        if (error) console.error('Supabase auto-delete error:', error);
+                    });
+                }
             }
         }
 
@@ -1969,7 +2043,157 @@
             document.getElementById('density-slider').value = theme.density;
             document.getElementById('density-value').textContent = theme.density + '%';
 
+            if (document.getElementById('sb-url-input')) {
+                document.getElementById('sb-url-input').value = theme.supabaseUrl || '';
+            }
+            if (document.getElementById('sb-key-input')) {
+                document.getElementById('sb-key-input').value = theme.supabaseKey || '';
+            }
+            updateSupabaseStatus();
+
             document.querySelector('meta[name="theme-color"]').setAttribute('content', theme.accentHex);
+        }
+
+        // ===== SUPABASE SYNC =====
+        let supabaseClient = null;
+
+        function sanitizeTask(t) {
+            if (!t) return null;
+            return {
+                id: t.id,
+                title: t.title || '',
+                note: t.note || '',
+                date: t.date || '',
+                time: t.time || '',
+                completed: !!t.completed,
+                createdAt: t.createdAt
+            };
+        }
+
+        function getSupabase() {
+            if (supabaseClient) return supabaseClient;
+            if (theme.supabaseUrl && theme.supabaseKey) {
+                try {
+                    supabaseClient = supabase.createClient(theme.supabaseUrl, theme.supabaseKey);
+                    return supabaseClient;
+                } catch (e) {
+                    console.error('Supabase init error:', e);
+                }
+            }
+            return null;
+        }
+
+        function updateSupabaseConfig() {
+            theme.supabaseUrl = document.getElementById('sb-url-input').value.trim();
+            theme.supabaseKey = document.getElementById('sb-key-input').value.trim();
+            saveTheme();
+            supabaseClient = null;
+            updateSupabaseStatus();
+        }
+
+        function openSupabaseModal() {
+            if (document.getElementById('sb-url-input')) {
+                document.getElementById('sb-url-input').value = theme.supabaseUrl || '';
+            }
+            if (document.getElementById('sb-key-input')) {
+                document.getElementById('sb-key-input').value = theme.supabaseKey || '';
+            }
+            updateSupabaseStatus();
+            document.getElementById('supabase-modal').classList.add('active');
+        }
+
+        async function updateSupabaseStatus() {
+            const client = getSupabase();
+            const dot = document.getElementById('sb-status-dot');
+            const txt = document.getElementById('sb-status-text');
+            if (!client) {
+                dot.style.background = '#a0a4aa';
+                txt.textContent = 'Disconnected';
+                return;
+            }
+            txt.textContent = 'Connecting...';
+            dot.style.background = 'var(--warning)';
+            try {
+                const { error } = await client.from('tasks').select('id').limit(1);
+                if (error) throw error;
+                dot.style.background = 'var(--success)';
+                txt.textContent = 'Connected';
+            } catch (e) {
+                dot.style.background = 'var(--danger)';
+                txt.textContent = 'Connection Error';
+                console.error(e);
+            }
+        }
+
+        async function syncWithSupabase() {
+            const client = getSupabase();
+            if (!client) {
+                showToast('Please configure Supabase URL and Key first');
+                return;
+            }
+
+            const btn = document.getElementById('sb-sync-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Syncing...';
+            btn.disabled = true;
+
+            try {
+                const { data: remoteTasks, error } = await client.from('tasks').select('*');
+                if (error) throw error;
+
+                const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
+                const localMap = new Map(tasks.map(t => [t.id, t]));
+
+                const toUpsert = [];
+                const merged = [];
+                const allIds = new Set([...localMap.keys(), ...remoteMap.keys()]);
+
+                for (const id of allIds) {
+                    const local = localMap.get(id);
+                    const remote = remoteMap.get(id);
+
+                    if (local && remote) {
+                        const mergedTask = {
+                            id: local.id,
+                            title: local.title || remote.title,
+                            note: local.note || remote.note,
+                            date: local.date || remote.date,
+                            time: local.time || remote.time,
+                            completed: local.completed || remote.completed,
+                            createdAt: local.createdAt || remote.createdAt
+                        };
+                        const sanitized = sanitizeTask(mergedTask);
+                        merged.push(sanitized);
+                        if (local.completed !== remote.completed || local.title !== remote.title || local.note !== remote.note || local.date !== remote.date || local.time !== remote.time) {
+                            toUpsert.push(sanitized);
+                        }
+                    } else if (local) {
+                        const sanitized = sanitizeTask(local);
+                        merged.push(sanitized);
+                        toUpsert.push(sanitized);
+                    } else if (remote) {
+                        const sanitized = sanitizeTask(remote);
+                        merged.push(sanitized);
+                    }
+                }
+
+                if (toUpsert.length > 0) {
+                    const { error: upsertError } = await client.from('tasks').upsert(toUpsert);
+                    if (upsertError) throw upsertError;
+                }
+
+                tasks = merged;
+                saveTasks();
+                renderBoard();
+                showToast('Sync complete!');
+                updateSupabaseStatus();
+            } catch (e) {
+                showToast('Sync failed: ' + e.message);
+                console.error(e);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         }
 
         function renderColorGrid() {
@@ -2079,6 +2303,13 @@
         // ===== INIT =====
         applyTheme();
         renderBoard();
+
+        // Background Sync trigger
+        setTimeout(() => {
+            if (getSupabase()) {
+                syncWithSupabase();
+            }
+        }, 1000);
 
         // Keyboard shortcuts
         document.addEventListener('keydown', e => {
