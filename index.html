@@ -2000,7 +2000,7 @@
     <div class="app-container">
         <div class="sticky-header-wrapper">
             <header class="app-header">
-                <div class="header-logo-container" onclick="toggleAppMode()" style="cursor: pointer;" title="Click to swap parallel universes">
+                <div class="header-logo-container" onclick="toggleAppMode()" style="cursor: pointer; user-select: none; -webkit-user-select: none;" title="Click to swap parallel universes">
                     <div class="logo-icon-wrap">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -2595,6 +2595,13 @@
         // ===== HELPERS =====
         function todayStr() { return new Date().toISOString().split('T')[0]; }
 
+        function getTimestamp(val) {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            const parsed = Date.parse(val);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         function formatDate(dateStr) {
             if (dateStr === 'legacy') return 'Earlier Tasks';
             const d = new Date(dateStr + 'T00:00:00');
@@ -2701,6 +2708,7 @@
             const search = (document.getElementById('search-input')?.value || '').toLowerCase();
 
             return tasks.filter(t => {
+                if (t.id.startsWith('_transfer_')) return false;
                 if (currentFilter === 'today' && !isToday(t)) return false;
                 if (currentFilter === 'upcoming' && !isUpcoming(t)) return false;
                 if (currentFilter === 'overdue' && !isOverdue(t)) return false;
@@ -2746,9 +2754,9 @@
                 dayTasks.sort((a, b) => {
                     if (a.completed !== b.completed) return a.completed ? 1 : -1;
                     if (a.completed) {
-                        return (b.completedAt || 0) - (a.completedAt || 0);
+                        return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
                     } else {
-                        return (a.addedAt || a.createdAt || 0) - (b.addedAt || b.createdAt || 0);
+                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
                     }
                 });
 
@@ -2846,6 +2854,7 @@
             let startY = 0;
             let currentX = 0;
             let isSwiping = false;
+            let isSwipingDirectionLocked = false;
             let moved = false;
             let pressTimer = null;
             const threshold = 65; // px to trigger action
@@ -2857,6 +2866,7 @@
                 startX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
                 startY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
                 isSwiping = true;
+                isSwipingDirectionLocked = false;
                 moved = false;
                 taskItem.style.transition = 'none';
                 leftBg.style.opacity = '0';
@@ -2872,7 +2882,7 @@
                             navigator.vibrate(50);
                         }
                     }
-                }, 600);
+                }, 800); // 800ms to trigger select mode
                 
                 if (e.type === 'mousedown') {
                     window.addEventListener('mousemove', handleMove);
@@ -2887,12 +2897,27 @@
                 const diffX = clientX - startX;
                 const diffY = clientY - startY;
 
-                if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
+                // Detect if user intends to scroll vertically instead of swipe horizontally
+                if (!isSwipingDirectionLocked) {
+                    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 10) {
+                        // Vertical scrolling detected, cancel swipe
+                        isSwiping = false;
+                        clearTimeout(pressTimer);
+                        taskItem.style.transform = 'translateX(0)';
+                        return;
+                    }
+                    if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+                        isSwipingDirectionLocked = true;
+                        clearTimeout(pressTimer);
+                    }
+                }
+
+                if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
                     moved = true;
                     clearTimeout(pressTimer);
                 }
 
-                if (Math.abs(diffX) > 8) {
+                if (isSwipingDirectionLocked && Math.abs(diffX) > 8) {
                     // Lock to horizontal swipe — prevent vertical scroll
                     if (e.cancelable) e.preventDefault();
 
@@ -2990,11 +3015,12 @@
         }
 
         function updateProgress() {
-            const total = tasks.length;
-            const completed = tasks.filter(t => t.completed).length;
+            const activeTasks = tasks.filter(t => !t.id.startsWith('_transfer_'));
+            const total = activeTasks.length;
+            const completed = activeTasks.filter(t => t.completed).length;
             const pending = total - completed;
-            const todayCount = tasks.filter(t => isToday(t) && !t.completed).length;
-            const overdueCount = tasks.filter(t => isOverdue(t)).length;
+            const todayCount = activeTasks.filter(t => isToday(t) && !t.completed).length;
+            const overdueCount = activeTasks.filter(t => isOverdue(t)).length;
 
             const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
             document.getElementById('progress-percentage').textContent = `${pct}%`;
@@ -3354,10 +3380,10 @@
                         if (appMode === 'transfer') renderTransferBoard();
                     } else {
                         const localTransfer = transfers[localIndex];
-                        const incomingTime = incomingTransfer.createdAt || 0;
-                        const localTime = localTransfer.createdAt || 0;
+                        const incomingTime = getTimestamp(incomingTransfer.createdAt);
+                        const localTime = getTimestamp(localTransfer.createdAt);
 
-                        if (incomingTime > localTime) {
+                        if (incomingTime > localTime || JSON.stringify(localTransfer) !== JSON.stringify(incomingTransfer)) {
                             transfers[localIndex] = incomingTransfer;
                             saveTransfers();
                             if (appMode === 'transfer') renderTransferBoard();
@@ -3373,8 +3399,8 @@
                         renderBoard();
                     } else {
                         const localTask = tasks[localIndex];
-                        const incomingTime = incomingTask.createdAt || 0;
-                        const localTime = localTask.createdAt || 0;
+                        const incomingTime = getTimestamp(incomingTask.createdAt);
+                        const localTime = getTimestamp(localTask.createdAt);
 
                         if (incomingTime > localTime) {
                             tasks[localIndex] = {
@@ -4284,6 +4310,7 @@
             const STALE_DAYS = 4;
             const now = Date.now();
             const stale = tasks.filter(t => {
+                if (t.id.startsWith('_transfer_')) return false;
                 if (t.completed) return false;
                 const age = t.addedAt || t.createdAt || 0;
                 return age > 0 && (now - age) >= STALE_DAYS * 86400000;
@@ -4494,7 +4521,7 @@
                 const dayTransfers = byDate[date] || [];
                 if (dayTransfers.length === 0) return;
                 
-                dayTransfers.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                dayTransfers.sort((a, b) => getTimestamp(b.createdAt) - getTimestamp(a.createdAt));
                 
                 const card = document.createElement('div');
                 card.className = 'day-card';
