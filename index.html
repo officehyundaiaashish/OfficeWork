@@ -3272,32 +3272,47 @@
 
         // ===== SUPABASE SYNC =====
         let supabaseClient = null;
-        let realtimeChannel = null;
+        let dbChannel = null;
+        let broadcastChannel = null;
 
         function initRealtimeListener() {
             const client = getSupabase();
             if (!client) return;
 
-            if (realtimeChannel) {
+            if (dbChannel) {
                 try {
-                    client.removeChannel(realtimeChannel);
+                    client.removeChannel(dbChannel);
                 } catch (e) {
-                    console.error('Error removing old channel:', e);
+                    console.error('Error removing old dbChannel:', e);
                 }
-                realtimeChannel = null;
+                dbChannel = null;
+            }
+            if (broadcastChannel) {
+                try {
+                    client.removeChannel(broadcastChannel);
+                } catch (e) {
+                    console.error('Error removing old broadcastChannel:', e);
+                }
+                broadcastChannel = null;
             }
 
             try {
-                realtimeChannel = client
-                    .channel('public:tasks')
+                dbChannel = client
+                    .channel('tasker_db_changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, payload => {
                         handleRealtimePayload(payload);
                     })
+                    .subscribe((status) => {
+                        console.log('Database Realtime subscription status:', status);
+                    });
+
+                broadcastChannel = client
+                    .channel('tasker_broadcast')
                     .on('broadcast', { event: 'app_changed' }, ({ payload }) => {
                         handleBroadcastPayload(payload);
                     })
                     .subscribe((status) => {
-                        console.log('Realtime subscription status:', status);
+                        console.log('Broadcast Realtime subscription status:', status);
                     });
             } catch (err) {
                 console.error('Error setting up Realtime subscription:', err);
@@ -3450,8 +3465,8 @@
 
         function broadcastChange(id, action = 'upsert') {
             const client = getSupabase();
-            if (client && realtimeChannel) {
-                realtimeChannel.send({
+            if (client && broadcastChannel) {
+                broadcastChannel.send({
                     type: 'broadcast',
                     event: 'app_changed',
                     payload: { id, action }
