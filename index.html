@@ -568,9 +568,10 @@
         }
 
         .filter-btn.active {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
             color: white;
-            border-color: var(--accent);
+            border: none;
+            box-shadow: var(--shadow-sm);
         }
 
         .search-wrapper {
@@ -959,26 +960,69 @@
             margin: 0;
         }
 
-        .task-item {
-            display: flex;
-            align-items: flex-start;
-            padding: calc(0.4rem * var(--density)) 0;
-            border-bottom: 1px solid #f0f2f5;
-            transition: all var(--transition-fast);
-            gap: 0.6rem;
+        .task-item-container {
             position: relative;
+            list-style: none;
+            overflow: hidden;
+            border-radius: var(--radius);
+            margin-bottom: calc(0.45rem * var(--density));
+            background: transparent;
+            user-select: none;
+            touch-action: pan-y;
         }
 
-        .task-item:last-child {
-            border-bottom: none;
+        .swipe-background {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem;
+            color: white;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            border-radius: var(--radius);
         }
 
-        .task-item:hover {
-            background: rgba(var(--accent-rgb), 0.02);
-            border-radius: 6px;
-            margin: 0 -0.3rem;
-            padding-left: 0.3rem;
-            padding-right: 0.3rem;
+        .swipe-left-bg {
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+            justify-content: flex-end;
+            right: 0;
+        }
+
+        .swipe-right-bg {
+            background: var(--danger);
+            justify-content: flex-start;
+            left: 0;
+        }
+
+        .swipe-action-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease;
+        }
+
+        .swipe-action-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+        }
+
+        .task-item {
+            position: relative;
+            background: var(--card-bg);
+            z-index: 2;
+            padding: calc(0.6rem * var(--density)) calc(0.8rem * var(--density));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 0.6rem;
         }
 
         .checkbox-wrapper {
@@ -1115,31 +1159,6 @@
             transition: opacity 0.4s ease;
         }
 
-        .task-actions {
-            display: flex;
-            gap: 0.25rem;
-            opacity: 0;
-            transform: translateX(6px);
-            transition: all var(--transition-fast);
-        }
-
-        .task-item:hover .task-actions,
-        .task-item:active .task-actions {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .task-actions .btn-icon {
-            min-width: 30px;
-            min-height: 30px;
-            padding: 0.3rem;
-        }
-
-        .task-actions .btn-icon svg {
-            width: 14px;
-            height: 14px;
-        }
-
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
@@ -1221,7 +1240,7 @@
             width: 58px;
             height: 58px;
             border-radius: 50%;
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
             color: white;
             border: none;
             cursor: pointer;
@@ -1477,11 +1496,6 @@
 
             .fab {
                 display: flex;
-            }
-
-            .task-actions {
-                opacity: 1;
-                transform: translateX(0);
             }
 
             .progress-stats {
@@ -1828,8 +1842,8 @@
                 <input type="hidden" id="task-id">
                 <div class="form-group">
                     <label for="task-title-input">Task Title *</label>
-                    <input type="text" id="task-title-input" required placeholder="e.g., UK17 W 4144"
-                        autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <input type="text" id="task-title-input" name="task-title-ignore" required placeholder="e.g., UK17 W 4144"
+                        autocomplete="off" autofill="off" data-lpignore="true" data-1p-ignore="true" autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
@@ -2380,7 +2394,11 @@
 
                 const list = document.createElement('ul');
                 list.className = 'task-list';
-                dayTasks.forEach(task => list.appendChild(buildTaskItem(task)));
+                dayTasks.forEach(task => {
+                    const item = buildTaskItem(task);
+                    list.appendChild(item);
+                    makeSwipable(item);
+                });
                 card.appendChild(list);
                 board.appendChild(card);
             });
@@ -2400,7 +2418,8 @@
 
         function buildTaskItem(task) {
             const li = document.createElement('li');
-            li.className = `task-item ${task.completed ? 'completed' : ''}`;
+            li.className = 'task-item-container';
+            li.dataset.id = task.id;
 
             const metaPills = [];
             if (task.time) metaPills.push(`<span class="meta-pill time">${ICONS.clock} ${formatTime(task.time)}</span>`);
@@ -2408,20 +2427,113 @@
             else if (isToday(task)) metaPills.push(`<span class="meta-pill today"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;"></span> Today</span>`);
 
             li.innerHTML = `
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="chk-${task.id}" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+                <div class="swipe-background swipe-left-bg">
+                    <span class="swipe-action-icon">${ICONS.edit}</span>
                 </div>
-                <label class="task-content" for="chk-${task.id}">
-                    <span class="task-title">${escapeHtml(task.title)}</span>
-                    ${task.note ? `<span class="task-note">${escapeHtml(task.note)}</span>` : ''}
-                    ${metaPills.length ? `<div class="task-meta">${metaPills.join('')}</div>` : ''}
-                </label>
-                <div class="task-actions">
-                    <button class="btn btn-secondary btn-icon" title="Edit" onclick="editTask('${task.id}')">${ICONS.edit}</button>
-                    <button class="btn btn-danger btn-icon" title="Delete" onclick="confirmDelete('${task.id}')">${ICONS.trash}</button>
+                <div class="swipe-background swipe-right-bg">
+                    <span class="swipe-action-icon">${ICONS.trash}</span>
+                </div>
+                <div class="task-item ${task.completed ? 'completed' : ''}">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="chk-${task.id}" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+                    </div>
+                    <label class="task-content" for="chk-${task.id}">
+                        <span class="task-title">${escapeHtml(task.title)}</span>
+                        ${task.note ? `<span class="task-note">${escapeHtml(task.note)}</span>` : ''}
+                        ${metaPills.length ? `<div class="task-meta">${metaPills.join('')}</div>` : ''}
+                    </label>
                 </div>
             `;
             return li;
+        }
+
+        function makeSwipable(container) {
+            const taskItem = container.querySelector('.task-item');
+            const leftBg = container.querySelector('.swipe-left-bg');
+            const rightBg = container.querySelector('.swipe-right-bg');
+            const taskId = container.dataset.id;
+            
+            let startX = 0;
+            let currentX = 0;
+            let isSwiping = false;
+            const threshold = 65; // px to trigger action
+            const maxSwipe = 90; // max visual offset
+            
+            function handleStart(e) {
+                if (e.target.closest('input, button, select, label[for], .checkbox-wrapper')) return;
+                startX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                isSwiping = true;
+                taskItem.style.transition = 'none';
+                leftBg.style.opacity = '0';
+                rightBg.style.opacity = '0';
+                
+                if (e.type === 'mousedown') {
+                    window.addEventListener('mousemove', handleMove);
+                    window.addEventListener('mouseup', handleEnd);
+                }
+            }
+            
+            function handleMove(e) {
+                if (!isSwiping) return;
+                const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                const diffX = clientX - startX;
+                
+                if (Math.abs(diffX) > 8) {
+                    currentX = diffX;
+                    if (currentX > maxSwipe) currentX = maxSwipe;
+                    if (currentX < -maxSwipe) currentX = -maxSwipe;
+                    
+                    taskItem.style.transform = `translateX(${currentX}px)`;
+                    
+                    if (currentX > 0) {
+                        rightBg.style.opacity = '1';
+                        leftBg.style.opacity = '0';
+                        const icon = rightBg.querySelector('.swipe-action-icon');
+                        if (icon) icon.style.transform = `scale(${Math.min(1.2, 0.6 + currentX / 60)})`;
+                    } else {
+                        leftBg.style.opacity = '1';
+                        rightBg.style.opacity = '0';
+                        const icon = leftBg.querySelector('.swipe-action-icon');
+                        if (icon) icon.style.transform = `scale(${Math.min(1.2, 0.6 + Math.abs(currentX) / 60)})`;
+                    }
+                }
+            }
+            
+            function handleEnd() {
+                if (!isSwiping) return;
+                isSwiping = false;
+                taskItem.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
+                
+                window.removeEventListener('mousemove', handleMove);
+                window.removeEventListener('mouseup', handleEnd);
+                
+                if (currentX < -threshold) {
+                    // Swipe Left (drag to left): Edit Task
+                    taskItem.style.transform = `translateX(-100%)`;
+                    setTimeout(() => {
+                        editTask(taskId);
+                        taskItem.style.transform = 'translateX(0)';
+                    }, 200);
+                } else if (currentX > threshold) {
+                    // Swipe Right (drag to right): Delete Task (with confirmation)
+                    taskItem.style.transform = `translateX(100%)`;
+                    setTimeout(() => {
+                        confirmDelete(taskId).then(ok => {
+                            if (!ok) {
+                                taskItem.style.transform = 'translateX(0)';
+                            }
+                        });
+                    }, 200);
+                } else {
+                    taskItem.style.transform = 'translateX(0)';
+                }
+                currentX = 0;
+            }
+            
+            taskItem.addEventListener('touchstart', handleStart, { passive: true });
+            taskItem.addEventListener('touchmove', handleMove, { passive: true });
+            taskItem.addEventListener('touchend', handleEnd);
+            taskItem.addEventListener('mousedown', handleStart);
         }
 
         function toggleTask(taskId) {
@@ -2573,7 +2685,7 @@
 
         async function confirmDelete(taskId) {
             const t = tasks.find(x => x.id === taskId);
-            if (!t) return;
+            if (!t) return false;
             const ok = await customConfirm({
                 title: 'Delete Task?',
                 message: `"${t.title}" will be permanently removed.\n\nThis action cannot be undone.`,
@@ -2604,7 +2716,9 @@
                         }
                     });
                 }
+                return true;
             }
+            return false;
         }
 
         async function deleteTaskFromModal() {
