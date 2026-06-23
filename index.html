@@ -3132,6 +3132,8 @@
                         if (error) {
                             console.error('Supabase auto-delete error:', error);
                             showToast('Sync failed: ' + error.message);
+                        } else {
+                            broadcastChange(taskId, 'delete');
                         }
                     });
                 }
@@ -3171,6 +3173,8 @@
                         if (error) {
                             console.error('Supabase auto-delete error:', error);
                             showToast('Sync failed: ' + error.message);
+                        } else {
+                            broadcastChange(id, 'delete');
                         }
                     });
                 }
@@ -3289,6 +3293,9 @@
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, payload => {
                         handleRealtimePayload(payload);
                     })
+                    .on('broadcast', { event: 'app_changed' }, ({ payload }) => {
+                        handleBroadcastPayload(payload);
+                    })
                     .subscribe((status) => {
                         console.log('Realtime subscription status:', status);
                     });
@@ -3324,115 +3331,167 @@
                     }
                 }
             } else if (eventType === 'INSERT' || eventType === 'UPDATE') {
-                if (!newRecord || !newRecord.id) return;
-                const id = newRecord.id;
+                applyOrUpdateRecord(newRecord);
+            }
+        }
 
-                if (id === '_settings_theme') {
-                    if (newRecord.note) {
-                        try {
-                            const parsed = JSON.parse(newRecord.note);
-                            const currentThemeSerialized = JSON.stringify({
-                                accentHex: theme.accentHex,
-                                accentRgb: theme.accentRgb,
-                                accentGradStart: theme.accentGradStart,
-                                accentGradEnd: theme.accentGradEnd,
-                                accentType: theme.accentType,
-                                textureStyle: theme.textureStyle,
-                                mode: theme.mode,
-                                fontScale: theme.fontScale,
-                                density: theme.density
-                            });
-                            if (JSON.stringify(parsed) !== currentThemeSerialized) {
-                                theme = { ...theme, ...parsed };
-                                if (!theme.mode) theme.mode = 'system';
-                                saveTheme();
-                                applyTheme();
-                                if (document.getElementById('theme-modal').classList.contains('active')) {
-                                    renderColorGrid();
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse realtime settings theme:', e);
-                        }
-                    }
-                } else if (id === '_settings_deleted_tasks') {
-                    if (newRecord.note) {
-                        try {
-                            const parsed = JSON.parse(newRecord.note);
-                            if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(deletedTasks)) {
-                                deletedTasks = parsed.slice(0, 50);
-                                saveDeletedTasks();
-                                if (document.getElementById('trash-modal').classList.contains('active')) {
-                                    renderTrashList();
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse realtime deleted tasks:', e);
-                        }
-                    }
-                } else if (id.startsWith('_transfer_')) {
-                    const incomingTransfer = sanitizeTask(newRecord, true);
-                    const localIndex = transfers.findIndex(t => t.id === id);
+        function applyOrUpdateRecord(newRecord) {
+            if (!newRecord || !newRecord.id) return;
+            const id = newRecord.id;
 
-                    if (localIndex === -1) {
-                        transfers.push(incomingTransfer);
+            if (id === '_settings_theme') {
+                if (newRecord.note) {
+                    try {
+                        const parsed = JSON.parse(newRecord.note);
+                        const currentThemeSerialized = JSON.stringify({
+                            accentHex: theme.accentHex,
+                            accentRgb: theme.accentRgb,
+                            accentGradStart: theme.accentGradStart,
+                            accentGradEnd: theme.accentGradEnd,
+                            accentType: theme.accentType,
+                            textureStyle: theme.textureStyle,
+                            mode: theme.mode,
+                            fontScale: theme.fontScale,
+                            density: theme.density
+                        });
+                        if (JSON.stringify(parsed) !== currentThemeSerialized) {
+                            theme = { ...theme, ...parsed };
+                            if (!theme.mode) theme.mode = 'system';
+                            saveTheme();
+                            applyTheme();
+                            if (document.getElementById('theme-modal').classList.contains('active')) {
+                                renderColorGrid();
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse settings theme:', e);
+                    }
+                }
+            } else if (id === '_settings_deleted_tasks') {
+                if (newRecord.note) {
+                    try {
+                        const parsed = JSON.parse(newRecord.note);
+                        if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(deletedTasks)) {
+                            deletedTasks = parsed.slice(0, 50);
+                            saveDeletedTasks();
+                            if (document.getElementById('trash-modal').classList.contains('active')) {
+                                renderTrashList();
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse deleted tasks:', e);
+                    }
+                }
+            } else if (id.startsWith('_transfer_')) {
+                const incomingTransfer = sanitizeTask(newRecord, true);
+                const localIndex = transfers.findIndex(t => t.id === id);
+
+                if (localIndex === -1) {
+                    transfers.unshift(incomingTransfer);
+                    saveTransfers();
+                    if (appMode === 'transfer') renderTransferBoard();
+                } else {
+                    const localTransfer = transfers[localIndex];
+                    const incomingTime = getTimestamp(incomingTransfer.createdAt);
+                    const localTime = getTimestamp(localTransfer.createdAt);
+
+                    if (incomingTime > localTime || JSON.stringify(localTransfer) !== JSON.stringify(incomingTransfer)) {
+                        transfers[localIndex] = incomingTransfer;
                         saveTransfers();
                         if (appMode === 'transfer') renderTransferBoard();
-                    } else {
-                        const localTransfer = transfers[localIndex];
-                        const incomingTime = getTimestamp(incomingTransfer.createdAt);
-                        const localTime = getTimestamp(localTransfer.createdAt);
-
-                        if (incomingTime > localTime || JSON.stringify(localTransfer) !== JSON.stringify(incomingTransfer)) {
-                            transfers[localIndex] = incomingTransfer;
-                            saveTransfers();
-                            if (appMode === 'transfer') renderTransferBoard();
-                        }
                     }
-                } else {
-                    const incomingTask = sanitizeTask(newRecord, true);
-                    const localIndex = tasks.findIndex(t => t.id === id);
+                }
+            } else {
+                const incomingTask = sanitizeTask(newRecord, true);
+                const localIndex = tasks.findIndex(t => t.id === id);
 
-                    if (localIndex === -1) {
-                        tasks.push(incomingTask);
+                if (localIndex === -1) {
+                    tasks.push(incomingTask);
+                    saveTasks();
+                    renderBoard();
+                } else {
+                    const localTask = tasks[localIndex];
+                    const incomingTime = getTimestamp(incomingTask.createdAt);
+                    const localTime = getTimestamp(localTask.createdAt);
+
+                    if (incomingTime > localTime) {
+                        tasks[localIndex] = {
+                            ...localTask,
+                            ...incomingTask
+                        };
                         saveTasks();
                         renderBoard();
-                    } else {
-                        const localTask = tasks[localIndex];
-                        const incomingTime = getTimestamp(incomingTask.createdAt);
-                        const localTime = getTimestamp(localTask.createdAt);
-
-                        if (incomingTime > localTime) {
+                    } else if (incomingTime === localTime) {
+                        if (JSON.stringify(localTask) !== JSON.stringify({ ...localTask, ...incomingTask })) {
                             tasks[localIndex] = {
                                 ...localTask,
                                 ...incomingTask
                             };
                             saveTasks();
                             renderBoard();
-                        } else if (incomingTime === localTime) {
-                            if (JSON.stringify(localTask) !== JSON.stringify({ ...localTask, ...incomingTask })) {
-                                tasks[localIndex] = {
-                                    ...localTask,
-                                    ...incomingTask
-                                };
-                                saveTasks();
-                                renderBoard();
-                            }
-                        } else if (localTime > incomingTime) {
-                            const client = getSupabase();
-                            if (client) {
-                                client.from('tasks').upsert(sanitizeTask(localTask, true)).then(({ error }) => {
-                                    if (error) {
-                                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                                            client.from('tasks').upsert(sanitizeTask(localTask, false));
-                                        } else {
-                                            console.error('Supabase resolve conflict error:', error);
-                                        }
+                        }
+                    } else if (localTime > incomingTime) {
+                        const client = getSupabase();
+                        if (client) {
+                            client.from('tasks').upsert(sanitizeTask(localTask, true)).then(({ error }) => {
+                                if (error) {
+                                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                                        client.from('tasks').upsert(sanitizeTask(localTask, false));
+                                    } else {
+                                        console.error('Supabase resolve conflict error:', error);
                                     }
-                                });
-                            }
+                                }
+                            });
                         }
                     }
+                }
+            }
+        }
+
+        function broadcastChange(id, action = 'upsert') {
+            const client = getSupabase();
+            if (client && realtimeChannel) {
+                realtimeChannel.send({
+                    type: 'broadcast',
+                    event: 'app_changed',
+                    payload: { id, action }
+                });
+            }
+        }
+
+        async function handleBroadcastPayload(payload) {
+            console.log('Broadcast payload received:', payload);
+            if (!payload || !payload.id) return;
+            const id = payload.id;
+            const action = payload.action;
+
+            if (action === 'delete') {
+                if (id.startsWith('_transfer_')) {
+                    const index = transfers.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        transfers.splice(index, 1);
+                        saveTransfers();
+                        if (appMode === 'transfer') renderTransferBoard();
+                    }
+                } else {
+                    const index = tasks.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        tasks.splice(index, 1);
+                        saveTasks();
+                        renderBoard();
+                    }
+                }
+            } else if (action === 'upsert') {
+                const client = getSupabase();
+                if (!client) return;
+                try {
+                    const { data, error } = await client.from('tasks').select('*').eq('id', id).single();
+                    if (error) throw error;
+                    if (data) {
+                        applyOrUpdateRecord(data);
+                    }
+                } catch(e) {
+                    console.error('Error fetching broadcasted change:', e);
                 }
             }
         }
@@ -3467,6 +3526,7 @@
                                 showToast('Sync failed: ' + retryError.message);
                             } else {
                                 animateSyncSuccess();
+                                broadcastChange(taskObj.id, 'upsert');
                             }
                         });
                     } else {
@@ -3475,6 +3535,7 @@
                     }
                 } else {
                     animateSyncSuccess();
+                    broadcastChange(taskObj.id, 'upsert');
                 }
             });
         }
@@ -3577,7 +3638,11 @@
                     createdAt: Date.now()
                 };
                 client.from('tasks').upsert(settingsRecord).then(({ error }) => {
-                    if (error) console.error('Supabase settings save error:', error);
+                    if (error) {
+                        console.error('Supabase settings save error:', error);
+                    } else {
+                        broadcastChange('_settings_theme', 'upsert');
+                    }
                 });
             }
         }
@@ -3595,7 +3660,11 @@
                     createdAt: Date.now()
                 };
                 client.from('tasks').upsert(deletedRecord).then(({ error }) => {
-                    if (error) console.error('Supabase deleted tasks save error:', error);
+                    if (error) {
+                        console.error('Supabase deleted tasks save error:', error);
+                    } else {
+                        broadcastChange('_settings_deleted_tasks', 'upsert');
+                    }
                 });
             }
         }
@@ -4101,6 +4170,10 @@
                         if (error) {
                             console.error('Supabase batch delete error:', error);
                             showToast('Sync failed: ' + error.message);
+                        } else {
+                            idsToDelete.forEach(id => {
+                                broadcastChange(id, 'delete');
+                            });
                         }
                     });
                 }
@@ -4462,6 +4535,7 @@
                         client.from('tasks').upsert(sanitizeTask(transferObj, false)).then(({ error: retryError }) => {
                             if (!retryError) {
                                 animateSyncSuccess();
+                                broadcastChange(transferObj.id, 'upsert');
                             }
                         });
                     } else {
@@ -4469,6 +4543,7 @@
                     }
                 } else {
                     animateSyncSuccess();
+                    broadcastChange(transferObj.id, 'upsert');
                 }
             });
         }
@@ -4693,7 +4768,9 @@
                 
                 const client = getSupabase();
                 if (client) {
-                    client.from('tasks').delete().eq('id', id).catch(e => console.error(e));
+                    client.from('tasks').delete().eq('id', id).then(() => {
+                        broadcastChange(id, 'delete');
+                    }).catch(e => console.error(e));
                 }
             } catch(e) {
                 console.error(e);
@@ -4736,7 +4813,9 @@
                 
                 const client = getSupabase();
                 if (client) {
-                    client.from('tasks').delete().eq('id', id).catch(e => console.error(e));
+                    client.from('tasks').delete().eq('id', id).then(() => {
+                        broadcastChange(id, 'delete');
+                    }).catch(e => console.error(e));
                 }
             }
         }
