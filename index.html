@@ -31,9 +31,9 @@
             --radius-sm: 8px;
             --density: 1;
             --font-scale: 1;
-            --transition-fast: 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-smooth: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-spring: 0.38s cubic-bezier(0.2, 1, 0.4, 1.05);
+            --transition-fast: 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+            --transition-smooth: 0.42s cubic-bezier(0.25, 1, 0.5, 1);
+            --transition-spring: 0.52s cubic-bezier(0.34, 1.56, 0.64, 1);
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
             --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
@@ -315,7 +315,7 @@
         }
 
         .btn {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
             color: white;
             border: none;
             padding: calc(0.55rem * var(--density)) calc(1rem * var(--density));
@@ -1270,18 +1270,21 @@
             aspect-ratio: 1;
             border-radius: 50%;
             cursor: pointer;
-            border: 3px solid transparent;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.06);
             transition: all var(--transition-fast);
             position: relative;
+            transform: translate3d(0, 0, 0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .color-swatch:hover {
-            transform: scale(1.15);
+            transform: scale(1.15) translate3d(0, 0, 0);
         }
 
         .color-swatch.active {
-            border-color: var(--text-main);
-            transform: scale(1.1);
+            transform: scale(1.1) translate3d(0, 0, 0);
+            box-shadow: 0 0 0 3px var(--card-bg), 0 0 0 5px var(--accent);
         }
 
         .color-swatch.active::after {
@@ -1605,34 +1608,43 @@
         }
 
         /* ===== Texture & Border Style Types ===== */
+        html.texture-glassmorphism body {
+            background: radial-gradient(circle at 10% 20%, rgba(var(--accent-rgb), 0.06) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(49, 162, 76, 0.06) 0%, transparent 40%),
+                        var(--bg-color) !important;
+            background-attachment: fixed !important;
+        }
+
         html.texture-glassmorphism .day-card,
         html.texture-glassmorphism .modal,
         html.texture-glassmorphism .progress-container,
         html.texture-glassmorphism .filter-bar,
         html.texture-glassmorphism .greeting-banner {
-            background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.72) !important;
-            backdrop-filter: blur(14px) saturate(180%);
-            -webkit-backdrop-filter: blur(14px) saturate(180%);
-            border: 1px solid rgba(var(--accent-rgb), 0.15) !important;
+            background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.65) !important;
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(var(--accent-rgb), 0.18) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08) !important;
         }
         
         :root.theme-light { --card-bg-rgb: 255, 255, 255; }
         :root.theme-morning { --card-bg-rgb: 255, 255, 255; }
         :root.theme-afternoon { --card-bg-rgb: 255, 255, 255; }
         :root.theme-evening { --card-bg-rgb: 255, 251, 248; }
-        :root.theme-dark { --card-bg-rgb: 21, 29, 48; }
-        :root.theme-night { --card-bg-rgb: 21, 29, 48; }
+        :root.theme-dark { --card-bg-rgb: 15, 23, 42; }
+        :root.theme-night { --card-bg-rgb: 15, 23, 42; }
 
-        html.texture-neonglow .day-card,
-        html.texture-neonglow .modal,
-        html.texture-neonglow .progress-container,
-        html.texture-neonglow .filter-bar,
-        html.texture-neonglow .greeting-banner {
-            box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15) !important;
-            border-color: rgba(var(--accent-rgb), 0.35) !important;
-        }
-        html.texture-neonglow .btn:not(.btn-secondary) {
-            box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4) !important;
+        html.texture-gradientborder .day-card,
+        html.texture-gradientborder .progress-container,
+        html.texture-gradientborder .filter-bar,
+        html.texture-gradientborder .greeting-banner,
+        html.texture-gradientborder .modal {
+            border: 1px solid transparent !important;
+            background-image: linear-gradient(var(--card-bg), var(--card-bg)), 
+                              linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            box-shadow: var(--shadow-md) !important;
         }
 
         html.texture-subtlegrid body {
@@ -1928,21 +1940,30 @@
             </h2>
 
             <div class="theme-section">
-                <div class="theme-section-title">Matte / Solid Colors</div>
+                <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                    Matte / Solid Colors
+                </div>
                 <div class="color-grid" id="matte-grid"></div>
             </div>
 
             <div class="theme-section">
-                <div class="theme-section-title">Accent Gradients</div>
+                <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><path d="M12 2L2 22h20L12 2z"/></svg>
+                    Accent Gradients
+                </div>
                 <div class="color-grid" id="gradient-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
             </div>
 
             <div class="theme-section">
-                <div class="theme-section-title">App Texture & Border Style</div>
+                <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                    App Texture & Border Style
+                </div>
                 <div class="theme-mode-toggle" id="texture-toggle" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                     <button data-texture="minimalist" onclick="setTextureStyle('minimalist')">Minimalist</button>
                     <button data-texture="glassmorphism" onclick="setTextureStyle('glassmorphism')">Glassmorphic</button>
-                    <button data-texture="neonglow" onclick="setTextureStyle('neonglow')">Neon Glow</button>
+                    <button data-texture="gradientborder" onclick="setTextureStyle('gradientborder')">Aurora Border</button>
                     <button data-texture="subtlegrid" onclick="setTextureStyle('subtlegrid')">Subtle Grid</button>
                 </div>
             </div>
@@ -2138,7 +2159,18 @@
         function loadTasks() {
             const newFormat = JSON.parse(localStorage.getItem('khannaTasksV2'));
             if (newFormat && Array.isArray(newFormat)) {
-                return newFormat;
+                let updated = false;
+                const mapped = newFormat.map(t => {
+                    if (!t.addedAt) {
+                        t.addedAt = t.createdAt || Date.now();
+                        updated = true;
+                    }
+                    return t;
+                });
+                if (updated) {
+                    localStorage.setItem('khannaTasksV2', JSON.stringify(mapped));
+                }
+                return mapped;
             }
 
             const oldState = JSON.parse(localStorage.getItem('khannaTasks')) || {};
@@ -2148,7 +2180,8 @@
                 date: task.date === 'legacy' ? today : task.date,
                 time: task.time || "",
                 completed: !!oldState[task.id],
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                addedAt: Date.now()
             }));
         }
 
@@ -2302,10 +2335,14 @@
                 const dayTasks = byDate[date] || [];
                 if (dayTasks.length === 0) return;
 
-                // Sort tasks within the day: completed at bottom, then by time
+                // Sort tasks within the day: completed at bottom (sorted by completedAt descending), to-dos sorted by addition time (createdAt ascending)
                 dayTasks.sort((a, b) => {
                     if (a.completed !== b.completed) return a.completed ? 1 : -1;
-                    return (a.time || '99:99').localeCompare(b.time || '99:99');
+                    if (a.completed) {
+                        return (b.completedAt || 0) - (a.completedAt || 0);
+                    } else {
+                        return (a.addedAt || a.createdAt || 0) - (b.addedAt || b.createdAt || 0);
+                    }
                 });
 
                 const totalTasks = dayTasks.length;
@@ -2383,7 +2420,11 @@
             const t = tasks.find(x => x.id === taskId);
             if (!t) return;
             t.completed = !t.completed;
-            if (t.completed) t.completedAt = Date.now();
+            if (t.completed) {
+                t.completedAt = Date.now();
+            } else {
+                t.completedAt = null;
+            }
             t.createdAt = Date.now();
             saveTasks();
             renderBoard();
@@ -2391,10 +2432,21 @@
 
             const client = getSupabase();
             if (client) {
-                client.from('tasks').upsert(sanitizeTask(t)).then(({ error }) => {
+                client.from('tasks').upsert(sanitizeTask(t, true)).then(({ error }) => {
                     if (error) {
-                        console.error('Supabase auto-save error:', error);
-                        showToast('Sync failed: ' + error.message);
+                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                            client.from('tasks').upsert(sanitizeTask(t, false)).then(({ error: retryError }) => {
+                                if (retryError) {
+                                    console.error('Supabase auto-save error on retry:', retryError);
+                                    showToast('Sync failed: ' + retryError.message);
+                                } else {
+                                    animateSyncSuccess();
+                                }
+                            });
+                        } else {
+                            console.error('Supabase auto-save error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        }
                     } else {
                         animateSyncSuccess();
                     }
@@ -2473,9 +2525,10 @@
                 }
                 showToast('Task updated');
             } else {
+                const now = Date.now();
                 taskObj = {
                     id: uid(), title, note, date, time,
-                    completed: false, createdAt: Date.now()
+                    completed: false, createdAt: now, addedAt: now
                 };
                 tasks.push(taskObj);
                 showToast('Task added');
@@ -2486,10 +2539,23 @@
 
             const client = getSupabase();
             if (client && taskObj) {
-                client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
+                const payloadWithMeta = sanitizeTask(taskObj, true);
+                client.from('tasks').upsert(payloadWithMeta).then(({ error }) => {
                     if (error) {
-                        console.error('Supabase auto-save error:', error);
-                        showToast('Sync failed: ' + error.message);
+                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                            const payloadWithoutMeta = sanitizeTask(taskObj, false);
+                            client.from('tasks').upsert(payloadWithoutMeta).then(({ error: retryError }) => {
+                                if (retryError) {
+                                    console.error('Supabase auto-save error on retry:', retryError);
+                                    showToast('Sync failed: ' + retryError.message);
+                                } else {
+                                    animateSyncSuccess();
+                                }
+                            });
+                        } else {
+                            console.error('Supabase auto-save error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        }
                     } else {
                         animateSyncSuccess();
                     }
@@ -2755,7 +2821,7 @@
                         }
                     }
                 } else {
-                    const incomingTask = sanitizeTask(newRecord);
+                    const incomingTask = sanitizeTask(newRecord, true);
                     const localIndex = tasks.findIndex(t => t.id === id);
 
                     if (localIndex === -1) {
@@ -2768,20 +2834,32 @@
                         const localTime = localTask.createdAt || 0;
 
                         if (incomingTime > localTime) {
-                            tasks[localIndex] = incomingTask;
+                            tasks[localIndex] = {
+                                ...localTask,
+                                ...incomingTask
+                            };
                             saveTasks();
                             renderBoard();
                         } else if (incomingTime === localTime) {
-                            if (JSON.stringify(localTask) !== JSON.stringify(incomingTask)) {
-                                tasks[localIndex] = incomingTask;
+                            if (JSON.stringify(localTask) !== JSON.stringify({ ...localTask, ...incomingTask })) {
+                                tasks[localIndex] = {
+                                    ...localTask,
+                                    ...incomingTask
+                                };
                                 saveTasks();
                                 renderBoard();
                             }
                         } else if (localTime > incomingTime) {
                             const client = getSupabase();
                             if (client) {
-                                client.from('tasks').upsert(sanitizeTask(localTask)).then(({ error }) => {
-                                    if (error) console.error('Supabase resolve conflict error:', error);
+                                client.from('tasks').upsert(sanitizeTask(localTask, true)).then(({ error }) => {
+                                    if (error) {
+                                        if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                                            client.from('tasks').upsert(sanitizeTask(localTask, false));
+                                        } else {
+                                            console.error('Supabase resolve conflict error:', error);
+                                        }
+                                    }
                                 });
                             }
                         }
@@ -2790,9 +2868,9 @@
             }
         }
 
-        function sanitizeTask(t) {
+        function sanitizeTask(t, includeMeta = true) {
             if (!t) return null;
-            return {
+            const res = {
                 id: t.id,
                 title: t.title || '',
                 note: t.note || '',
@@ -2801,6 +2879,11 @@
                 completed: !!t.completed,
                 createdAt: t.createdAt
             };
+            if (includeMeta) {
+                if (t.completedAt !== undefined) res.completedAt = t.completedAt;
+                if (t.addedAt !== undefined) res.addedAt = t.addedAt;
+            }
+            return res;
         }
 
         function getSupabase() {
@@ -2972,13 +3055,11 @@
                 const isFirstSync = localStorage.getItem('supabaseCredentialsEntered') === 'true';
 
                 if (isFirstSync && remoteTasks.length > 0) {
-                    // SERVER DATA IS PRIME: Completely overwrite local tasks with remote tasks
-                    tasks = remoteTasks.map(sanitizeTask);
+                    tasks = remoteTasks.map(t => sanitizeTask(t, true));
                     saveTasks();
                     renderBoard();
                     localStorage.removeItem('supabaseCredentialsEntered');
                 } else {
-                    // Normal bidirectional merge, but server data takes absolute priority in case of conflicts
                     const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
                     const localMap = new Map(tasks.map(t => [t.id, t]));
 
@@ -2994,35 +3075,41 @@
                             const localTime = local.createdAt || 0;
                             const remoteTime = remote.createdAt || 0;
                             if (localTime > remoteTime) {
-                                const sanitized = sanitizeTask(local);
-                                merged.push(sanitized);
-                                toUpsert.push(sanitized);
+                                merged.push(local);
+                                toUpsert.push(local);
                             } else {
                                 const mergedTask = {
+                                    ...local,
                                     id: remote.id,
                                     title: remote.title,
                                     note: remote.note,
                                     date: remote.date,
                                     time: remote.time,
                                     completed: remote.completed,
-                                    createdAt: remote.createdAt
+                                    createdAt: remote.createdAt,
+                                    completedAt: remote.completedAt !== undefined ? remote.completedAt : local.completedAt,
+                                    addedAt: remote.addedAt !== undefined ? remote.addedAt : local.addedAt
                                 };
                                 merged.push(mergedTask);
                             }
                         } else if (local) {
-                            // Only upload local tasks that are not seed tasks (e.g. have a timestamp or standard uid format)
-                            const sanitized = sanitizeTask(local);
-                            merged.push(sanitized);
-                            toUpsert.push(sanitized);
+                            merged.push(local);
+                            toUpsert.push(local);
                         } else if (remote) {
-                            const sanitized = sanitizeTask(remote);
-                            merged.push(sanitized);
+                            merged.push(sanitizeTask(remote, true));
                         }
                     }
 
                     if (toUpsert.length > 0) {
-                        const { error: upsertError } = await client.from('tasks').upsert(toUpsert);
-                        if (upsertError) throw upsertError;
+                        const { error: upsertError } = await client.from('tasks').upsert(toUpsert.map(t => sanitizeTask(t, true)));
+                        if (upsertError) {
+                            if (upsertError.message && (upsertError.message.includes('column') || upsertError.code === '42703')) {
+                                const { error: retryError } = await client.from('tasks').upsert(toUpsert.map(t => sanitizeTask(t, false)));
+                                if (retryError) throw retryError;
+                            } else {
+                                throw upsertError;
+                            }
+                        }
                     }
 
                     tasks = merged;
