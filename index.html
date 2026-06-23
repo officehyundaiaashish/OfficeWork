@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0084ff">
-    <title>Khanna Automart - Task Tracker</title>
+    <meta name="theme-color" content="#f0f2f5">
+    <title>Tasker - Premium Task Manager</title>
+    <link rel="manifest" href='data:application/json,{"name":"Tasker","short_name":"Tasker","start_url":".","display":"standalone","background_color":"#f0f2f5","theme_color":"#f0f2f5","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%230084ff%27 stroke-width=%272.5%27><circle cx=%2712%27 cy=%2712%27 r=%2710%27 stroke=%27%230084ff%27/><path d=%27M7.5 12.5l3 3 6-6%27 stroke=%27%230084ff%27 stroke-width=%273%27/></svg>","sizes":"192x192","type":"image/svg+xml"},{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%230084ff%27 stroke-width=%272.5%27><circle cx=%2712%27 cy=%2712%27 r=%2710%27 stroke=%27%230084ff%27/><path d=%27M7.5 12.5l3 3 6-6%27 stroke=%27%230084ff%27 stroke-width=%273%27/></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -1332,12 +1335,15 @@
             <header class="app-header">
                 <div class="header-logo-container">
                     <div class="logo-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-                            <circle cx="7" cy="17" r="2" />
-                            <circle cx="15" cy="17" r="2" />
-                            <path d="M9 17h4" />
-                            <polyline points="8 9 11 12 17 6" stroke="#31a24c" stroke-width="2.5" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="url(#logo-grad)" stroke-width="2.5"/>
+                            <path d="M7.5 12.5l3 3 6-6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="logo-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="var(--accent)"/>
+                                    <stop offset="1" stop-color="#31a24c"/>
+                                </linearGradient>
+                            </defs>
                         </svg>
                     </div>
                     <h1>Tasker</h1>
@@ -2051,6 +2057,7 @@
                 saveTasks();
                 renderBoard();
                 showToast('Task deleted');
+                syncDeletedTasksToSupabase();
 
                 const client = getSupabase();
                 if (client) {
@@ -2058,8 +2065,6 @@
                         if (error) {
                             console.error('Supabase auto-delete error:', error);
                             showToast('Sync failed: ' + error.message);
-                        } else {
-                            animateSyncSuccess();
                         }
                     });
                 }
@@ -2089,6 +2094,7 @@
                 closeModal('task-modal');
                 renderBoard();
                 showToast('Task deleted');
+                syncDeletedTasksToSupabase();
 
                 const client = getSupabase();
                 if (client) {
@@ -2096,8 +2102,6 @@
                         if (error) {
                             console.error('Supabase auto-delete error:', error);
                             showToast('Sync failed: ' + error.message);
-                        } else {
-                            animateSyncSuccess();
                         }
                     });
                 }
@@ -2158,7 +2162,8 @@
             }
             updateSupabaseStatus();
 
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', theme.accentHex);
+            const bodyBg = getComputedStyle(document.body).backgroundColor || '#f0f2f5';
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', bodyBg);
         }
 
         // ===== SUPABASE SYNC =====
@@ -2233,6 +2238,48 @@
             }
         }
 
+        function syncSettingsToSupabase() {
+            const client = getSupabase();
+            if (client) {
+                const settingsRecord = {
+                    id: '_settings_theme',
+                    title: 'Theme Settings',
+                    note: JSON.stringify({
+                        accentHex: theme.accentHex,
+                        accentRgb: theme.accentRgb,
+                        layout: theme.layout,
+                        fontScale: theme.fontScale,
+                        density: theme.density
+                    }),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: Date.now()
+                };
+                client.from('tasks').upsert(settingsRecord).then(({ error }) => {
+                    if (error) console.error('Supabase settings save error:', error);
+                });
+            }
+        }
+
+        function syncDeletedTasksToSupabase() {
+            const client = getSupabase();
+            if (client) {
+                const deletedRecord = {
+                    id: '_settings_deleted_tasks',
+                    title: 'Deleted Tasks',
+                    note: JSON.stringify(deletedTasks),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: Date.now()
+                };
+                client.from('tasks').upsert(deletedRecord).then(({ error }) => {
+                    if (error) console.error('Supabase deleted tasks save error:', error);
+                });
+            }
+        }
+
         async function syncWithSupabase() {
             const client = getSupabase();
             if (!client) {
@@ -2246,9 +2293,38 @@
             btn.disabled = true;
 
             try {
-                const { data: remoteTasks, error } = await client.from('tasks').select('*');
+                const { data: remoteRecords, error } = await client.from('tasks').select('*');
                 if (error) throw error;
 
+                // Sync theme settings if found
+                const remoteTheme = remoteRecords.find(r => r.id === '_settings_theme');
+                if (remoteTheme && remoteTheme.note) {
+                    try {
+                        const parsed = JSON.parse(remoteTheme.note);
+                        theme = { ...theme, ...parsed };
+                        saveTheme();
+                        applyTheme();
+                    } catch (e) {
+                        console.error('Failed to parse remote theme:', e);
+                    }
+                }
+
+                // Sync recycle bin (deleted tasks) if found
+                const remoteDeleted = remoteRecords.find(r => r.id === '_settings_deleted_tasks');
+                if (remoteDeleted && remoteDeleted.note) {
+                    try {
+                        const parsed = JSON.parse(remoteDeleted.note);
+                        if (Array.isArray(parsed)) {
+                            deletedTasks = parsed.slice(0, 50);
+                            saveDeletedTasks();
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse remote deleted tasks:', e);
+                    }
+                }
+
+                // Filter out settings records for task list merging
+                const remoteTasks = remoteRecords.filter(r => !r.id.startsWith('_settings_'));
                 const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
                 const localMap = new Map(tasks.map(t => [t.id, t]));
 
@@ -2293,6 +2369,34 @@
                 tasks = merged;
                 saveTasks();
                 renderBoard();
+
+                // Upload local settings & deletedTasks to Supabase to keep them fully in sync
+                const settingsRecord = {
+                    id: '_settings_theme',
+                    title: 'Theme Settings',
+                    note: JSON.stringify({
+                        accentHex: theme.accentHex,
+                        accentRgb: theme.accentRgb,
+                        layout: theme.layout,
+                        fontScale: theme.fontScale,
+                        density: theme.density
+                    }),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: Date.now()
+                };
+                const deletedRecord = {
+                    id: '_settings_deleted_tasks',
+                    title: 'Deleted Tasks',
+                    note: JSON.stringify(deletedTasks),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: Date.now()
+                };
+                await client.from('tasks').upsert([settingsRecord, deletedRecord]);
+
                 updateSupabaseStatus();
 
                 // Animate logo and sync icon on success
@@ -2322,24 +2426,28 @@
             theme.accentRgb = rgb;
             saveTheme();
             applyTheme();
+            syncSettingsToSupabase();
         }
 
         function setLayout(layout) {
             theme.layout = layout;
             saveTheme();
             applyTheme();
+            syncSettingsToSupabase();
         }
 
         function setFontScale(val) {
             theme.fontScale = parseInt(val);
             saveTheme();
             applyTheme();
+            syncSettingsToSupabase();
         }
 
         function setDensity(val) {
             theme.density = parseInt(val);
             saveTheme();
             applyTheme();
+            syncSettingsToSupabase();
         }
 
         async function resetTheme() {
@@ -2354,6 +2462,7 @@
             saveTheme();
             applyTheme();
             showToast('Theme reset');
+            syncSettingsToSupabase();
         }
 
         function openThemeModal() {
@@ -2463,6 +2572,7 @@
                     }
                 });
             }
+            syncDeletedTasksToSupabase();
         }
 
         async function clearTrash() {
@@ -2478,6 +2588,7 @@
                 saveDeletedTasks();
                 renderTrashList();
                 showToast('Trash emptied');
+                syncDeletedTasksToSupabase();
             }
         }
 
@@ -2500,6 +2611,27 @@
                 document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
             }
         });
+
+        // PWA Service Worker Registration (Blob-based inline)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'tasker-v1';
+                    self.addEventListener('install', e => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', e => {
+                        e.waitUntil(clients.claim());
+                    });
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(fetch(e.request).catch(() => new Response("Offline")));
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(url).catch(err => console.log('SW registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
