@@ -2808,7 +2808,7 @@
                     if (a.completed) {
                         return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
                     } else {
-                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
+                        return (getTimestamp(b.addedAt) || getTimestamp(b.createdAt)) - (getTimestamp(a.addedAt) || getTimestamp(a.createdAt));
                     }
                 });
 
