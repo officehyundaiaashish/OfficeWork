@@ -1862,6 +1862,137 @@
                 linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
             background-size: 24px 24px;
         }
+
+        /* ===== Parallel Universe 'Transfer' CSS ===== */
+        body.mode-transfer .tasks-only-el {
+            display: none !important;
+        }
+        body.mode-tasker .transfer-only-el {
+            display: none !important;
+        }
+        body.mode-transfer h1 {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+        body.mode-transfer .logo-icon-wrap {
+            background: linear-gradient(135deg, rgba(255, 65, 108, 0.15), rgba(255, 75, 43, 0.15)) !important;
+            border-color: rgba(255, 65, 108, 0.2) !important;
+            color: #ff416c !important;
+        }
+        body.mode-transfer .logo-icon-wrap stop:first-child {
+            stop-color: #ff416c !important;
+        }
+        body.mode-transfer .logo-icon-wrap stop:last-child {
+            stop-color: #ff4b2b !important;
+        }
+        .transfer-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: calc(1rem * var(--density));
+            box-shadow: var(--shadow-sm);
+            margin-bottom: calc(0.85rem * var(--density));
+            animation: fadeSlideDown 0.4s var(--transition-smooth) both;
+        }
+        .transfer-input-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1.5px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .transfer-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: calc(0.85rem * var(--font-scale));
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+        .transfer-tab-btn.active {
+            background: var(--hover);
+            color: #ff416c;
+        }
+        .transfer-tab-content {
+            display: none;
+        }
+        .transfer-tab-content.active {
+            display: block;
+        }
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dropzone:hover, .dropzone.dragover {
+            border-color: #ff416c;
+            background: var(--hover);
+        }
+        .dropzone svg {
+            width: 32px;
+            height: 32px;
+            color: var(--text-muted);
+        }
+        .transfer-card-meta {
+            display: flex;
+            gap: 0.5rem;
+            font-size: calc(0.72rem * var(--font-scale));
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+        .text-share-preview {
+            background: var(--bg-color);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            font-family: inherit;
+            font-size: calc(0.82rem * var(--font-scale));
+            color: var(--text-main);
+            max-height: 120px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 0.35rem;
+            border: 1px solid var(--border);
+        }
+        .transfer-media-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius-sm);
+            margin-top: 0.4rem;
+            border: 1px solid var(--border);
+            object-fit: contain;
+        }
+        .transfer-doc-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-color);
+            padding: 0.4rem;
+            border-radius: var(--radius-sm);
+            margin-top: 0.4rem;
+            border: 1px solid var(--border);
+            font-size: calc(0.78rem * var(--font-scale));
+            font-weight: 500;
+        }
+        .transfer-doc-preview svg {
+            width: 16px;
+            height: 16px;
+            color: #ff416c;
+        }
     </style>
 </head>
 
@@ -1869,7 +2000,7 @@
     <div class="app-container">
         <div class="sticky-header-wrapper">
             <header class="app-header">
-                <div class="header-logo-container">
+                <div class="header-logo-container" onclick="toggleAppMode()" style="cursor: pointer;" title="Click to swap parallel universes">
                     <div class="logo-icon-wrap">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -1886,10 +2017,10 @@
                             </defs>
                         </svg>
                     </div>
-                    <h1>Tasker</h1>
+                    <h1 id="app-title-heading">Tasker</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="header-action-btn" onclick="openTrashModal()" title="Recycle Bin">
+                    <button class="header-action-btn tasks-only-el" onclick="openTrashModal()" title="Recycle Bin">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6" />
@@ -1914,9 +2045,9 @@
                     </button>
                 </div>
             </header>
-            <div id="greeting-banner" class="greeting-banner"></div>
-            <div id="stale-warning-banner" class="stale-warning-banner"></div>
-            <div class="sub-header-container">
+            <div id="greeting-banner" class="greeting-banner tasks-only-el"></div>
+            <div id="stale-warning-banner" class="stale-warning-banner tasks-only-el"></div>
+            <div class="sub-header-container tasks-only-el">
                 <div class="progress-container">
                     <div class="progress-text">
                         <span>Overall Progress</span>
@@ -1989,7 +2120,7 @@
         </div>
 
         <!-- Desktop top controls -->
-        <div class="top-controls">
+        <div class="top-controls tasks-only-el">
             <button class="btn" onclick="openAddModal()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
@@ -2000,11 +2131,40 @@
             </button>
         </div>
 
-        <div class="board" id="board"></div>
+        <div class="board tasks-only-el" id="board"></div>
+
+        <!-- Parallel Universe Transfer Panel -->
+        <div class="transfer-panel transfer-only-el">
+            <div class="transfer-input-tabs">
+                <button class="transfer-tab-btn active" onclick="switchTransferTab('text')">Share Text</button>
+                <button class="transfer-tab-btn" onclick="switchTransferTab('file')">Share File</button>
+            </div>
+            <div id="transfer-text-tab" class="transfer-tab-content active">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <textarea id="transfer-text-input" placeholder="Type or paste text to share..." style="min-height: 100px; padding: calc(0.85rem * var(--density));" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                </div>
+                <button class="btn" onclick="shareTextTransfer()" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                    Share Text
+                </button>
+            </div>
+            <div id="transfer-file-tab" class="transfer-tab-content">
+                <div class="dropzone" id="transfer-dropzone" onclick="document.getElementById('transfer-file-input').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Drag & Drop file here or Click to upload</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Max: Photo 200MB | Video 50MB | Doc 100MB | Text 50MB</span>
+                    <input type="file" id="transfer-file-input" style="display: none;" onchange="handleFileSelect(event)" multiple>
+                </div>
+            </div>
+        </div>
+        <div class="board transfer-only-el" id="transfer-board"></div>
     </div>
 
     <!-- Floating Action Button (mobile) -->
-    <button class="fab" id="add-task-fab" onclick="openAddModal()" aria-label="Add Task">
+    <button class="fab tasks-only-el" id="add-task-fab" onclick="openAddModal()" aria-label="Add Task">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
             stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
@@ -2360,6 +2520,8 @@
 
         // ===== STATE =====
         let tasks = [];
+        let transfers = [];
+        let appMode = localStorage.getItem('khannaAppMode') || 'tasker';
         let currentFilter = 'all';
         let confirmCallback = null;
         let isSelectMode = false;
@@ -2414,9 +2576,21 @@
 
         function saveTasks() { localStorage.setItem('khannaTasksV2', JSON.stringify(tasks)); }
         function saveTheme() { localStorage.setItem('khannaTheme', JSON.stringify(theme)); }
+        function saveTransfers() { localStorage.setItem('khannaTransfers', JSON.stringify(transfers)); }
+        function loadTransfers() {
+            try {
+                const local = localStorage.getItem('khannaTransfers');
+                return local ? JSON.parse(local) : [];
+            } catch (e) {
+                console.error('Failed to load transfers:', e);
+                return [];
+            }
+        }
 
-        tasks = loadTasks();
+        tasks = loadTasks().filter(t => !t.id.startsWith('_transfer_'));
         saveTasks();
+        transfers = loadTransfers();
+        saveTransfers();
 
         // ===== HELPERS =====
         function todayStr() { return new Date().toISOString().split('T')[0]; }
@@ -3108,11 +3282,20 @@
                 const id = oldRecord.id;
                 if (id.startsWith('_settings_')) return;
 
-                const index = tasks.findIndex(t => t.id === id);
-                if (index !== -1) {
-                    tasks.splice(index, 1);
-                    saveTasks();
-                    renderBoard();
+                if (id.startsWith('_transfer_')) {
+                    const index = transfers.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        transfers.splice(index, 1);
+                        saveTransfers();
+                        if (appMode === 'transfer') renderTransferBoard();
+                    }
+                } else {
+                    const index = tasks.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        tasks.splice(index, 1);
+                        saveTasks();
+                        renderBoard();
+                    }
                 }
             } else if (eventType === 'INSERT' || eventType === 'UPDATE') {
                 if (!newRecord || !newRecord.id) return;
@@ -3159,6 +3342,25 @@
                             }
                         } catch (e) {
                             console.error('Failed to parse realtime deleted tasks:', e);
+                        }
+                    }
+                } else if (id.startsWith('_transfer_')) {
+                    const incomingTransfer = sanitizeTask(newRecord, true);
+                    const localIndex = transfers.findIndex(t => t.id === id);
+
+                    if (localIndex === -1) {
+                        transfers.push(incomingTransfer);
+                        saveTransfers();
+                        if (appMode === 'transfer') renderTransferBoard();
+                    } else {
+                        const localTransfer = transfers[localIndex];
+                        const incomingTime = incomingTransfer.createdAt || 0;
+                        const localTime = localTransfer.createdAt || 0;
+
+                        if (incomingTime > localTime) {
+                            transfers[localIndex] = incomingTransfer;
+                            saveTransfers();
+                            if (appMode === 'transfer') renderTransferBoard();
                         }
                     }
                 } else {
@@ -3415,15 +3617,15 @@
                     }
                 }
 
-                // Filter out settings records for task list merging
-                const remoteTasks = remoteRecords.filter(r => !r.id.startsWith('_settings_'));
+                // Filter out settings and transfer records for task list merging
+                const remoteTasks = remoteRecords.filter(r => !r.id.startsWith('_settings_') && !r.id.startsWith('_transfer_'));
+                const remoteTransfers = remoteRecords.filter(r => r.id.startsWith('_transfer_'));
                 const isFirstSync = localStorage.getItem('supabaseCredentialsEntered') === 'true';
 
                 if (isFirstSync && remoteTasks.length > 0) {
                     tasks = remoteTasks.map(t => sanitizeTask(t, true));
                     saveTasks();
                     renderBoard();
-                    localStorage.removeItem('supabaseCredentialsEntered');
                 } else {
                     const remoteMap = new Map(remoteTasks.map(t => [t.id, t]));
                     const localMap = new Map(tasks.map(t => [t.id, t]));
@@ -3480,8 +3682,53 @@
                     tasks = merged;
                     saveTasks();
                     renderBoard();
-                    if (isFirstSync) localStorage.removeItem('supabaseCredentialsEntered');
                 }
+
+                // Sync Transfers
+                const remoteTransferMap = new Map(remoteTransfers.map(t => [t.id, t]));
+                const localTransferMap = new Map(transfers.map(t => [t.id, t]));
+
+                const transfersToUpsert = [];
+                const mergedTransfers = [];
+                const allTransferIds = new Set([...localTransferMap.keys(), ...remoteTransferMap.keys()]);
+
+                for (const id of allTransferIds) {
+                    const local = localTransferMap.get(id);
+                    const remote = remoteTransferMap.get(id);
+
+                    if (local && remote) {
+                        const localTime = local.createdAt || 0;
+                        const remoteTime = remote.createdAt || 0;
+                        if (localTime > remoteTime) {
+                            mergedTransfers.push(local);
+                            transfersToUpsert.push(local);
+                        } else {
+                            mergedTransfers.push(remote);
+                        }
+                    } else if (local) {
+                        mergedTransfers.push(local);
+                        transfersToUpsert.push(local);
+                    } else if (remote) {
+                        mergedTransfers.push(sanitizeTask(remote, true));
+                    }
+                }
+
+                if (transfersToUpsert.length > 0) {
+                    const { error: upsertError } = await client.from('tasks').upsert(transfersToUpsert.map(t => sanitizeTask(t, true)));
+                    if (upsertError) {
+                        if (upsertError.message && (upsertError.message.includes('column') || upsertError.code === '42703')) {
+                            const { error: retryError } = await client.from('tasks').upsert(transfersToUpsert.map(t => sanitizeTask(t, false)));
+                            if (retryError) throw retryError;
+                        } else {
+                            throw upsertError;
+                        }
+                    }
+                }
+
+                transfers = mergedTransfers;
+                saveTransfers();
+                if (appMode === 'transfer') renderTransferBoard();
+                if (isFirstSync) localStorage.removeItem('supabaseCredentialsEntered');
 
                 // Upload local settings & deletedTasks to Supabase to keep them fully in sync
                 const settingsRecord = {
@@ -4053,9 +4300,424 @@
             banner.classList.add('visible');
         }
 
+        // ===== PARALLEL UNIVERSE: TRANSFER FUNCTIONS =====
+        function toggleAppMode() {
+            if (isSelectMode) exitSelectionMode();
+            appMode = appMode === 'tasker' ? 'transfer' : 'tasker';
+            localStorage.setItem('khannaAppMode', appMode);
+            applyAppMode();
+        }
+
+        function applyAppMode() {
+            const body = document.body;
+            const heading = document.getElementById('app-title-heading');
+            if (appMode === 'transfer') {
+                body.classList.remove('mode-tasker');
+                body.classList.add('mode-transfer');
+                if (heading) heading.textContent = 'Transfer';
+                renderTransferBoard();
+            } else {
+                body.classList.remove('mode-transfer');
+                body.classList.add('mode-tasker');
+                if (heading) heading.textContent = 'Tasker';
+                renderBoard();
+            }
+        }
+
+        function switchTransferTab(tab) {
+            const tabs = document.querySelectorAll('.transfer-tab-btn');
+            tabs.forEach(t => {
+                const active = t.textContent.toLowerCase().includes(tab);
+                t.classList.toggle('active', active);
+            });
+            document.getElementById('transfer-text-tab').classList.toggle('active', tab === 'text');
+            document.getElementById('transfer-file-tab').classList.toggle('active', tab === 'file');
+        }
+
+        function shareTextTransfer() {
+            const textInput = document.getElementById('transfer-text-input');
+            const val = textInput.value.trim();
+            if (!val) {
+                showToast('Please enter text to share');
+                return;
+            }
+            
+            // Check size limit: 50MB limit
+            const sizeInBytes = new Blob([val]).size;
+            if (sizeInBytes > 50 * 1024 * 1024) {
+                showToast('Text too large! Limit is 50MB.');
+                return;
+            }
+            
+            createTransferRecord({
+                type: 'text',
+                content: val,
+                size: sizeInBytes,
+                mimeType: 'text/plain'
+            });
+            
+            textInput.value = '';
+            showToast('Text shared');
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length) {
+                for (let i = 0; i < files.length; i++) {
+                    handleUploadedFile(files[i]);
+                }
+            }
+        }
+
+        function handleUploadedFile(file) {
+            const sizeInMB = file.size / (1024 * 1024);
+            const mime = file.type;
+            let type = 'document';
+            let limit = 100; // default doc limit 100MB
+            
+            if (mime.startsWith('image/')) {
+                type = 'photo';
+                limit = 200;
+            } else if (mime.startsWith('video/')) {
+                type = 'video';
+                limit = 50;
+            }
+            
+            if (sizeInMB > limit) {
+                showToast(`File too large! ${type.toUpperCase()} limit is ${limit}MB.`);
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                createTransferRecord({
+                    type: type,
+                    fileName: file.name,
+                    mimeType: mime,
+                    size: file.size,
+                    content: base64Data
+                });
+            };
+            reader.onerror = function() {
+                showToast('Failed to read file.');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function createTransferRecord({ type, fileName = '', mimeType = '', size = 0, content }) {
+            const now = Date.now();
+            const transferObj = {
+                id: '_transfer_' + uid(),
+                title: fileName || (type === 'text' ? 'Text Share' : 'File Share'),
+                note: JSON.stringify({ type, content, size, mimeType }),
+                date: todayStr(),
+                time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                completed: false,
+                createdAt: now,
+                addedAt: now
+            };
+            
+            transfers.unshift(transferObj);
+            saveTransfers();
+            renderTransferBoard();
+            
+            // Sync to supabase
+            upsertTransferToSupabase(transferObj);
+        }
+
+        function upsertTransferToSupabase(transferObj) {
+            const client = getSupabase();
+            if (!client || !transferObj) return;
+            client.from('tasks').upsert(sanitizeTask(transferObj, true)).then(({ error }) => {
+                if (error) {
+                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
+                        client.from('tasks').upsert(sanitizeTask(transferObj, false)).then(({ error: retryError }) => {
+                            if (!retryError) {
+                                animateSyncSuccess();
+                            }
+                        });
+                    } else {
+                        console.error('Supabase transfer sync error:', error);
+                    }
+                } else {
+                    animateSyncSuccess();
+                }
+            });
+        }
+
+        function initTransferDropzone() {
+            const dropzone = document.getElementById('transfer-dropzone');
+            if (!dropzone) return;
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('dragover');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('dragover');
+                }, false);
+            });
+            
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) {
+                    for (let i = 0; i < files.length; i++) {
+                        handleUploadedFile(files[i]);
+                    }
+                }
+            }, false);
+        }
+
+        function renderTransferBoard() {
+            const board = document.getElementById('transfer-board');
+            if (!board) return;
+            board.innerHTML = '';
+            
+            const byDate = {};
+            transfers.forEach(t => {
+                const dateKey = t.date || todayStr();
+                if (!byDate[dateKey]) byDate[dateKey] = [];
+                byDate[dateKey].push(t);
+            });
+            
+            const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+            
+            let cardIndex = 0;
+            sortedDates.forEach(date => {
+                const dayTransfers = byDate[date] || [];
+                if (dayTransfers.length === 0) return;
+                
+                dayTransfers.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.style.animationDelay = `${cardIndex * 0.06}s`;
+                cardIndex++;
+                
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.style.color = '#ff416c';
+                header.style.borderBottomColor = 'rgba(255, 65, 108, 0.2)';
+                header.innerHTML = `
+                    <div class="day-title-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:#ff416c;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        <span class="day-title-text" style="color:var(--text-main);">${escapeHtml(formatDate(date))}</span>
+                    </div>
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${dayTransfers.length} item${dayTransfers.length > 1 ? 's' : ''}</span>
+                `;
+                card.appendChild(header);
+                
+                const list = document.createElement('ul');
+                list.className = 'task-list';
+                dayTransfers.forEach(transfer => {
+                    const item = buildTransferItem(transfer);
+                    list.appendChild(item);
+                });
+                card.appendChild(list);
+                board.appendChild(card);
+            });
+            
+            if (sortedDates.length === 0) {
+                board.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon" style="color: #ff416c;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div>No shared content found.</div>
+                        <div style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-muted);">Share text or upload files to start transferring across devices.</div>
+                    </div>
+                `;
+            }
+        }
+
+        function buildTransferItem(transfer) {
+            const li = document.createElement('li');
+            li.className = 'task-item-container';
+            li.style.userSelect = 'text';
+            li.style.webkitUserSelect = 'text';
+            
+            let data = { type: 'text', content: '', size: 0, mimeType: '' };
+            try {
+                if (transfer.note) {
+                    data = JSON.parse(transfer.note);
+                }
+            } catch(e) {
+                console.error('Error parsing transfer data:', e);
+            }
+            
+            let previewHtml = '';
+            if (data.type === 'text') {
+                previewHtml = `<div class="text-share-preview">${escapeHtml(data.content)}</div>`;
+            } else if (data.type === 'photo') {
+                previewHtml = `<img class="transfer-media-preview" src="${data.content}" alt="${escapeHtml(transfer.title)}" onclick="window.open('${data.content}', '_blank')">`;
+            } else if (data.type === 'video') {
+                previewHtml = `<video class="transfer-media-preview" controls src="${data.content}"></video>`;
+            } else {
+                previewHtml = `
+                    <div class="transfer-doc-preview">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:250px;">${escapeHtml(transfer.title)}</span>
+                    </div>
+                `;
+            }
+            
+            let sizeLabel = '';
+            if (data.size > 0) {
+                const kb = data.size / 1024;
+                if (kb > 1024) {
+                    sizeLabel = (kb / 1024).toFixed(1) + ' MB';
+                } else {
+                    sizeLabel = kb.toFixed(0) + ' KB';
+                }
+            }
+            
+            const showCopy = data.type === 'text';
+            const showDownload = data.type !== 'text';
+            
+            li.innerHTML = `
+                <div class="task-item" style="flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 0.8rem; user-select: text; -webkit-user-select: text;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem; min-width: 0; flex-grow: 1;">
+                            <span style="font-weight: 700; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">
+                                ${escapeHtml(transfer.title || (data.type === 'text' ? 'Shared Text' : 'Shared File'))}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0;">
+                            <span>${escapeHtml(formatTime(transfer.time))}</span>
+                            ${sizeLabel ? `<span>•</span> <span>${sizeLabel}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${previewHtml}
+                    
+                    <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.25rem; width: 100%;">
+                        ${showCopy ? `
+                        <button class="btn btn-secondary btn-sm" onclick="copyTransferText('${transfer.id}')" style="padding: 0.25rem 0.6rem; min-height: 28px; font-size: 0.75rem; gap: 0.25rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copy
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="cutTransferText('${transfer.id}')" style="padding: 0.25rem 0.6rem; min-height: 28px; font-size: 0.75rem; gap: 0.25rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M6 3h12M6 21h12M12 3v18"/></svg>
+                            Cut
+                        </button>
+                        ` : ''}
+                        ${showDownload ? `
+                        <button class="btn btn-secondary btn-sm" onclick="downloadTransferFile('${transfer.id}')" style="padding: 0.25rem 0.6rem; min-height: 28px; font-size: 0.75rem; gap: 0.25rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download
+                        </button>
+                        ` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteTransfer('${transfer.id}')" style="padding: 0.25rem 0.6rem; min-height: 28px; font-size: 0.75rem; gap: 0.25rem; background: var(--danger); border-color: var(--danger); color: white;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            return li;
+        }
+
+        function copyTransferText(id) {
+            const transfer = transfers.find(t => t.id === id);
+            if (!transfer) return;
+            try {
+                const data = JSON.parse(transfer.note);
+                navigator.clipboard.writeText(data.content).then(() => {
+                    showToast('Copied to clipboard');
+                }).catch(() => {
+                    showToast('Failed to copy');
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function cutTransferText(id) {
+            const transfer = transfers.find(t => t.id === id);
+            if (!transfer) return;
+            try {
+                const data = JSON.parse(transfer.note);
+                await navigator.clipboard.writeText(data.content);
+                showToast('Copied to clipboard. Deleting...');
+                
+                transfers = transfers.filter(t => t.id !== id);
+                saveTransfers();
+                renderTransferBoard();
+                
+                const client = getSupabase();
+                if (client) {
+                    client.from('tasks').delete().eq('id', id).catch(e => console.error(e));
+                }
+            } catch(e) {
+                console.error(e);
+                showToast('Failed to cut');
+            }
+        }
+
+        function downloadTransferFile(id) {
+            const transfer = transfers.find(t => t.id === id);
+            if (!transfer) return;
+            try {
+                const data = JSON.parse(transfer.note);
+                const link = document.createElement('a');
+                link.href = data.content;
+                link.download = transfer.title || 'download';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('Downloading...');
+            } catch(e) {
+                console.error(e);
+                showToast('Failed to download');
+            }
+        }
+
+        async function deleteTransfer(id) {
+            const transfer = transfers.find(t => t.id === id);
+            if (!transfer) return;
+            const ok = await customConfirm({
+                title: 'Delete Shared Content?',
+                message: `"${transfer.title}" will be permanently deleted across all devices.`,
+                okText: 'Delete',
+                okClass: 'btn-danger'
+            });
+            if (ok) {
+                transfers = transfers.filter(t => t.id !== id);
+                saveTransfers();
+                renderTransferBoard();
+                showToast('Deleted');
+                
+                const client = getSupabase();
+                if (client) {
+                    client.from('tasks').delete().eq('id', id).catch(e => console.error(e));
+                }
+            }
+        }
+
         // ===== INIT =====
         applyTheme();
-        renderBoard();
+        applyAppMode();
+        initTransferDropzone();
         displayGreeting();
         displayStaleWarning();
 
@@ -4095,7 +4757,11 @@
         // Keyboard shortcuts
         document.addEventListener('keydown', e => {
             const inField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
-            if (e.key === 'n' && !inField) { e.preventDefault(); openAddModal(); }
+            if (e.key === 'n' && !inField) {
+                if (appMode === 'transfer') return;
+                e.preventDefault();
+                openAddModal();
+            }
             if (e.key === 'Escape') {
                 if (isSelectMode) {
                     exitSelectionMode();
