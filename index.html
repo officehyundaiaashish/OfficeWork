@@ -2159,9 +2159,12 @@
                     <input type="file" id="transfer-file-input" style="display: none;" onchange="handleFileSelect(event)" multiple>
                 </div>
                 <div id="transfer-upload-progress" style="display:none; margin-top: 1rem; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--hover); font-size: 0.85rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-                        <span id="upload-progress-status" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 75%;">Uploading files...</span>
-                        <span id="upload-progress-percent">0%</span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; align-items: center;">
+                        <span id="upload-progress-status" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">Uploading files...</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span id="upload-progress-percent">0%</span>
+                            <button onclick="abortCurrentUpload()" style="background: var(--danger); color: white; border: none; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: 600;">Abort</button>
+                        </div>
                     </div>
                     <div style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
                         <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s ease;"></div>
@@ -2583,9 +2586,27 @@
             }));
         }
 
-        function saveTasks() { localStorage.setItem('khannaTasksV2', JSON.stringify(tasks)); }
-        function saveTheme() { localStorage.setItem('khannaTheme', JSON.stringify(theme)); }
-        function saveTransfers() { localStorage.setItem('khannaTransfers', JSON.stringify(transfers)); }
+        function saveTasks() {
+            try {
+                localStorage.setItem('khannaTasksV2', JSON.stringify(tasks));
+            } catch (e) {
+                console.warn('Local storage quota exceeded for tasks.', e);
+            }
+        }
+        function saveTheme() {
+            try {
+                localStorage.setItem('khannaTheme', JSON.stringify(theme));
+            } catch (e) {
+                console.warn('Local storage quota exceeded for theme.', e);
+            }
+        }
+        function saveTransfers() {
+            try {
+                localStorage.setItem('khannaTransfers', JSON.stringify(transfers));
+            } catch (e) {
+                console.warn('Local storage quota exceeded for transfers.', e);
+            }
+        }
         function loadTransfers() {
             try {
                 const local = localStorage.getItem('khannaTransfers');
@@ -2596,9 +2617,30 @@
             }
         }
 
+        function stripTransferContent(t) {
+            if (!t || !t.id.startsWith('_transfer_')) return t;
+            try {
+                const data = JSON.parse(t.note);
+                if (data && data.content && data.type !== 'text') {
+                    return {
+                        ...t,
+                        note: JSON.stringify({
+                            type: data.type,
+                            content: '', // strip heavy base64 data
+                            size: data.size,
+                            mimeType: data.mimeType
+                        })
+                    };
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            return t;
+        }
+
         tasks = loadTasks().filter(t => !t.id.startsWith('_transfer_'));
         saveTasks();
-        transfers = loadTransfers();
+        transfers = loadTransfers().map(stripTransferContent);
         saveTransfers();
 
         // ===== HELPERS =====
@@ -3408,7 +3450,7 @@
                     }
                 }
             } else if (id.startsWith('_transfer_')) {
-                const incomingTransfer = sanitizeTask(newRecord, true);
+                const incomingTransfer = stripTransferContent(sanitizeTask(newRecord, true));
                 const localIndex = transfers.findIndex(t => t.id === id);
 
                 if (localIndex === -1) {
@@ -3820,16 +3862,16 @@
                         const localTime = local.createdAt || 0;
                         const remoteTime = remote.createdAt || 0;
                         if (localTime > remoteTime) {
-                            mergedTransfers.push(local);
+                            mergedTransfers.push(stripTransferContent(local));
                             transfersToUpsert.push(local);
                         } else {
-                            mergedTransfers.push(remote);
+                            mergedTransfers.push(stripTransferContent(remote));
                         }
                     } else if (local) {
-                        mergedTransfers.push(local);
+                        mergedTransfers.push(stripTransferContent(local));
                         transfersToUpsert.push(local);
                     } else if (remote) {
-                        mergedTransfers.push(sanitizeTask(remote, true));
+                        mergedTransfers.push(stripTransferContent(sanitizeTask(remote, true)));
                     }
                 }
 
@@ -4487,6 +4529,30 @@
 
         let uploadQueue = [];
         let isUploading = false;
+        let currentAbortController = null;
+        let currentReader = null;
+
+        function abortCurrentUpload() {
+            if (currentReader) {
+                try {
+                    currentReader.abort();
+                } catch (e) {}
+                currentReader = null;
+            }
+            if (currentAbortController) {
+                try {
+                    currentAbortController.abort();
+                } catch (e) {}
+                currentAbortController = null;
+            }
+            uploadQueue = [];
+            isUploading = false;
+            const progressContainer = document.getElementById('transfer-upload-progress');
+            if (progressContainer) progressContainer.style.display = 'none';
+            showToast('Upload aborted', true);
+            const fileInput = document.getElementById('transfer-file-input');
+            if (fileInput) fileInput.value = '';
+        }
 
         function handleFileSelect(e) {
             const files = e.target.files;
@@ -4555,38 +4621,42 @@
                     return;
                 }
 
-                onProgress(10, 'Reading');
-                const reader = new FileReader();
+                currentAbortController = new AbortController();
+                currentReader = new FileReader();
 
-                reader.onprogress = function(e) {
+                currentReader.onprogress = function(e) {
                     if (e.lengthComputable) {
                         const percent = Math.round((e.loaded / e.total) * 40) + 10; // 10% to 50%
                         onProgress(percent, 'Reading');
                     }
                 };
 
-                reader.onload = async function(e) {
-                    onProgress(50, 'Uploading');
-                    const base64Data = e.target.result;
-                    const now = Date.now();
-                    const transferObj = {
-                        id: '_transfer_' + uid(),
-                        title: file.name,
-                        note: JSON.stringify({ type, content: base64Data, size: file.size, mimeType: mime }),
-                        date: todayStr(),
-                        time: new Date().toTimeString().split(' ')[0].substring(0, 5),
-                        completed: false,
-                        createdAt: now,
-                        addedAt: now
-                    };
-
-                    transfers.unshift(transferObj);
-                    saveTransfers();
-                    renderTransferBoard();
-
-                    onProgress(70, 'Syncing');
+                currentReader.onload = async function(e) {
                     try {
-                        await upsertTransferToSupabase(transferObj);
+                        onProgress(50, 'Uploading');
+                        const base64Data = e.target.result;
+                        const now = Date.now();
+                        
+                        const dbTransferObj = {
+                            id: '_transfer_' + uid(),
+                            title: file.name,
+                            note: JSON.stringify({ type, content: base64Data, size: file.size, mimeType: mime }),
+                            date: todayStr(),
+                            time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                            completed: false,
+                            createdAt: now,
+                            addedAt: now
+                        };
+
+                        const localTransferObj = stripTransferContent(dbTransferObj);
+
+                        onProgress(70, 'Syncing');
+                        await upsertTransferToSupabase(dbTransferObj, currentAbortController.signal);
+                        
+                        transfers.unshift(localTransferObj);
+                        saveTransfers();
+                        renderTransferBoard();
+
                         onProgress(100, 'Finished');
                         resolve();
                     } catch (err) {
@@ -4594,11 +4664,15 @@
                     }
                 };
 
-                reader.onerror = function() {
+                currentReader.onerror = function() {
                     reject('File read error');
                 };
 
-                reader.readAsDataURL(file);
+                currentReader.onabort = function() {
+                    reject('File read aborted');
+                };
+
+                currentReader.readAsDataURL(file);
             });
         }
 
@@ -4615,7 +4689,8 @@
                 addedAt: now
             };
             
-            transfers.unshift(transferObj);
+            const localTransferObj = stripTransferContent(transferObj);
+            transfers.unshift(localTransferObj);
             saveTransfers();
             renderTransferBoard();
             
@@ -4624,13 +4699,23 @@
             });
         }
 
-        function upsertTransferToSupabase(transferObj) {
+        function upsertTransferToSupabase(transferObj, abortSignal = null) {
             const client = getSupabase();
             if (!client || !transferObj) return Promise.reject('Supabase is not configured');
-            return client.from('tasks').upsert(sanitizeTask(transferObj, true)).then(({ error }) => {
+            
+            const query = client.from('tasks').upsert(sanitizeTask(transferObj, true));
+            if (abortSignal) {
+                query.abortSignal(abortSignal);
+            }
+            
+            return query.then(({ error }) => {
                 if (error) {
                     if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                        return client.from('tasks').upsert(sanitizeTask(transferObj, false)).then(({ error: retryError }) => {
+                        const retryQuery = client.from('tasks').upsert(sanitizeTask(transferObj, false));
+                        if (abortSignal) {
+                            retryQuery.abortSignal(abortSignal);
+                        }
+                        return retryQuery.then(({ error: retryError }) => {
                             if (retryError) {
                                 showToast('Sync failed: ' + retryError.message, true);
                                 throw retryError;
@@ -4772,9 +4857,26 @@
             if (data.type === 'text') {
                 previewHtml = `<div class="text-share-preview">${escapeHtml(data.content)}</div>`;
             } else if (data.type === 'photo') {
-                previewHtml = `<img class="transfer-media-preview" src="${data.content}" alt="${escapeHtml(transfer.title)}" onclick="window.open('${data.content}', '_blank')">`;
+                previewHtml = `
+                    <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'photo')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span style="color:var(--accent); font-weight:600;">Click to load image preview</span>
+                    </div>
+                `;
             } else if (data.type === 'video') {
-                previewHtml = `<video class="transfer-media-preview" controls src="${data.content}"></video>`;
+                previewHtml = `
+                    <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'video')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                        <span style="color:var(--accent); font-weight:600;">Click to load video preview</span>
+                    </div>
+                `;
             } else {
                 previewHtml = `
                     <div class="transfer-doc-preview">
@@ -4887,21 +4989,56 @@
             }
         }
 
-        function downloadTransferFile(id) {
+        async function downloadTransferFile(id) {
             const transfer = transfers.find(t => t.id === id);
             if (!transfer) return;
+            const client = getSupabase();
+            if (!client) {
+                showToast('Supabase is not configured', true);
+                return;
+            }
+            showToast('Fetching file details...');
             try {
-                const data = JSON.parse(transfer.note);
-                const link = document.createElement('a');
-                link.href = data.content;
-                link.download = transfer.title || 'download';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showToast('Downloading...');
+                const { data, error } = await client.from('tasks').select('note').eq('id', id).single();
+                if (error) throw error;
+                if (data && data.note) {
+                    const parsed = JSON.parse(data.note);
+                    const link = document.createElement('a');
+                    link.href = parsed.content;
+                    link.download = transfer.title || 'download';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast('Downloading...');
+                } else {
+                    showToast('File content not found', true);
+                }
             } catch(e) {
                 console.error(e);
-                showToast('Failed to download');
+                showToast('Failed to download file', true);
+            }
+        }
+
+        async function loadMediaPreview(id, type) {
+            const client = getSupabase();
+            if (!client) return;
+            const container = document.getElementById(`preview-container-${id}`);
+            if (!container) return;
+            container.innerHTML = `<span>Loading preview...</span>`;
+            try {
+                const { data, error } = await client.from('tasks').select('note').eq('id', id).single();
+                if (error) throw error;
+                if (data && data.note) {
+                    const parsed = JSON.parse(data.note);
+                    if (type === 'photo') {
+                        container.outerHTML = `<img class="transfer-media-preview" src="${parsed.content}" alt="preview" onclick="window.open('${parsed.content}', '_blank')">`;
+                    } else if (type === 'video') {
+                        container.outerHTML = `<video class="transfer-media-preview" controls autoplay src="${parsed.content}"></video>`;
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = `<span style="color:var(--danger);">Failed to load preview</span>`;
             }
         }
 
