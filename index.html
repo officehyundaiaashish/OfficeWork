@@ -271,8 +271,7 @@
             z-index: 10;
             margin-bottom: calc(1rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.92);
+            background: var(--card-bg);
         }
 
         .progress-bar {
@@ -393,29 +392,48 @@
             box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
         }
 
-        .search-input,
-        .category-filter {
-            padding: 0.35rem 0.7rem;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-size: calc(0.82rem * var(--font-scale));
+        .search-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 320px;
             margin-left: 0.5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 15px;
+            height: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: color var(--transition-fast);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.35rem 0.7rem 0.35rem 2rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: calc(0.82rem * var(--font-scale));
             font-family: inherit;
-            background: white;
+            background: var(--card-bg);
             color: var(--text-main);
             min-height: 34px;
             transition: all var(--transition-fast);
-            max-height: 100px;
-            overflow-y: auto;
             -webkit-autofill: off;
             -webkit-contacts-auto-fill-button: display: none !important;
         }
 
-        .search-input:focus,
-        .category-filter:focus {
+        .search-input:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+        }
+
+        .search-input:focus + .search-icon {
+            color: var(--accent);
         }
 
         .category-filter {
@@ -1202,22 +1220,22 @@
                 flex-shrink: 0;
             }
 
-            .search-input,
-            .category-filter {
+            .search-wrapper {
                 margin-left: 0;
-                flex-shrink: 0;
-                min-width: 100px;
-                padding: 0.2rem 0.4rem;
-                font-size: 0.7rem;
-                min-height: 26px;
-                max-height: 80px;
+                min-width: 130px;
+                flex-grow: 1;
             }
 
-            .search-input,
-            .category-filter {
-                margin-left: 0;
-                flex-shrink: 0;
-                min-width: 130px;
+            .search-input {
+                font-size: 0.75rem;
+                min-height: 30px;
+                padding: 0.25rem 0.6rem 0.25rem 1.8rem;
+            }
+
+            .search-icon {
+                left: 8px;
+                width: 13px;
+                height: 13px;
             }
 
             .fab { display: flex; }
@@ -1360,7 +1378,12 @@
             <button class="filter-btn" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
             <button class="filter-btn" data-filter="pending" onclick="setFilter('pending')">Pending</button>
             <button class="filter-btn" data-filter="completed" onclick="setFilter('completed')">Completed</button>
-            <input type="text" class="search-input" id="search-input" placeholder="Search tasks..." oninput="renderBoard()">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" id="search-input" placeholder="Search tasks..." oninput="renderBoard()" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </div>
         </div>
 
         <div class="board" id="board"></div>
@@ -1385,20 +1408,20 @@
                 <input type="hidden" id="task-id">
                 <div class="form-group">
                     <label for="task-title-input">Task Title *</label>
-                    <input type="text" id="task-title-input" required placeholder="e.g., UK17 W 4144">
+                    <input type="text" id="task-title-input" required placeholder="e.g., UK17 W 4144" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
-                    <textarea id="task-note-input" rows="2" placeholder="e.g., Catalytic Bill"></textarea>
+                    <textarea id="task-note-input" rows="2" placeholder="e.g., Catalytic Bill" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="task-date-input">Date *</label>
-                        <input type="date" id="task-date-input" required>
+                        <input type="date" id="task-date-input" required autocomplete="one-time-code">
                     </div>
                     <div class="form-group">
                         <label for="task-time-input">Time</label>
-                        <input type="time" id="task-time-input">
+                        <input type="time" id="task-time-input" autocomplete="one-time-code">
                     </div>
                 </div>
                 <div class="modal-actions">
@@ -1812,7 +1835,10 @@
             document.getElementById('task-title-input').value = '';
             document.getElementById('task-note-input').value = '';
             document.getElementById('task-date-input').value = todayStr();
-            document.getElementById('task-time-input').value = '';
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('task-time-input').value = `${hh}:${mm}`;
             document.getElementById('delete-btn').style.display = 'none';
             document.getElementById('task-modal').classList.add('active');
             setTimeout(() => document.getElementById('task-title-input').focus(), 300);
