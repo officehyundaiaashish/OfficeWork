@@ -4768,8 +4768,13 @@
                 
                 const client = getSupabase();
                 if (client) {
-                    client.from('tasks').delete().eq('id', id).then(() => {
-                        broadcastChange(id, 'delete');
+                    client.from('tasks').delete().eq('id', id).then(({ error }) => {
+                        if (error) {
+                            console.error('Supabase cut delete error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        } else {
+                            broadcastChange(id, 'delete');
+                        }
                     }).catch(e => console.error(e));
                 }
             } catch(e) {
@@ -4813,8 +4818,13 @@
                 
                 const client = getSupabase();
                 if (client) {
-                    client.from('tasks').delete().eq('id', id).then(() => {
-                        broadcastChange(id, 'delete');
+                    client.from('tasks').delete().eq('id', id).then(({ error }) => {
+                        if (error) {
+                            console.error('Supabase delete transfer error:', error);
+                            showToast('Sync failed: ' + error.message);
+                        } else {
+                            broadcastChange(id, 'delete');
+                        }
                     }).catch(e => console.error(e));
                 }
             }
