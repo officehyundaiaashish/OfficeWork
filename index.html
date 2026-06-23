@@ -1322,6 +1322,9 @@
                 <h1>Tasker</h1>
             </div>
             <div class="header-actions">
+                <button class="header-action-btn" onclick="openTrashModal()" title="Recycle Bin">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
                 <button class="header-action-btn" onclick="openSupabaseModal()" title="Supabase Sync">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.74-3.5-3.5-3.5-2.42 0-4.5 1.72-4.5 4.09C5.3 11.86 3 13.74 3 16.5A3.5 3.5 0 0 0 6.5 20h11"/><path d="M12 11v6m-3-3l3 3 3-3"/></svg>
                 </button>
@@ -1528,6 +1531,28 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-success" onclick="closeModal('supabase-modal')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Trash Modal ===== -->
+    <div class="modal-overlay" id="trash-modal">
+        <div class="modal">
+            <div class="modal-grip"></div>
+            <h2>
+                <span>Recycle Bin (Max 50)</span>
+                <button class="modal-close" onclick="closeModal('trash-modal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </h2>
+            <div style="max-height:350px; overflow-y:auto; margin-bottom:1rem;">
+                <ul id="trash-list" style="list-style:none; padding:0; margin:0;">
+                    <!-- populated dynamically -->
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearTrash()">Empty Trash</button>
+                <button type="button" class="btn btn-success" onclick="closeModal('trash-modal')">Done</button>
             </div>
         </div>
     </div>
@@ -1958,6 +1983,14 @@
                 okClass: 'btn-danger'
             });
             if (ok) {
+                const t = tasks.find(x => x.id === taskId);
+                if (t) {
+                    deletedTasks.unshift(t);
+                    if (deletedTasks.length > 50) {
+                        deletedTasks = deletedTasks.slice(0, 50);
+                    }
+                    saveDeletedTasks();
+                }
                 tasks = tasks.filter(x => x.id !== taskId);
                 saveTasks();
                 renderBoard();
@@ -1982,6 +2015,14 @@
                 okClass: 'btn-danger'
             });
             if (ok) {
+                const t = tasks.find(x => x.id === id);
+                if (t) {
+                    deletedTasks.unshift(t);
+                    if (deletedTasks.length > 50) {
+                        deletedTasks = deletedTasks.slice(0, 50);
+                    }
+                    saveDeletedTasks();
+                }
                 tasks = tasks.filter(x => x.id !== id);
                 saveTasks();
                 closeModal('task-modal');
@@ -2185,11 +2226,9 @@
                 tasks = merged;
                 saveTasks();
                 renderBoard();
-                showToast('Sync complete!');
                 updateSupabaseStatus();
             } catch (e) {
-                showToast('Sync failed: ' + e.message);
-                console.error(e);
+                console.error('Supabase sync error:', e);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -2298,6 +2337,63 @@
             };
             reader.readAsText(file);
             e.target.value = '';
+        }
+
+        // ===== RECYCLE BIN =====
+        let deletedTasks = JSON.parse(localStorage.getItem('khannaDeletedTasks')) || [];
+        function saveDeletedTasks() { localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks)); }
+
+        function openTrashModal() {
+            renderTrashList();
+            document.getElementById('trash-modal').classList.add('active');
+        }
+
+        function renderTrashList() {
+            const ul = document.getElementById('trash-list');
+            if (deletedTasks.length === 0) {
+                ul.innerHTML = '<li style="padding:1rem; text-align:center; color:var(--text-muted);">Bin is empty</li>';
+                return;
+            }
+            ul.innerHTML = deletedTasks.map(t => `
+                <li style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem; border:1px solid var(--border); border-radius:8px; margin-bottom:0.4rem; gap:0.5rem; background:var(--hover);">
+                    <div style="min-width:0; display:flex; flex-direction:column; align-items:flex-start; text-align:left;">
+                        <span style="font-weight:600; font-size:0.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">${escapeHtml(t.title)}</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(formatDate(t.date))}</span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="restoreTask('${t.id}')" style="min-height:30px; padding:0.2rem 0.5rem; display:inline-flex; align-items:center; gap:0.25rem;">
+                        ${ICONS.undo} Undo
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        function restoreTask(taskId) {
+            const tIdx = deletedTasks.findIndex(x => x.id === taskId);
+            if (tIdx === -1) return;
+            const taskObj = deletedTasks[tIdx];
+            deletedTasks.splice(tIdx, 1);
+            saveDeletedTasks();
+            
+            tasks.push(taskObj);
+            saveTasks();
+            
+            renderTrashList();
+            renderBoard();
+            showToast('Task restored');
+
+            const client = getSupabase();
+            if (client) {
+                client.from('tasks').upsert(sanitizeTask(taskObj)).then(({ error }) => {
+                    if (error) console.error('Supabase auto-save error:', error);
+                });
+            }
+        }
+
+        function clearTrash() {
+            deletedTasks = [];
+            saveDeletedTasks();
+            renderTrashList();
+            showToast('Trash emptied');
         }
 
         // ===== INIT =====
