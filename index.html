@@ -1159,6 +1159,54 @@
             transition: opacity 0.4s ease;
         }
 
+        .task-actions {
+            display: none;
+            gap: 0.3rem;
+            margin-left: auto;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        @media (hover: hover) {
+            .task-item:hover .task-actions {
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .action-btn {
+            background: var(--bg-color);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: 0;
+        }
+
+        .action-btn:hover {
+            color: var(--text-main);
+            border-color: #c4c7cc;
+            background: var(--hover);
+            transform: scale(1.05);
+        }
+
+        .action-btn.delete-btn:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .action-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
@@ -2442,6 +2490,10 @@
                         ${task.note ? `<span class="task-note">${escapeHtml(task.note)}</span>` : ''}
                         ${metaPills.length ? `<div class="task-meta">${metaPills.join('')}</div>` : ''}
                     </label>
+                    <div class="task-actions">
+                        <button class="action-btn edit-btn" title="Edit" onclick="editTask('${task.id}')">${ICONS.edit}</button>
+                        <button class="action-btn delete-btn" title="Delete" onclick="confirmDelete('${task.id}')">${ICONS.trash}</button>
+                    </div>
                 </div>
             `;
             return li;
