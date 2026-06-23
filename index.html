@@ -125,9 +125,9 @@
         }
 
         @keyframes syncPulse {
-            0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(var(--accent-rgb), 0)); }
-            50% { transform: scale(1.2); color: var(--success); filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.4)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(var(--accent-rgb), 0)); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--success); }
+            100% { transform: scale(1); }
         }
 
         .sync-success-animate {
@@ -421,7 +421,6 @@
             background: var(--accent);
             color: white;
             border-color: var(--accent);
-            box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
         }
 
         .search-wrapper {
@@ -842,7 +841,6 @@
 
         input[type="checkbox"]:hover {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
         }
 
         input[type="checkbox"]:checked {
@@ -1040,7 +1038,7 @@
             color: white;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.4);
+            box-shadow: var(--shadow-md);
             z-index: 50;
             display: flex;
             align-items: center;
@@ -1057,7 +1055,7 @@
 
         .fab:hover { 
             transform: scale(1.08); 
-            box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.5);
+            box-shadow: var(--shadow-lg);
         }
         .fab:active { 
             transform: scale(0.95); 
@@ -1451,13 +1449,6 @@
                     <button class="header-action-btn" onclick="openThemeModal()" title="Customize">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                     </button>
-                    <button class="header-action-btn" onclick="exportData()" title="Export">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </button>
-                    <label class="header-action-btn" style="cursor:pointer; margin:0;" title="Import">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
-                    </label>
                 </div>
             </header>
 
@@ -1733,31 +1724,11 @@
             trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
             undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>',
             refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>',
-            tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
-            download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-            upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+            tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
         };
 
         // ===== DATA =====
-        const SEED_TASKS = [
-            { id: "b1", title: "UK17 W 4144", note: "Catalytic Bill", date: "legacy", time: "" },
-            { id: "b2", title: "UK08 BJ 0071", note: "Battery Assy Bill", date: "legacy", time: "" },
-            { id: "b3", title: "UP11 DD 7656", note: "Bill (Also requires Warranty Punch)", date: "legacy", time: "" },
-            { id: "b4", title: "UK07 TD 3798", note: "Head Bill U/W (Proceed to Warranty Punch afterward)", date: "legacy", time: "" },
-            { id: "b5", title: "Kotdwar", note: "All Part Bill Pending", date: "legacy", time: "" },
-            { id: "w1", title: "Routine Warranty Punching", note: "General task", date: "legacy", time: "" },
-            { id: "w2", title: "UK08 Q 3066", note: "Battery Assy under goodwill warranty - Narendra", date: "legacy", time: "" },
-            { id: "w3", title: "UK17 W 7004", note: "Warranty Punch", date: "legacy", time: "" },
-            { id: "w4", title: "UP11 DD 7656", note: "Warranty Punch", date: "legacy", time: "" },
-            { id: "w5", title: "UK07 TD 3798", note: "Warranty Punch", date: "legacy", time: "" },
-            { id: "w6", title: "UP11 BW 5055", note: "Injector & Warranty Punch", date: "legacy", time: "" },
-            { id: "w7", title: "RO 202603989", note: "Tire Punc Power / Tie Rod & Warranty Punch", date: "legacy", time: "" },
-            { id: "w8", title: "RO 202603948", note: "Tire Punc Power / Tie Rod & Warranty Punch", date: "legacy", time: "" },
-            { id: "p1", title: "Warranty Part Tagging", note: "General task", date: "legacy", time: "" },
-            { id: "p2", title: "Suspense Part Sending **", note: "General task", date: "legacy", time: "" },
-            { id: "p3", title: "Mohd Osam", note: "Ambient Sensor (Pending allocation or fitting)", date: "legacy", time: "" },
-            { id: "a1", title: "All R.O. Record Filing & Downloading **", note: "General task", date: "legacy", time: "" }
-        ];
+        const SEED_TASKS = [];
 
         const COLOR_PRESETS = [
             { name: 'blue',    hex: '#0084ff', rgb: '0, 132, 255' },
@@ -1914,8 +1885,6 @@
         }
 
         // ===== RENDER =====
-        // No-op since categories are removed
-
         function getFilteredTasks() {
             const search = (document.getElementById('search-input')?.value || '').toLowerCase();
 
@@ -2043,6 +2012,7 @@
             if (!t) return;
             t.completed = !t.completed;
             if (t.completed) t.completedAt = Date.now();
+            t.createdAt = Date.now();
             saveTasks();
             renderBoard();
             showToast(t.completed ? 'Task completed' : 'Marked pending');
@@ -2126,6 +2096,7 @@
                 const t = tasks.find(x => x.id === id);
                 if (t) {
                     Object.assign(t, { title, note, date, time });
+                    t.createdAt = Date.now();
                     taskObj = t;
                 }
                 showToast('Task updated');
@@ -2239,8 +2210,6 @@
             });
         });
 
-        // Category management removed
-
         // ===== FILTERS =====
         function setFilter(f) {
             currentFilter = f;
@@ -2287,6 +2256,129 @@
 
         // ===== SUPABASE SYNC =====
         let supabaseClient = null;
+        let realtimeChannel = null;
+
+        function initRealtimeListener() {
+            const client = getSupabase();
+            if (!client) return;
+
+            if (realtimeChannel) {
+                try {
+                    client.removeChannel(realtimeChannel);
+                } catch (e) {
+                    console.error('Error removing old channel:', e);
+                }
+                realtimeChannel = null;
+            }
+
+            try {
+                realtimeChannel = client
+                    .channel('public:tasks')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, payload => {
+                        handleRealtimePayload(payload);
+                    })
+                    .subscribe((status) => {
+                        console.log('Realtime subscription status:', status);
+                    });
+            } catch (err) {
+                console.error('Error setting up Realtime subscription:', err);
+            }
+        }
+
+        function handleRealtimePayload(payload) {
+            console.log('Realtime update payload received:', payload);
+            if (!payload || !payload.eventType) return;
+
+            const { eventType, new: newRecord, old: oldRecord } = payload;
+
+            if (eventType === 'DELETE') {
+                if (!oldRecord || !oldRecord.id) return;
+                const id = oldRecord.id;
+                if (id.startsWith('_settings_')) return;
+
+                const index = tasks.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    tasks.splice(index, 1);
+                    saveTasks();
+                    renderBoard();
+                }
+            } else if (eventType === 'INSERT' || eventType === 'UPDATE') {
+                if (!newRecord || !newRecord.id) return;
+                const id = newRecord.id;
+
+                if (id === '_settings_theme') {
+                    if (newRecord.note) {
+                        try {
+                            const parsed = JSON.parse(newRecord.note);
+                            const currentThemeSerialized = JSON.stringify({
+                                accentHex: theme.accentHex,
+                                accentRgb: theme.accentRgb,
+                                layout: theme.layout,
+                                fontScale: theme.fontScale,
+                                density: theme.density
+                            });
+                            if (JSON.stringify(parsed) !== currentThemeSerialized) {
+                                theme = { ...theme, ...parsed };
+                                saveTheme();
+                                applyTheme();
+                                if (document.getElementById('theme-modal').classList.contains('active')) {
+                                    renderColorGrid();
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse realtime settings theme:', e);
+                        }
+                    }
+                } else if (id === '_settings_deleted_tasks') {
+                    if (newRecord.note) {
+                        try {
+                            const parsed = JSON.parse(newRecord.note);
+                            if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(deletedTasks)) {
+                                deletedTasks = parsed.slice(0, 50);
+                                saveDeletedTasks();
+                                if (document.getElementById('trash-modal').classList.contains('active')) {
+                                    renderTrashList();
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse realtime deleted tasks:', e);
+                        }
+                    }
+                } else {
+                    const incomingTask = sanitizeTask(newRecord);
+                    const localIndex = tasks.findIndex(t => t.id === id);
+
+                    if (localIndex === -1) {
+                        tasks.push(incomingTask);
+                        saveTasks();
+                        renderBoard();
+                    } else {
+                        const localTask = tasks[localIndex];
+                        const incomingTime = incomingTask.createdAt || 0;
+                        const localTime = localTask.createdAt || 0;
+
+                        if (incomingTime > localTime) {
+                            tasks[localIndex] = incomingTask;
+                            saveTasks();
+                            renderBoard();
+                        } else if (incomingTime === localTime) {
+                            if (JSON.stringify(localTask) !== JSON.stringify(incomingTask)) {
+                                tasks[localIndex] = incomingTask;
+                                saveTasks();
+                                renderBoard();
+                            }
+                        } else if (localTime > incomingTime) {
+                            const client = getSupabase();
+                            if (client) {
+                                client.from('tasks').upsert(sanitizeTask(localTask)).then(({ error }) => {
+                                    if (error) console.error('Supabase resolve conflict error:', error);
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         function sanitizeTask(t) {
             if (!t) return null;
@@ -2314,7 +2406,7 @@
             return null;
         }
 
-        function updateSupabaseConfig() {
+        async function updateSupabaseConfig() {
             const oldUrl = theme.supabaseUrl;
             const oldKey = theme.supabaseKey;
             const newUrl = document.getElementById('sb-url-input').value.trim();
@@ -2329,7 +2421,11 @@
                 localStorage.setItem('supabaseCredentialsEntered', 'true');
             }
 
-            updateSupabaseStatus();
+            await updateSupabaseStatus();
+            if (getSupabase()) {
+                await syncWithSupabase();
+                initRealtimeListener();
+            }
         }
 
         function openSupabaseModal() {
@@ -2476,17 +2572,24 @@
                         const remote = remoteMap.get(id);
 
                         if (local && remote) {
-                            // SERVER DATA IS PRIME: Remote data takes absolute precedence
-                            const mergedTask = {
-                                id: remote.id,
-                                title: remote.title,
-                                note: remote.note,
-                                date: remote.date,
-                                time: remote.time,
-                                completed: remote.completed,
-                                createdAt: remote.createdAt
-                            };
-                            merged.push(mergedTask);
+                            const localTime = local.createdAt || 0;
+                            const remoteTime = remote.createdAt || 0;
+                            if (localTime > remoteTime) {
+                                const sanitized = sanitizeTask(local);
+                                merged.push(sanitized);
+                                toUpsert.push(sanitized);
+                            } else {
+                                const mergedTask = {
+                                    id: remote.id,
+                                    title: remote.title,
+                                    note: remote.note,
+                                    date: remote.date,
+                                    time: remote.time,
+                                    completed: remote.completed,
+                                    createdAt: remote.createdAt
+                                };
+                                merged.push(mergedTask);
+                            }
                         } else if (local) {
                             // Only upload local tasks that are not seed tasks (e.g. have a timestamp or standard uid format)
                             const sanitized = sanitizeTask(local);
@@ -2610,54 +2713,6 @@
             document.getElementById('theme-modal').classList.add('active');
         }
 
-        // ===== IMPORT/EXPORT =====
-        function exportData() {
-            const data = {
-                version: 2,
-                exportedAt: new Date().toISOString(),
-                tasks,
-                theme
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `khanna-tasks-backup-${todayStr()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Backup exported');
-        }
-
-        async function importData(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const ok = await customConfirm({
-                title: 'Import Data?',
-                message: 'This will REPLACE all current tasks, categories, and theme settings with the imported file.',
-                okText: 'Import',
-                okClass: 'btn-success'
-            });
-            if (!ok) { e.target.value = ''; return; }
-
-            const reader = new FileReader();
-            reader.onload = ev => {
-                try {
-                    const data = JSON.parse(ev.target.result);
-                    if (data.tasks) tasks = data.tasks;
-                    if (data.theme) theme = {...defaultTheme, ...data.theme};
-                    saveTasks();
-                    saveTheme();
-                    applyTheme();
-                    renderBoard();
-                    showToast('Data imported');
-                } catch (err) {
-                    showToast('Invalid backup file');
-                }
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        }
-
         // ===== RECYCLE BIN =====
         let deletedTasks = JSON.parse(localStorage.getItem('khannaDeletedTasks')) || [];
         function saveDeletedTasks() { localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks)); }
@@ -2693,6 +2748,7 @@
             deletedTasks.splice(tIdx, 1);
             saveDeletedTasks();
             
+            taskObj.createdAt = Date.now();
             tasks.push(taskObj);
             saveTasks();
             
@@ -2736,9 +2792,10 @@
         renderBoard();
 
         // Background Sync trigger
-        setTimeout(() => {
+        setTimeout(async () => {
             if (getSupabase()) {
-                syncWithSupabase();
+                await syncWithSupabase();
+                initRealtimeListener();
             }
         }, 1000);
 
