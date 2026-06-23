@@ -1433,8 +1433,8 @@
             const today = new Date().toISOString().split('T')[0];
             return SEED_TASKS.map(task => ({
                 ...task,
-                date: today,
-                time: "",
+                date: task.date === 'legacy' ? today : task.date,
+                time: task.time || "",
                 completed: !!oldState[task.id],
                 createdAt: Date.now()
             }));
@@ -1566,20 +1566,18 @@
             });
 
             const byCategory = {};
-            categories.forEach(c => byCategory[c] = {});
+            categories.forEach(c => byCategory[c] = []);
             filtered.forEach(t => {
-                if (!byCategory[t.category]) byCategory[t.category] = {};
-                if (!byCategory[t.category][t.date]) byCategory[t.category][t.date] = [];
-                byCategory[t.category][t.date].push(t);
+                if (!byCategory[t.category]) byCategory[t.category] = [];
+                byCategory[t.category].push(t);
             });
 
             let hasAnyTask = false;
             let cardIndex = 0;
 
             categories.forEach(category => {
-                const dates = byCategory[category];
-                const allTasksInCat = Object.values(dates).flat();
-                if (allTasksInCat.length === 0) return;
+                const catTasks = byCategory[category] || [];
+                if (catTasks.length === 0) return;
                 hasAnyTask = true;
 
                 const card = document.createElement('div');
@@ -1589,13 +1587,20 @@
 
                 const header = document.createElement('div');
                 header.className = 'category-header';
-                header.innerHTML = `<span>${escapeHtml(category)}</span><span class="category-count">${allTasksInCat.length}</span>`;
+                header.innerHTML = `<span>${escapeHtml(category)}</span><span class="category-count">${catTasks.length}</span>`;
                 card.appendChild(header);
 
                 const list = document.createElement('ul');
                 list.className = 'task-list';
 
-                const sortedDates = Object.keys(dates).sort((a, b) => {
+                // Group tasks by date within the category
+                const byDate = {};
+                catTasks.forEach(t => {
+                    if (!byDate[t.date]) byDate[t.date] = [];
+                    byDate[t.date].push(t);
+                });
+
+                const sortedDates = Object.keys(byDate).sort((a, b) => {
                     if (a === 'legacy') return 1;
                     if (b === 'legacy') return -1;
                     const today = todayStr();
@@ -1612,7 +1617,7 @@
                         list.appendChild(dateHeader);
                     }
 
-                    const dayTasks = dates[date].slice().sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+                    const dayTasks = byDate[date].slice().sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
                     dayTasks.forEach(task => list.appendChild(buildTaskItem(task)));
                 });
 
