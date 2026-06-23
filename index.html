@@ -39,6 +39,13 @@
             --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
             --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
             --max-width: 1280px;
+            --pill-time-bg: #e7f3ff;
+            --pill-time-text: var(--accent);
+            --pill-overdue-bg: #ffebe8;
+            --pill-overdue-text: var(--danger);
+            --pill-today-bg: #e6f7ed;
+            --pill-today-text: var(--success);
+            --confirm-icon-bg: #fff3f3;
         }
 
         /* Default / System / Light Mode */
@@ -60,6 +67,13 @@
             --border: #1f2937;
             --hover: #1e293b;
             --calendar-icon-filter: invert(1);
+            --pill-time-bg: rgba(var(--accent-rgb), 0.18);
+            --pill-time-text: #60a5fa;
+            --pill-overdue-bg: rgba(228, 30, 63, 0.18);
+            --pill-overdue-text: #f87171;
+            --pill-today-bg: rgba(49, 162, 76, 0.18);
+            --pill-today-text: #4ade80;
+            --confirm-icon-bg: rgba(228, 30, 63, 0.18);
         }
 
         /* Morning Theme (5:00 - 11:59) */
@@ -101,6 +115,13 @@
             --border: #1f2937;
             --hover: #1e293b;
             --calendar-icon-filter: invert(1);
+            --pill-time-bg: rgba(var(--accent-rgb), 0.18);
+            --pill-time-text: #60a5fa;
+            --pill-overdue-bg: rgba(228, 30, 63, 0.18);
+            --pill-overdue-text: #f87171;
+            --pill-today-bg: rgba(49, 162, 76, 0.18);
+            --pill-today-text: #4ade80;
+            --confirm-icon-bg: rgba(228, 30, 63, 0.18);
         }
 
         .greeting-banner {
@@ -823,7 +844,7 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: #fff3f3;
+            background: var(--confirm-icon-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1141,25 +1162,25 @@
         }
 
         .meta-pill.time {
-            background: #e7f3ff;
-            color: var(--accent);
+            background: var(--pill-time-bg);
+            color: var(--pill-time-text);
         }
 
         .meta-pill.overdue {
-            background: #ffebe8;
-            color: var(--danger);
+            background: var(--pill-overdue-bg);
+            color: var(--pill-overdue-text);
         }
 
         .meta-pill.today {
-            background: #e6f7ed;
-            color: var(--success);
+            background: var(--pill-today-bg);
+            color: var(--pill-today-text);
         }
 
         .completed .task-title,
         .completed .task-note,
         .completed .task-meta {
             text-decoration: line-through;
-            color: #a0aabf;
+            color: var(--text-muted);
         }
 
         .completed {
@@ -2519,7 +2540,7 @@
             const maxSwipe = 90; // max visual offset
             
             function handleStart(e) {
-                if (e.target.closest('input, button, select, label[for], .checkbox-wrapper')) return;
+                if (e.target.closest('input[type="checkbox"], .checkbox-wrapper, .task-actions, .action-btn')) return;
                 startX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
                 isSwiping = true;
                 taskItem.style.transition = 'none';
@@ -2558,13 +2579,18 @@
                 }
             }
             
-            function handleEnd() {
+            function handleEnd(e) {
                 if (!isSwiping) return;
                 isSwiping = false;
                 taskItem.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
                 
                 window.removeEventListener('mousemove', handleMove);
                 window.removeEventListener('mouseup', handleEnd);
+                
+                const wasSwipe = Math.abs(currentX) > 10;
+                if (wasSwipe && e) {
+                    e.preventDefault();
+                }
                 
                 if (currentX < -threshold) {
                     // Swipe Left (drag to left): Edit Task
