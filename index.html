@@ -2422,21 +2422,18 @@
         function todayStr() { return new Date().toISOString().split('T')[0]; }
 
         function formatDate(dateStr) {
-            if (dateStr === 'legacy') return 'Earlier';
+            if (dateStr === 'legacy') return 'Earlier Tasks';
             const d = new Date(dateStr + 'T00:00:00');
             const today = new Date(todayStr() + 'T00:00:00');
             const diffDays = Math.round((d - today) / (1000 * 60 * 60 * 24));
-            // Format as DD-MM-YYYY
             const dd = String(d.getDate()).padStart(2, '0');
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const yyyy = d.getFullYear();
             const formatted = `${dd}-${mm}-${yyyy}`;
-            if (diffDays === 0) return `Today \u00B7 ${formatted}`;
-            if (diffDays === 1) return `Tomorrow \u00B7 ${formatted}`;
-            if (diffDays === -1) return `Yesterday \u00B7 ${formatted}`;
-            if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days \u00B7 ${formatted}`;
-            if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago \u00B7 ${formatted}`;
-            return formatted;
+            if (diffDays === 0) return 'Today Tasks';
+            if (diffDays === 1) return 'Tomorrow Tasks';
+            if (diffDays === -1) return 'Yesterday Tasks';
+            return `${formatted} Tasks`;
         }
 
         function formatTime(t) {
