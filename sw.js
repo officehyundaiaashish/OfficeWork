@@ -1,8 +1,10 @@
-const CACHE_NAME = "tasker-v1";
+const CACHE_NAME = "tasker-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png",
   "./manifest.json"
 ];
 
