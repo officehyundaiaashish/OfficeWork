@@ -53,9 +53,9 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: calc(1.5rem * var(--density)) 1.5rem 2rem;
-            line-height: 1.5;
-            font-size: calc(14px * var(--font-scale));
+            padding: calc(0.75rem * var(--density)) 1.25rem 1.5rem;
+            line-height: 1.4;
+            font-size: calc(13.5px * var(--font-scale));
             min-height: 100vh;
         }
 
@@ -74,8 +74,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: calc(1.25rem * var(--density));
-            padding: 1.25rem 0;
+            margin-bottom: calc(0.75rem * var(--density));
+            padding: 0.5rem 0;
             animation: fadeSlideDown 0.4s var(--transition-smooth) both;
             gap: 1rem;
         }
@@ -96,10 +96,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15), rgba(49, 162, 76, 0.15));
-            border-radius: 12px;
+            border-radius: 9px;
             color: var(--accent);
             box-shadow: var(--shadow-sm);
             border: 1.5px solid rgba(var(--accent-rgb), 0.2);
@@ -132,14 +132,14 @@
         }
 
         .logo-icon-wrap svg {
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
         }
 
         h1 {
             color: var(--text-main);
             margin: 0;
-            font-size: calc(1.8rem * var(--font-scale));
+            font-size: calc(1.5rem * var(--font-scale));
             font-weight: 800;
             letter-spacing: -0.5px;
             background: linear-gradient(135deg, var(--accent), #31a24c);
@@ -284,11 +284,11 @@
         /* ===== Progress ===== */
         .progress-container {
             background: var(--card-bg);
-            padding: calc(1rem * var(--density)) calc(1.25rem * var(--density));
+            padding: calc(0.6rem * var(--density)) calc(1rem * var(--density));
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
-            margin-bottom: calc(1rem * var(--density));
+            margin-bottom: calc(0.6rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
             background: var(--card-bg);
         }
@@ -298,9 +298,9 @@
             top: 0;
             z-index: 90;
             background-color: var(--bg-color);
-            padding-top: calc(1.5rem * var(--density));
-            margin-top: calc(-1.5rem * var(--density));
-            padding-bottom: 0.25rem;
+            padding-top: calc(0.75rem * var(--density));
+            margin-top: calc(-0.75rem * var(--density));
+            padding-bottom: 0.15rem;
         }
 
         .progress-bar {
@@ -376,7 +376,7 @@
         /* ===== Filter Bar ===== */
         .filter-bar {
             background: var(--card-bg);
-            padding: calc(0.65rem * var(--density)) calc(1rem * var(--density));
+            padding: calc(0.45rem * var(--density)) calc(0.75rem * var(--density));
             border-radius: var(--radius);
             border: 1px solid var(--border);
             display: flex;
@@ -384,7 +384,7 @@
             flex-wrap: wrap;
             align-items: center;
             font-size: calc(0.82rem * var(--font-scale));
-            margin-bottom: calc(1.25rem * var(--density));
+            margin-bottom: calc(0.75rem * var(--density));
             box-shadow: var(--shadow-sm);
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.15s both;
         }
@@ -702,14 +702,14 @@
         .board {
             display: flex;
             flex-direction: column;
-            gap: calc(1rem * var(--density));
-            margin-top: 0.5rem;
+            gap: calc(0.65rem * var(--density));
+            margin-top: 0.25rem;
         }
 
         .day-card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: calc(1.1rem * var(--density));
+            padding: calc(0.6rem * var(--density)) calc(0.8rem * var(--density));
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
             transition: all var(--transition-smooth);
@@ -732,11 +732,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: calc(0.75rem * var(--density));
-            padding-bottom: 0.65rem;
+            margin-bottom: calc(0.4rem * var(--density));
+            padding-bottom: 0.35rem;
             border-bottom: 2px solid var(--border);
             font-weight: 700;
-            font-size: calc(1rem * var(--font-scale));
+            font-size: calc(0.92rem * var(--font-scale));
             color: var(--accent);
             gap: 1rem;
         }
@@ -800,7 +800,7 @@
         .task-item {
             display: flex;
             align-items: flex-start;
-            padding: calc(0.65rem * var(--density)) 0;
+            padding: calc(0.4rem * var(--density)) 0;
             border-bottom: 1px solid #f0f2f5;
             transition: all var(--transition-fast);
             gap: 0.6rem;
@@ -1182,11 +1182,11 @@
                 justify-content: space-between;
                 align-items: center;
                 gap: 0.5rem;
-                padding: 1rem 0;
+                padding: 0.4rem 0;
             }
 
             h1 {
-                font-size: calc(1.3rem * var(--font-scale));
+                font-size: calc(1.2rem * var(--font-scale));
             }
 
             .subtitle {
@@ -1194,14 +1194,14 @@
             }
 
             .logo-icon-wrap {
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
+                width: 32px;
+                height: 32px;
+                border-radius: 7px;
             }
 
             .logo-icon-wrap svg {
-                width: 20px;
-                height: 20px;
+                width: 18px;
+                height: 18px;
             }
 
             .header-action-btn {
