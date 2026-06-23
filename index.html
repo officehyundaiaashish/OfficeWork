@@ -20,6 +20,8 @@
             --text-muted: #65676b;
             --accent: #0084ff;
             --accent-rgb: 0, 132, 255;
+            --accent-gradient-start: var(--accent);
+            --accent-gradient-end: #31a24c;
             --border: #e4e6eb;
             --success: #31a24c;
             --danger: #e41e3f;
@@ -253,7 +255,7 @@
             font-size: calc(1.5rem * var(--font-scale));
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--accent), #31a24c);
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -446,7 +448,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--success));
+            background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
             width: 0%;
             border-radius: 4px;
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -935,7 +937,7 @@
 
         .day-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--success));
+            background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
             border-radius: 3px;
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -1471,45 +1473,6 @@
                 transform: translateX(0);
             }
 
-            /* Bottom sheet on mobile */
-            .modal-overlay {
-                align-items: flex-end;
-                padding: 0;
-            }
-
-            .modal {
-                border-radius: 16px 16px 0 0;
-                max-height: 90vh;
-                transform: translateY(100%);
-                opacity: 1;
-                padding-top: 0.5rem;
-                padding-bottom: calc(1.25rem * var(--density) + env(safe-area-inset-bottom, 0px));
-            }
-
-            .modal-overlay.active .modal {
-                transform: translateY(0);
-            }
-
-            .modal-grip {
-                display: block;
-                width: 40px;
-                height: 4px;
-                background: var(--border);
-                border-radius: 2px;
-                margin: 0.5rem auto 1rem;
-            }
-
-            .confirm-modal {
-                border-radius: 16px 16px 0 0;
-                max-height: 60vh;
-                transform: translateY(100%);
-                opacity: 1;
-            }
-
-            .modal-overlay.active .confirm-modal {
-                transform: translateY(0);
-            }
-
             .progress-stats {
                 font-size: calc(0.68rem * var(--font-scale));
                 gap: 0.3rem;
@@ -1639,6 +1602,44 @@
             .pwa-banner-actions {
                 justify-content: flex-end;
             }
+        }
+
+        /* ===== Texture & Border Style Types ===== */
+        html.texture-glassmorphism .day-card,
+        html.texture-glassmorphism .modal,
+        html.texture-glassmorphism .progress-container,
+        html.texture-glassmorphism .filter-bar,
+        html.texture-glassmorphism .greeting-banner {
+            background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.72) !important;
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            border: 1px solid rgba(var(--accent-rgb), 0.15) !important;
+        }
+        
+        :root.theme-light { --card-bg-rgb: 255, 255, 255; }
+        :root.theme-morning { --card-bg-rgb: 255, 255, 255; }
+        :root.theme-afternoon { --card-bg-rgb: 255, 255, 255; }
+        :root.theme-evening { --card-bg-rgb: 255, 251, 248; }
+        :root.theme-dark { --card-bg-rgb: 21, 29, 48; }
+        :root.theme-night { --card-bg-rgb: 21, 29, 48; }
+
+        html.texture-neonglow .day-card,
+        html.texture-neonglow .modal,
+        html.texture-neonglow .progress-container,
+        html.texture-neonglow .filter-bar,
+        html.texture-neonglow .greeting-banner {
+            box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15) !important;
+            border-color: rgba(var(--accent-rgb), 0.35) !important;
+        }
+        html.texture-neonglow .btn:not(.btn-secondary) {
+            box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4) !important;
+        }
+
+        html.texture-subtlegrid body {
+            background-image: 
+                linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
+            background-size: 24px 24px;
         }
     </style>
 </head>
@@ -1869,8 +1870,10 @@
             </h2>
 
             <div class="theme-section">
-                <div class="theme-section-title">Accent Color</div>
-                <div class="color-grid" id="color-grid"></div>
+                <button type="button" class="btn btn-secondary" style="width: 100%; justify-content: center; gap: 0.5rem;" onclick="openAccentModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.32135 19.4628 5.48512 20.1425 5.27581 20.7573L5.03803 21.4573C4.83841 22.0432 5.37894 22.5837 5.96482 22.3841L6.66482 22.1463C7.2796 21.937 7.95932 22.1008 8.4221 22.5636C9.8542 21.9962 11.4 22 12 22Z"/></svg>
+                    Accent & Visual Styles
+                </button>
             </div>
 
             <div class="theme-section">
@@ -1905,6 +1908,48 @@
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="resetTheme()">Reset to Default</button>
                 <button type="button" class="btn" onclick="closeModal('theme-modal')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Accent & Styles Modal ===== -->
+    <div class="modal-overlay" id="accent-modal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-grip"></div>
+            <h2>
+                <span>Accent & Visual Styles</span>
+                <button class="modal-close" onclick="closeModal('accent-modal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </h2>
+
+            <div class="theme-section">
+                <div class="theme-section-title">Matte / Solid Colors</div>
+                <div class="color-grid" id="matte-grid"></div>
+            </div>
+
+            <div class="theme-section">
+                <div class="theme-section-title">Accent Gradients</div>
+                <div class="color-grid" id="gradient-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
+            </div>
+
+            <div class="theme-section">
+                <div class="theme-section-title">App Texture & Border Style</div>
+                <div class="theme-mode-toggle" id="texture-toggle" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button data-texture="minimalist" onclick="setTextureStyle('minimalist')">Minimalist</button>
+                    <button data-texture="glassmorphism" onclick="setTextureStyle('glassmorphism')">Glassmorphic</button>
+                    <button data-texture="neonglow" onclick="setTextureStyle('neonglow')">Neon Glow</button>
+                    <button data-texture="subtlegrid" onclick="setTextureStyle('subtlegrid')">Subtle Grid</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('accent-modal')">Back</button>
+                <button type="button" class="btn" onclick="closeModal('accent-modal')">Apply</button>
             </div>
         </div>
     </div>
@@ -2076,6 +2121,10 @@
         const defaultTheme = {
             accentHex: '#0084ff',
             accentRgb: '0, 132, 255',
+            accentGradStart: '#0084ff',
+            accentGradEnd: '#31a24c',
+            accentType: 'matte',
+            textureStyle: 'minimalist',
             mode: 'system',
             fontScale: 100,
             density: 100,
@@ -2551,6 +2600,16 @@
             style.setProperty('--font-scale', (theme.fontScale / 100));
             style.setProperty('--density', (theme.density / 100));
 
+            // Apply gradient accents
+            const startColor = theme.accentGradStart || theme.accentHex;
+            const endColor = theme.accentGradEnd || '#31a24c';
+            style.setProperty('--accent-gradient-start', startColor);
+            style.setProperty('--accent-gradient-end', endColor);
+
+            // Apply texture styles classes
+            root.classList.remove('texture-minimalist', 'texture-glassmorphism', 'texture-neonglow', 'texture-subtlegrid');
+            root.classList.add(`texture-${theme.textureStyle || 'minimalist'}`);
+
             // Clean up old classes
             root.classList.remove('theme-light', 'theme-dark', 'theme-morning', 'theme-afternoon', 'theme-evening', 'theme-night');
 
@@ -2579,12 +2638,10 @@
 
             root.classList.add(activeClass);
 
-            document.querySelectorAll('.color-swatch').forEach(s => {
-                s.classList.toggle('active', s.dataset.hex === theme.accentHex);
-            });
             document.querySelectorAll('.theme-mode-toggle button').forEach(b => {
                 b.classList.toggle('active', b.dataset.mode === mode);
             });
+            renderTextureToggle();
             document.getElementById('font-slider').value = theme.fontScale;
             document.getElementById('font-value').textContent = theme.fontScale + '%';
             document.getElementById('density-slider').value = theme.density;
@@ -2661,6 +2718,10 @@
                             const currentThemeSerialized = JSON.stringify({
                                 accentHex: theme.accentHex,
                                 accentRgb: theme.accentRgb,
+                                accentGradStart: theme.accentGradStart,
+                                accentGradEnd: theme.accentGradEnd,
+                                accentType: theme.accentType,
+                                textureStyle: theme.textureStyle,
                                 mode: theme.mode,
                                 fontScale: theme.fontScale,
                                 density: theme.density
@@ -2826,6 +2887,10 @@
                     note: JSON.stringify({
                         accentHex: theme.accentHex,
                         accentRgb: theme.accentRgb,
+                        accentGradStart: theme.accentGradStart,
+                        accentGradEnd: theme.accentGradEnd,
+                        accentType: theme.accentType,
+                        textureStyle: theme.textureStyle,
                         mode: theme.mode,
                         fontScale: theme.fontScale,
                         density: theme.density
@@ -2973,6 +3038,10 @@
                     note: JSON.stringify({
                         accentHex: theme.accentHex,
                         accentRgb: theme.accentRgb,
+                        accentGradStart: theme.accentGradStart,
+                        accentGradEnd: theme.accentGradEnd,
+                        accentType: theme.accentType,
+                        textureStyle: theme.textureStyle,
                         mode: theme.mode,
                         fontScale: theme.fontScale,
                         density: theme.density
@@ -3006,23 +3075,97 @@
             }
         }
 
-        function renderColorGrid() {
-            const grid = document.getElementById('color-grid');
-            grid.innerHTML = COLOR_PRESETS.map(c => `
-                <div class="color-swatch ${c.hex === theme.accentHex ? 'active' : ''}"
-                     data-hex="${c.hex}" data-rgb="${c.rgb}"
-                     style="background:${c.hex};"
-                     onclick="setAccent('${c.hex}', '${c.rgb}')"
-                     title="${c.name}"></div>
-            `).join('');
+        const MATTE_PRESETS = [
+            { name: 'Classic Blue', hex: '#0084ff', rgb: '0, 132, 255' },
+            { name: 'Teal Matte', hex: '#0d9488', rgb: '13, 148, 136' },
+            { name: 'Sage Green', hex: '#557a55', rgb: '85, 122, 85' },
+            { name: 'Terracotta', hex: '#c2593f', rgb: '194, 89, 63' },
+            { name: 'Dusty Rose', hex: '#cc7a8a', rgb: '204, 122, 138' },
+            { name: 'Lavender', hex: '#8b7fcc', rgb: '139, 127, 204' },
+            { name: 'Charcoal', hex: '#475569', rgb: '71, 85, 105' },
+            { name: 'Warm Amber', hex: '#d97706', rgb: '217, 119, 6' },
+            { name: 'Crimson Matte', hex: '#be123c', rgb: '190, 18, 60' },
+            { name: 'Deep Indigo', hex: '#4338ca', rgb: '67, 56, 202' }
+        ];
+
+        const GRADIENT_PRESETS = [
+            { name: 'Sunset Fire', start: '#ff416c', end: '#ff4b2b', accent: '#ff416c', rgb: '255, 65, 108' },
+            { name: 'Ocean Wave', start: '#00c6ff', end: '#0072ff', accent: '#0072ff', rgb: '0, 114, 255' },
+            { name: 'Midnight Purple', start: '#7f00ff', end: '#e100ff', accent: '#7f00ff', rgb: '127, 0, 255' },
+            { name: 'Forest Bloom', start: '#11998e', end: '#38ef7d', accent: '#11998e', rgb: '17, 153, 142' },
+            { name: 'Electric Pink', start: '#ff007f', end: '#7f00ff', accent: '#ff007f', rgb: '255, 0, 127' },
+            { name: 'Lemon Grass', start: '#9ad01a', end: '#05c03c', accent: '#9ad01a', rgb: '154, 208, 26' },
+            { name: 'Deep Space', start: '#000000', end: '#434343', accent: '#434343', rgb: '67, 67, 67' },
+            { name: 'Nordic Frost', start: '#00d2ff', end: '#3a7bd5', accent: '#00d2ff', rgb: '0, 210, 255' },
+            { name: 'Sweet Tangerine', start: '#ffb347', end: '#ffcc33', accent: '#ffb347', rgb: '255, 179, 71' },
+            { name: 'Aurora Borealis', start: '#0575e6', end: '#00f260', accent: '#0575e6', rgb: '5, 117, 230' }
+        ];
+
+        function renderAccentGrids() {
+            const matteGrid = document.getElementById('matte-grid');
+            if (matteGrid) {
+                matteGrid.innerHTML = MATTE_PRESETS.map(c => `
+                    <div class="color-swatch ${theme.accentType === 'matte' && c.hex === theme.accentHex ? 'active' : ''}"
+                         data-hex="${c.hex}" data-rgb="${c.rgb}"
+                         style="background:${c.hex};"
+                         onclick="setMatteAccent('${c.hex}', '${c.rgb}')"
+                         title="${c.name}"></div>
+                `).join('');
+            }
+
+            const gradGrid = document.getElementById('gradient-grid');
+            if (gradGrid) {
+                gradGrid.innerHTML = GRADIENT_PRESETS.map(g => `
+                    <div class="color-swatch ${theme.accentType === 'gradient' && g.start === theme.accentGradStart && g.end === theme.accentGradEnd ? 'active' : ''}"
+                         style="background: linear-gradient(135deg, ${g.start}, ${g.end});"
+                         onclick="setGradientAccent('${g.start}', '${g.end}', '${g.accent}', '${g.rgb}')"
+                         title="${g.name}"></div>
+                `).join('');
+            }
         }
 
-        function setAccent(hex, rgb) {
+        function setMatteAccent(hex, rgb) {
+            theme.accentType = 'matte';
             theme.accentHex = hex;
+            theme.accentRgb = rgb;
+            theme.accentGradStart = hex;
+            theme.accentGradEnd = hex;
+            saveTheme();
+            applyTheme();
+            renderAccentGrids();
+            syncSettingsToSupabase();
+        }
+
+        function setGradientAccent(start, end, accent, rgb) {
+            theme.accentType = 'gradient';
+            theme.accentGradStart = start;
+            theme.accentGradEnd = end;
+            theme.accentHex = accent;
             theme.accentRgb = rgb;
             saveTheme();
             applyTheme();
+            renderAccentGrids();
             syncSettingsToSupabase();
+        }
+
+        function setTextureStyle(styleName) {
+            theme.textureStyle = styleName;
+            saveTheme();
+            applyTheme();
+            renderTextureToggle();
+            syncSettingsToSupabase();
+        }
+
+        function renderTextureToggle() {
+            document.querySelectorAll('#texture-toggle button').forEach(b => {
+                b.classList.toggle('active', b.dataset.texture === theme.textureStyle);
+            });
+        }
+
+        function openAccentModal() {
+            renderAccentGrids();
+            renderTextureToggle();
+            document.getElementById('accent-modal').classList.add('active');
         }
 
         function setThemeMode(mode) {
@@ -3062,7 +3205,6 @@
         }
 
         function openThemeModal() {
-            renderColorGrid();
             applyTheme();
             document.getElementById('theme-modal').classList.add('active');
         }
