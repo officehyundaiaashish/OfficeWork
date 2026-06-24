@@ -5,7 +5,9 @@ const ASSETS = [
   "./icon.svg?v=2",
   "./icon-192.png?v=2",
   "./icon-512.png?v=2",
-  "./manifest.json?v=2"
+  "./manifest.json?v=2",
+  "./done.wav",
+  "./notdone.wav"
 ];
 
 self.addEventListener("install", e => {
@@ -31,13 +33,43 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(cachedResponse => {
-      return cachedResponse || fetch(e.request).catch(() => {
-        if (e.request.mode === "navigate") {
-          return caches.match("./index.html");
-        }
-      });
-    })
-  );
+  const isHtmlOrManifest = 
+    e.request.mode === "navigate" || 
+    e.request.url.includes("index.html") || 
+    e.request.url.includes("manifest.json");
+
+  if (isHtmlOrManifest) {
+    // Network First strategy
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(e.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(e.request) || caches.match("./index.html"))
+    );
+  } else {
+    // Stale-While-Revalidate strategy for other assets
+    e.respondWith(
+      caches.match(e.request).then(cachedResponse => {
+        const fetchPromise = fetch(e.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(e.request, responseClone);
+            });
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Ignore network errors
+        });
+        return cachedResponse || fetchPromise;
+      })
+    );
+  }
 });
