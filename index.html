@@ -2618,23 +2618,6 @@
         theme = { ...defaultTheme, ...theme };
 
         function migrateTaskDate(t) {
-            if (!t || !t.createdAt || t.date === 'legacy') return t;
-            try {
-                const creationDate = new Date(t.createdAt);
-                const utcDateStr = creationDate.toISOString().split('T')[0];
-                
-                const yyyy = creationDate.getFullYear();
-                const mm = String(creationDate.getMonth() + 1).padStart(2, '0');
-                const dd = String(creationDate.getDate()).padStart(2, '0');
-                const localDateStr = `${yyyy}-${mm}-${dd}`;
-                
-                if (t.date === utcDateStr && t.date !== localDateStr) {
-                    t.date = localDateStr;
-                    t.createdAt = Date.now();
-                }
-            } catch(e) {
-                console.error('Error migrating task date:', e);
-            }
             return t;
         }
 
