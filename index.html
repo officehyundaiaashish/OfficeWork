@@ -2388,7 +2388,7 @@
             </h2>
             <div class="theme-section">
                 <div style="display:flex; flex-direction:column; gap:0.75rem;">
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group" id="sb-password-group" style="margin-bottom:0;">
                         <label for="sb-password-input">Sync Password</label>
                         <div style="display:flex; gap:0.5rem;">
                             <input type="password" id="sb-password-input" placeholder="Enter password"
@@ -2423,6 +2423,10 @@
                         <button type="button" class="btn btn-secondary btn-sm" onclick="syncWithSupabase()"
                             id="sb-sync-btn" style="min-height:30px;">
                             Sync Now
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="disconnectSupabase()"
+                            id="sb-disconnect-btn" style="min-height:30px; display:none;">
+                            Disconnect
                         </button>
                     </div>
                 </div>
@@ -3490,6 +3494,11 @@
             if (!newRecord || !newRecord.id) return;
             const id = newRecord.id;
 
+            // If task is currently in the recycle bin, ignore inserts/updates
+            if (deletedTasks.some(t => t.id === id)) {
+                return;
+            }
+
             if (id === '_settings_theme') {
                 if (newRecord.note) {
                     try {
@@ -3797,24 +3806,91 @@
             const client = getSupabase();
             const dot = document.getElementById('sb-status-dot');
             const txt = document.getElementById('sb-status-text');
+            const pwdGroup = document.getElementById('sb-password-group');
+            const disconnectBtn = document.getElementById('sb-disconnect-btn');
+
+            const setDisconnectedUI = () => {
+                if (dot) dot.style.background = '#a0a4aa';
+                if (txt) txt.textContent = 'Disconnected';
+                if (pwdGroup) pwdGroup.style.display = 'block';
+                if (disconnectBtn) disconnectBtn.style.display = 'none';
+            };
+
+            const setConnectingUI = () => {
+                if (txt) txt.textContent = 'Connecting...';
+                if (dot) dot.style.background = 'var(--warning)';
+            };
+
+            const setConnectedUI = () => {
+                if (dot) dot.style.background = 'var(--success)';
+                if (txt) txt.textContent = 'Connected';
+                if (pwdGroup) pwdGroup.style.display = 'none';
+                if (disconnectBtn) disconnectBtn.style.display = 'inline-flex';
+            };
+
+            const setErrorUI = () => {
+                if (dot) dot.style.background = 'var(--danger)';
+                if (txt) txt.textContent = 'Connection Error';
+                if (pwdGroup) pwdGroup.style.display = 'block';
+                if (disconnectBtn) disconnectBtn.style.display = 'none';
+            };
+
             if (!client) {
-                dot.style.background = '#a0a4aa';
-                txt.textContent = 'Disconnected';
+                setDisconnectedUI();
                 return;
             }
-            txt.textContent = 'Connecting...';
-            dot.style.background = 'var(--warning)';
+            setConnectingUI();
             try {
                 const { error } = await client.from('tasks').select('id').limit(1);
                 if (error) throw error;
-                dot.style.background = 'var(--success)';
-                txt.textContent = 'Connected';
+                setConnectedUI();
             } catch (e) {
-                dot.style.background = 'var(--danger)';
-                txt.textContent = 'Connection Error';
+                setErrorUI();
                 console.error(e);
                 showToast('Supabase connection failed: ' + e.message);
             }
+        }
+
+        async function disconnectSupabase() {
+            const ok = await customConfirm({
+                title: 'Disconnect Supabase?',
+                message: 'This will stop syncing tasks across devices.',
+                okText: 'Disconnect',
+                okClass: 'btn-danger'
+            });
+            if (!ok) return;
+
+            theme.supabaseUrl = '';
+            theme.supabaseKey = '';
+            saveTheme();
+            supabaseClient = null;
+
+            // Clear inputs
+            const pwdInput = document.getElementById('sb-password-input');
+            if (pwdInput) pwdInput.value = '';
+            const urlInput = document.getElementById('sb-url-input');
+            if (urlInput) urlInput.value = '';
+            const keyInput = document.getElementById('sb-key-input');
+            if (keyInput) keyInput.value = '';
+
+            // Clean up realtime listeners if any
+            if (dbChannel) {
+                try {
+                    const client = getSupabase();
+                    if (client) client.removeChannel(dbChannel);
+                } catch(e){}
+                dbChannel = null;
+            }
+            if (broadcastChannel) {
+                try {
+                    const client = getSupabase();
+                    if (client) client.removeChannel(broadcastChannel);
+                } catch(e){}
+                broadcastChannel = null;
+            }
+
+            await updateSupabaseStatus();
+            showToast('Disconnected from Supabase');
         }
 
         function syncSettingsToSupabase() {
@@ -3859,7 +3935,7 @@
                     date: 'legacy',
                     time: '',
                     completed: false,
-                    createdAt: Date.now()
+                    createdAt: deletedTasksUpdatedAt
                 };
                 client.from('tasks').upsert(deletedRecord).then(({ error }) => {
                     if (error) {
@@ -3905,9 +3981,12 @@
                 if (remoteDeleted && remoteDeleted.note) {
                     try {
                         const parsed = JSON.parse(remoteDeleted.note);
-                        if (Array.isArray(parsed)) {
+                        const remoteTime = remoteDeleted.createdAt || 0;
+                        if (remoteTime > deletedTasksUpdatedAt) {
                             deletedTasks = parsed.slice(0, 50);
-                            saveDeletedTasks();
+                            localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks));
+                            deletedTasksUpdatedAt = remoteTime;
+                            localStorage.setItem('khannaDeletedTasksUpdatedAt', deletedTasksUpdatedAt.toString());
                         }
                     } catch (e) {
                         console.error('Failed to parse remote deleted tasks:', e);
@@ -3930,8 +4009,16 @@
                     const toUpsert = [];
                     const merged = [];
                     const allIds = new Set([...localMap.keys(), ...remoteMap.keys()]);
+                    const deletedIds = new Set(deletedTasks.map(t => t.id));
+                    const deleteFromRemoteIds = [];
 
                     for (const id of allIds) {
+                        if (deletedIds.has(id)) {
+                            if (remoteMap.has(id)) {
+                                deleteFromRemoteIds.push(id);
+                            }
+                            continue;
+                        }
                         const local = localMap.get(id);
                         const remote = remoteMap.get(id);
 
@@ -3974,6 +4061,10 @@
                                 throw upsertError;
                             }
                         }
+                    }
+
+                    if (deleteFromRemoteIds.length > 0) {
+                        client.from('tasks').delete().in('id', deleteFromRemoteIds).catch(e => console.error('Pruning deleted tasks from server error:', e));
                     }
 
                     tasks = merged;
@@ -4054,7 +4145,7 @@
                     date: 'legacy',
                     time: '',
                     completed: false,
-                    createdAt: Date.now()
+                    createdAt: deletedTasksUpdatedAt
                 };
                 await client.from('tasks').upsert([settingsRecord, deletedRecord]);
 
@@ -4207,7 +4298,12 @@
 
         // ===== RECYCLE BIN =====
         let deletedTasks = JSON.parse(localStorage.getItem('khannaDeletedTasks')) || [];
-        function saveDeletedTasks() { localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks)); }
+        let deletedTasksUpdatedAt = parseInt(localStorage.getItem('khannaDeletedTasksUpdatedAt')) || 0;
+        function saveDeletedTasks() {
+            localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks));
+            deletedTasksUpdatedAt = Date.now();
+            localStorage.setItem('khannaDeletedTasksUpdatedAt', deletedTasksUpdatedAt.toString());
+        }
 
         function openTrashModal() {
             renderTrashList();
