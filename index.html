@@ -2557,8 +2557,8 @@
             complete: null,
             pending: null
         };
-        const COMPLETE_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2019/2019-84.wav';
-        const PENDING_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav';
+        const COMPLETE_SOUND_URL = './done.wav';
+        const PENDING_SOUND_URL = './notdone.wav';
 
         function preloadSounds() {
             fetch(COMPLETE_SOUND_URL)
@@ -5295,8 +5295,12 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+                    .then(reg => {
+                        console.log('Service Worker registered successfully:', reg.scope);
+                        // Proactively check for updates on load
+                        reg.update();
+                    })
                     .catch(err => console.log('Service Worker registration failed:', err));
             });
         }
