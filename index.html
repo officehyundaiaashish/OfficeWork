@@ -1025,10 +1025,16 @@
         }
 
         .task-item,
-        .task-item * {
+        .task-item *:not(.task-title):not(.task-note) {
             -webkit-user-select: none;
             -webkit-touch-callout: none;
             user-select: none;
+        }
+
+        .task-title,
+        .task-note {
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .swipe-background {
