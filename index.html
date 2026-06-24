@@ -4064,7 +4064,11 @@
                     }
 
                     if (deleteFromRemoteIds.length > 0) {
-                        client.from('tasks').delete().in('id', deleteFromRemoteIds).catch(e => console.error('Pruning deleted tasks from server error:', e));
+                        try {
+                            await client.from('tasks').delete().in('id', deleteFromRemoteIds);
+                        } catch (e) {
+                            console.error('Pruning deleted tasks from server error:', e);
+                        }
                     }
 
                     tasks = merged;
