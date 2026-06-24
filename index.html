@@ -1138,13 +1138,13 @@
         input[type="checkbox"]:checked::after {
             content: '';
             position: absolute;
-            top: 4px;
-            left: 6px;
+            top: 45%;
+            left: 50%;
             width: 5px;
             height: 9px;
             border: solid white;
             border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
+            transform: translate(-50%, -60%) rotate(45deg);
         }
 
         .task-content {
@@ -5192,6 +5192,13 @@
             calculateSinglePreview(item);
         }
 
+        function getFileSizeLimit(file) {
+            const mime = file.type || '';
+            if (mime.startsWith('image/')) return 200; // 200MB limit
+            if (mime.startsWith('video/')) return 50;  // 50MB limit
+            return 100; // 100MB limit for docs
+        }
+
         function renderCompressFilesList() {
             const listContainer = document.getElementById('compress-files-list');
             if (!listContainer) return;
@@ -5210,6 +5217,11 @@
                     ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent);"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>`
                     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-muted);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>`;
 
+                const limit = getFileSizeLimit(item.file);
+                const isOverLimit = (item.optimizedSize / (1024 * 1024)) > limit;
+                const sizeColor = isOverLimit ? 'var(--danger)' : (item.action === 'optimized' ? 'var(--accent)' : 'var(--text-muted)');
+                const sizeLabelText = isOverLimit ? `${formatSize(item.optimizedSize)} (Exceeds ${limit}MB limit)` : formatSize(item.optimizedSize);
+
                 div.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 0.6rem; width: 100%;">
                         <div id="thumb-${item.id}" style="width: 36px; height: 36px; border-radius: 4px; background: var(--hover); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border);">
@@ -5220,7 +5232,7 @@
                             <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 0.1rem;">
                                 <span>Orig: <span style="color:var(--text-main); font-weight:600;">${formatSize(item.originalSize)}</span></span>
                                 <span>•</span>
-                                <span style="font-weight: 600; color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--text-muted)'};">Est: <span>${formatSize(item.optimizedSize)}</span></span>
+                                <span style="font-weight: 600; color: ${sizeColor};">Est: <span>${sizeLabelText}</span></span>
                             </div>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFileIndividualAction('${item.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; min-height: 24px; border-color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--border)'}; background: ${item.action === 'optimized' ? 'rgba(var(--accent-rgb), 0.08)' : 'transparent'}; color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--text-muted)'};">
@@ -5357,18 +5369,44 @@
         function updateTotalsSummary() {
             let totalOriginal = 0;
             let totalOptimized = 0;
+            let anyOverLimit = false;
+            let anyOriginalOverLimit = false;
+
             currentFilesList.forEach(item => {
                 totalOriginal += item.originalSize;
                 totalOptimized += item.optimizedSize;
+
+                const limit = getFileSizeLimit(item.file);
+                if ((item.optimizedSize / (1024 * 1024)) > limit) {
+                    anyOverLimit = true;
+                }
+                if ((item.originalSize / (1024 * 1024)) > limit) {
+                    anyOriginalOverLimit = true;
+                }
             });
 
             document.getElementById('compress-total-orig').textContent = formatSize(totalOriginal);
             document.getElementById('compress-total-new').textContent = formatSize(totalOptimized);
 
+            const uploadBtn = document.getElementById('compress-upload-btn');
+            const originalsBtn = document.querySelector('button[onclick="uploadAllOriginals()"]');
             const statusMsg = document.getElementById('compress-status-msg');
-            if (statusMsg) {
-                const savings = Math.round((1 - (totalOptimized / totalOriginal)) * 100);
-                statusMsg.textContent = savings > 0 ? `Saves ~${savings}% total space` : 'Ready to upload';
+
+            if (originalsBtn) {
+                originalsBtn.disabled = anyOriginalOverLimit;
+            }
+
+            if (anyOverLimit) {
+                if (uploadBtn) uploadBtn.disabled = true;
+                if (statusMsg) {
+                    statusMsg.innerHTML = `<span style="color: var(--danger); font-weight: 700;">⚠️ File exceeds size limit. Compress more or drop/cancel.</span>`;
+                }
+            } else {
+                if (uploadBtn) uploadBtn.disabled = false;
+                if (statusMsg) {
+                    const savings = Math.round((1 - (totalOptimized / totalOriginal)) * 100);
+                    statusMsg.textContent = savings > 0 ? `Saves ~${savings}% total space` : 'Ready to upload';
+                }
             }
         }
 
