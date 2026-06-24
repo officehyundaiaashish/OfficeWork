@@ -2389,17 +2389,30 @@
             <div class="theme-section">
                 <div style="display:flex; flex-direction:column; gap:0.75rem;">
                     <div class="form-group" style="margin-bottom:0;">
-                        <label for="sb-url-input">Supabase URL</label>
-                        <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co"
-                            autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
-                            onchange="updateSupabaseConfig()">
+                        <label for="sb-password-input">Sync Password</label>
+                        <div style="display:flex; gap:0.5rem;">
+                            <input type="password" id="sb-password-input" placeholder="Enter password"
+                                autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;">
+                            <button type="button" class="btn btn-sm" onclick="connectWithPassword()" style="min-height:44px; padding:0 1rem;">Connect</button>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label for="sb-key-input">Supabase Anon Key</label>
-                        <input type="password" id="sb-key-input" placeholder="your-anon-key"
-                            autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
-                            onchange="updateSupabaseConfig()">
-                    </div>
+                    <details style="margin-top:0.25rem;">
+                        <summary style="font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:600; user-select:none;">Manual Configuration</summary>
+                        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="sb-url-input">Supabase URL</label>
+                                <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co"
+                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                    onchange="updateSupabaseConfig()">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="sb-key-input">Supabase Anon Key</label>
+                                <input type="password" id="sb-key-input" placeholder="your-anon-key"
+                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                    onchange="updateSupabaseConfig()">
+                            </div>
+                        </div>
+                    </details>
                     <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
                         <span id="supabase-status-pill" class="stat-pill"
                             style="font-size:0.78rem; background:var(--bg-color); padding:0.3rem 0.6rem; border-radius:12px;">
@@ -2539,6 +2552,44 @@
         let isSelectMode = false;
         const selectedTaskIds = new Set();
 
+        // Sound assets and preloading
+        const sounds = {
+            complete: null,
+            pending: null
+        };
+        const COMPLETE_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2019/2019-84.wav';
+        const PENDING_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav';
+
+        function preloadSounds() {
+            fetch(COMPLETE_SOUND_URL)
+                .then(r => r.blob())
+                .then(blob => {
+                    sounds.complete = URL.createObjectURL(blob);
+                })
+                .catch(e => {
+                    console.warn('Failed to background fetch complete sound:', e);
+                    sounds.complete = COMPLETE_SOUND_URL;
+                });
+
+            fetch(PENDING_SOUND_URL)
+                .then(r => r.blob())
+                .then(blob => {
+                    sounds.pending = URL.createObjectURL(blob);
+                })
+                .catch(e => {
+                    console.warn('Failed to background fetch pending sound:', e);
+                    sounds.pending = PENDING_SOUND_URL;
+                });
+        }
+
+        function playSound(type) {
+            const src = sounds[type];
+            if (src) {
+                const audio = new Audio(src);
+                audio.play().catch(e => console.log('Audio playback prevented or failed:', e));
+            }
+        }
+
         // Theme state
         const defaultTheme = {
             accentHex: '#0084ff',
@@ -2548,13 +2599,34 @@
             accentType: 'matte',
             textureStyle: 'minimalist',
             mode: 'system',
-            fontScale: 70,
-            density: 65,
+            fontScale: 100,
+            density: 100,
             supabaseUrl: '',
             supabaseKey: ''
         };
         let theme = JSON.parse(localStorage.getItem('khannaTheme')) || {};
         theme = { ...defaultTheme, ...theme };
+
+        function migrateTaskDate(t) {
+            if (!t || !t.createdAt || t.date === 'legacy') return t;
+            try {
+                const creationDate = new Date(t.createdAt);
+                const utcDateStr = creationDate.toISOString().split('T')[0];
+                
+                const yyyy = creationDate.getFullYear();
+                const mm = String(creationDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(creationDate.getDate()).padStart(2, '0');
+                const localDateStr = `${yyyy}-${mm}-${dd}`;
+                
+                if (t.date === utcDateStr && t.date !== localDateStr) {
+                    t.date = localDateStr;
+                    t.createdAt = Date.now();
+                }
+            } catch(e) {
+                console.error('Error migrating task date:', e);
+            }
+            return t;
+        }
 
         // ===== MIGRATION =====
         function loadTasks() {
@@ -2564,6 +2636,11 @@
                 const mapped = newFormat.map(t => {
                     if (!t.addedAt) {
                         t.addedAt = t.createdAt || Date.now();
+                        updated = true;
+                    }
+                    const oldDate = t.date;
+                    migrateTaskDate(t);
+                    if (t.date !== oldDate) {
                         updated = true;
                     }
                     return t;
@@ -2814,7 +2891,7 @@
                     if (a.completed) {
                         return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
                     } else {
-                        return (getTimestamp(b.addedAt) || getTimestamp(b.createdAt)) - (getTimestamp(a.addedAt) || getTimestamp(a.createdAt));
+                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
                     }
                 });
 
@@ -3050,7 +3127,6 @@
             }
             const t = tasks.find(x => x.id === taskId);
             if (!t) return;
-            const wasCompleted = t.completed;
             t.completed = !t.completed;
             if (t.completed) {
                 t.completedAt = Date.now();
@@ -3061,20 +3137,7 @@
             saveTasks();
             renderBoard();
             showToast(t.completed ? 'Task completed' : 'Marked pending');
-
-            try {
-                if (t.completed) {
-                    const doneSound = new Audio('done.wav');
-                    doneSound.volume = 0.7;
-                    doneSound.play().catch(() => {});
-                } else {
-                    const notDoneSound = new Audio('notdone.wav');
-                    notDoneSound.volume = 0.7;
-                    notDoneSound.play().catch(() => {});
-                }
-            } catch (e) {
-                console.warn('Sound playback failed:', e);
-            }
+            playSound(t.completed ? 'complete' : 'pending');
 
             upsertTaskToSupabase(t);
         }
@@ -3586,6 +3649,7 @@
 
         function sanitizeTask(t, includeMeta = true) {
             if (!t) return null;
+            migrateTaskDate(t);
             const res = {
                 id: t.id,
                 title: t.title || '',
@@ -3639,6 +3703,56 @@
                 }
             }
             return null;
+        }
+
+        async function connectWithPassword() {
+            const pwdInput = document.getElementById('sb-password-input');
+            const pwd = pwdInput ? pwdInput.value.trim() : '';
+            if (!pwd) {
+                showToast('Please enter password', true);
+                return;
+            }
+            
+            showToast('Connecting...');
+            try {
+                if (window.location.protocol === 'file:') {
+                    showToast('Cannot sync via Vercel when running locally via file://. Please run a local server or use Manual Configuration.', true);
+                    return;
+                }
+                const baseUrl = window.location.origin;
+                const response = await fetch(`${baseUrl}/api/supabase-config?password=${encodeURIComponent(pwd)}`);
+                if (!response.ok) {
+                    throw new Error(response.status === 401 ? 'Invalid password' : 'Server error');
+                }
+                const data = await response.json();
+                if (data.supabaseUrl && data.supabaseKey) {
+                    theme.supabaseUrl = data.supabaseUrl;
+                    theme.supabaseKey = data.supabaseKey;
+                    saveTheme();
+                    supabaseClient = null;
+
+                    if (document.getElementById('sb-url-input')) {
+                        document.getElementById('sb-url-input').value = data.supabaseUrl;
+                    }
+                    if (document.getElementById('sb-key-input')) {
+                        document.getElementById('sb-key-input').value = data.supabaseKey;
+                    }
+
+                    await updateSupabaseStatus();
+                    if (getSupabase()) {
+                        localStorage.setItem('supabaseCredentialsEntered', 'true');
+                        await syncWithSupabase();
+                        initRealtimeListener();
+                        showToast('Connected and synced successfully');
+                        if (pwdInput) pwdInput.value = '';
+                    }
+                } else {
+                    throw new Error('Invalid credentials returned from server');
+                }
+            } catch(e) {
+                showToast('Connection failed: ' + e.message, true);
+                console.error(e);
+            }
         }
 
         async function updateSupabaseConfig() {
@@ -5098,6 +5212,7 @@
         initTransferDropzone();
         displayGreeting();
         displayStaleWarning();
+        preloadSounds();
 
         // Submit task form on Enter inside the title textarea (prevents newlines)
         const titleInputEl = document.getElementById('task-title-input');
