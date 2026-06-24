@@ -1213,6 +1213,30 @@
             color: var(--pill-today-text);
         }
 
+        .meta-pill.priority-high {
+            background: var(--pill-overdue-bg);
+            color: var(--pill-overdue-text);
+            font-weight: 700;
+        }
+
+        .meta-pill.priority-medium {
+            background: #fef3c7;
+            color: #b45309;
+            font-weight: 700;
+        }
+
+        :root.theme-dark .meta-pill.priority-medium,
+        :root.theme-night .meta-pill.priority-medium {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+        }
+
+        .meta-pill.priority-low {
+            background: var(--pill-time-bg);
+            color: var(--pill-time-text);
+            font-weight: 700;
+        }
+
         .completed .task-title,
         .completed .task-note,
         .completed .task-meta {
@@ -2242,6 +2266,14 @@
                         <input type="time" id="task-time-input" autocomplete="one-time-code">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="task-priority-input">Priority</label>
+                    <select id="task-priority-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteTaskFromModal()"
                         style="display:none;">
@@ -2878,12 +2910,19 @@
                 const dayTasks = byDate[date] || [];
                 if (dayTasks.length === 0) return;
 
-                // Sort tasks within the day: completed at bottom (sorted by completedAt descending), to-dos sorted by addition time (createdAt ascending)
+                 // Sort tasks within the day: completed at bottom (sorted by completedAt descending)
+                // Active tasks sorted by: 1. Priority (high > medium > low), 2. Time/Creation date ascending
                 dayTasks.sort((a, b) => {
                     if (a.completed !== b.completed) return a.completed ? 1 : -1;
                     if (a.completed) {
                         return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
                     } else {
+                        const priorityWeight = { 'high': 3, 'medium': 2, 'low': 1 };
+                        const weightA = priorityWeight[a.priority] || 2;
+                        const weightB = priorityWeight[b.priority] || 2;
+                        if (weightA !== weightB) {
+                            return weightB - weightA;
+                        }
                         return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
                     }
                 });
@@ -2943,6 +2982,8 @@
             li.dataset.id = task.id;
 
             const metaPills = [];
+            const priority = task.priority || 'medium';
+            metaPills.push(`<span class="meta-pill priority-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>`);
             if (task.time) metaPills.push(`<span class="meta-pill time">${ICONS.clock} ${formatTime(task.time)}</span>`);
             if (isOverdue(task)) metaPills.push(`<span class="meta-pill overdue">${ICONS.alertTriangle} Overdue</span>`);
             else if (isToday(task)) metaPills.push(`<span class="meta-pill today"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;"></span> Today</span>`);
@@ -3175,6 +3216,7 @@
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             document.getElementById('task-time-input').value = `${hh}:${mm}`;
+            document.getElementById('task-priority-input').value = 'medium';
             document.getElementById('delete-btn').style.display = 'none';
             document.getElementById('task-modal').classList.add('active');
             setTimeout(() => document.getElementById('task-title-input').focus(), 300);
@@ -3189,6 +3231,7 @@
             document.getElementById('task-note-input').value = t.note || '';
             document.getElementById('task-date-input').value = t.date === 'legacy' ? todayStr() : t.date;
             document.getElementById('task-time-input').value = t.time || '';
+            document.getElementById('task-priority-input').value = t.priority || 'medium';
             document.getElementById('delete-btn').style.display = 'inline-flex';
             document.getElementById('task-modal').classList.add('active');
         }
@@ -3200,6 +3243,7 @@
             const note = document.getElementById('task-note-input').value.trim();
             const date = document.getElementById('task-date-input').value;
             const time = document.getElementById('task-time-input').value;
+            const priority = document.getElementById('task-priority-input').value;
 
             if (!title || !date) {
                 showToast('Please fill required fields');
@@ -3210,7 +3254,7 @@
             if (id) {
                 const t = tasks.find(x => x.id === id);
                 if (t) {
-                    Object.assign(t, { title, note, date, time });
+                    Object.assign(t, { title, note, date, time, priority });
                     t.createdAt = Date.now();
                     taskObj = t;
                 }
@@ -3218,7 +3262,7 @@
             } else {
                 const now = Date.now();
                 taskObj = {
-                    id: uid(), title, note, date, time,
+                    id: uid(), title, note, date, time, priority,
                     completed: false, createdAt: now, addedAt: now
                 };
                 tasks.push(taskObj);
@@ -3654,6 +3698,7 @@
                 note: t.note || '',
                 date: t.date || '',
                 time: t.time || '',
+                priority: t.priority || 'medium',
                 completed: !!t.completed,
                 createdAt: t.createdAt
             };
@@ -4846,57 +4891,112 @@
                 }
 
                 currentAbortController = new AbortController();
-                currentReader = new FileReader();
 
-                currentReader.onprogress = function(e) {
-                    if (e.lengthComputable) {
-                        const percent = Math.round((e.loaded / e.total) * 40) + 10; // 10% to 50%
-                        onProgress(percent, 'Reading');
-                    }
-                };
+                // Check if Supabase client is active
+                const client = getSupabase();
+                if (client) {
+                    onProgress(10, 'Checking storage');
+                    const bucketName = 'transfers';
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
 
-                currentReader.onload = async function(e) {
-                    try {
-                        onProgress(50, 'Uploading');
-                        const base64Data = e.target.result;
-                        const now = Date.now();
-                        
-                        const dbTransferObj = {
-                            id: '_transfer_' + uid(),
-                            title: file.name,
-                            note: JSON.stringify({ type, content: base64Data, size: file.size, mimeType: mime }),
-                            date: todayStr(),
-                            time: new Date().toTimeString().split(' ')[0].substring(0, 5),
-                            completed: false,
-                            createdAt: now,
-                            addedAt: now
-                        };
+                    // Attempt uploading directly to transfers bucket
+                    client.storage.from(bucketName).upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    }).then(({ data: uploadData, error: uploadError }) => {
+                        if (uploadError) {
+                            console.warn('Supabase storage upload failed, falling back to base64:', uploadError);
+                            fallbackToBase64();
+                        } else {
+                            onProgress(60, 'Getting public URL');
+                            const { data: urlData } = client.storage.from(bucketName).getPublicUrl(fileName);
+                            const publicUrl = urlData.publicUrl;
 
-                        const localTransferObj = stripTransferContent(dbTransferObj);
+                            const now = Date.now();
+                            const dbTransferObj = {
+                                id: '_transfer_' + uid(),
+                                title: file.name,
+                                note: JSON.stringify({ type, content: publicUrl, size: file.size, mimeType: mime, storagePath: fileName }),
+                                date: todayStr(),
+                                time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                                completed: false,
+                                createdAt: now,
+                                addedAt: now
+                            };
 
-                        onProgress(70, 'Syncing');
-                        await upsertTransferToSupabase(dbTransferObj, currentAbortController.signal);
-                        
-                        transfers.unshift(localTransferObj);
-                        saveTransfers();
-                        renderTransferBoard();
+                            const localTransferObj = stripTransferContent(dbTransferObj);
 
-                        onProgress(100, 'Finished');
-                        resolve();
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
+                            onProgress(80, 'Syncing');
+                            upsertTransferToSupabase(dbTransferObj, currentAbortController.signal).then(() => {
+                                transfers.unshift(localTransferObj);
+                                saveTransfers();
+                                renderTransferBoard();
+                                onProgress(100, 'Finished');
+                                resolve();
+                            }).catch(reject);
+                        }
+                    }).catch(err => {
+                        console.warn('Storage upload error, falling back to base64:', err);
+                        fallbackToBase64();
+                    });
+                } else {
+                    fallbackToBase64();
+                }
 
-                currentReader.onerror = function() {
-                    reject('File read error');
-                };
+                function fallbackToBase64() {
+                    currentReader = new FileReader();
 
-                currentReader.onabort = function() {
-                    reject('File read aborted');
-                };
+                    currentReader.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 40) + 10; // 10% to 50%
+                            onProgress(percent, 'Reading');
+                        }
+                    };
 
-                currentReader.readAsDataURL(file);
+                    currentReader.onload = async function(e) {
+                        try {
+                            onProgress(50, 'Uploading');
+                            const base64Data = e.target.result;
+                            const now = Date.now();
+                            
+                            const dbTransferObj = {
+                                id: '_transfer_' + uid(),
+                                title: file.name,
+                                note: JSON.stringify({ type, content: base64Data, size: file.size, mimeType: mime }),
+                                date: todayStr(),
+                                time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                                completed: false,
+                                createdAt: now,
+                                addedAt: now
+                            };
+
+                            const localTransferObj = stripTransferContent(dbTransferObj);
+
+                            onProgress(70, 'Syncing');
+                            await upsertTransferToSupabase(dbTransferObj, currentAbortController.signal);
+                            
+                            transfers.unshift(localTransferObj);
+                            saveTransfers();
+                            renderTransferBoard();
+
+                            onProgress(100, 'Finished');
+                            resolve();
+                        } catch (err) {
+                            reject(err);
+                        }
+                    };
+
+                    currentReader.onerror = function() {
+                        reject('File read error');
+                    };
+
+                    currentReader.onabort = function() {
+                        reject('File read aborted');
+                    };
+
+                    currentReader.readAsDataURL(file);
+                }
             });
         }
 
@@ -5227,13 +5327,20 @@
                 if (error) throw error;
                 if (data && data.note) {
                     const parsed = JSON.parse(data.note);
-                    const link = document.createElement('a');
-                    link.href = parsed.content;
-                    link.download = transfer.title || 'download';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    showToast('Downloading...');
+                    if (parsed.content.startsWith('http')) {
+                        // Open Supabase storage URLs in a new tab for download
+                        window.open(parsed.content, '_blank');
+                        showToast('Opening file link...');
+                    } else {
+                        // Local base64 file downloading
+                        const link = document.createElement('a');
+                        link.href = parsed.content;
+                        link.download = transfer.title || 'download';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        showToast('Downloading...');
+                    }
                 } else {
                     showToast('File content not found', true);
                 }
@@ -5335,6 +5442,14 @@
                 console.error('Background sync failed on startup:', err);
             }
         }, 1000);
+
+        // Auto-sync when connection is restored
+        window.addEventListener('online', () => {
+            showToast('Connection restored. Syncing with Supabase...');
+            if (getSupabase()) {
+                syncWithSupabase();
+            }
+        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', e => {
