@@ -1599,6 +1599,51 @@
             font-weight: 600;
         }
 
+        .priority-pill-toggle {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .priority-pill-toggle button {
+            flex: 1;
+            padding: 0.55rem 0.5rem;
+            border: 1.5px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 9999px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: calc(0.82rem * var(--font-scale));
+            color: var(--text-main);
+            transition: all var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .priority-pill-toggle button:hover {
+            border-color: #c4c7cc;
+            background: var(--hover);
+        }
+
+        .priority-pill-toggle button[data-priority="low"].active {
+            border-color: var(--accent);
+            background: rgba(var(--accent-rgb), 0.08);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .priority-pill-toggle button[data-priority="medium"].active {
+            border-color: #d97706;
+            background: rgba(217, 119, 6, 0.08);
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .priority-pill-toggle button[data-priority="high"].active {
+            border-color: var(--danger);
+            background: rgba(228, 30, 63, 0.08);
+            color: var(--danger);
+            font-weight: 600;
+        }
+
         /* ===== Scrollbar ===== */
         ::-webkit-scrollbar {
             width: 6px;
@@ -2267,12 +2312,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="task-priority-input">Priority</label>
-                    <select id="task-priority-input">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
+                    <label>Priority</label>
+                    <div class="priority-pill-toggle" id="task-priority-toggle">
+                        <button type="button" data-priority="low" onclick="setFormPriority('low')">Low</button>
+                        <button type="button" data-priority="medium" onclick="setFormPriority('medium')">Medium</button>
+                        <button type="button" data-priority="high" onclick="setFormPriority('high')">High</button>
+                    </div>
+                    <input type="hidden" id="task-priority-input" value="medium">
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteTaskFromModal()"
@@ -3204,6 +3250,17 @@
             document.getElementById('stat-overdue').textContent = overdueCount;
         }
 
+        function setFormPriority(priority) {
+            const input = document.getElementById('task-priority-input');
+            if (input) input.value = priority;
+
+            const buttons = document.querySelectorAll('#task-priority-toggle button');
+            buttons.forEach(btn => {
+                const isActive = btn.dataset.priority === priority;
+                btn.classList.toggle('active', isActive);
+            });
+        }
+
         // ===== TASK MODAL =====
         function openAddModal() {
             if (isSelectMode) exitSelectionMode();
@@ -3216,7 +3273,7 @@
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             document.getElementById('task-time-input').value = `${hh}:${mm}`;
-            document.getElementById('task-priority-input').value = 'medium';
+            setFormPriority('medium');
             document.getElementById('delete-btn').style.display = 'none';
             document.getElementById('task-modal').classList.add('active');
             setTimeout(() => document.getElementById('task-title-input').focus(), 300);
@@ -3231,7 +3288,7 @@
             document.getElementById('task-note-input').value = t.note || '';
             document.getElementById('task-date-input').value = t.date === 'legacy' ? todayStr() : t.date;
             document.getElementById('task-time-input').value = t.time || '';
-            document.getElementById('task-priority-input').value = t.priority || 'medium';
+            setFormPriority(t.priority || 'medium');
             document.getElementById('delete-btn').style.display = 'inline-flex';
             document.getElementById('task-modal').classList.add('active');
         }
@@ -3626,13 +3683,9 @@
                     } else if (localTime > incomingTime) {
                         const client = getSupabase();
                         if (client) {
-                            client.from('tasks').upsert(sanitizeTask(localTask, true)).then(({ error }) => {
+                            safeUpsertTasks(client, localTask).then(({ error }) => {
                                 if (error) {
-                                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                                        client.from('tasks').upsert(sanitizeTask(localTask, false));
-                                    } else {
-                                        console.error('Supabase resolve conflict error:', error);
-                                    }
+                                    console.error('Supabase resolve conflict error:', error);
                                 }
                             });
                         }
@@ -3689,7 +3742,7 @@
             }
         }
 
-        function sanitizeTask(t, includeMeta = true) {
+        function sanitizeTask(t, includeMeta = true, includePriority = true) {
             if (!t) return null;
             migrateTaskDate(t);
             const res = {
@@ -3698,10 +3751,12 @@
                 note: t.note || '',
                 date: t.date || '',
                 time: t.time || '',
-                priority: t.priority || 'medium',
                 completed: !!t.completed,
                 createdAt: t.createdAt
             };
+            if (includePriority) {
+                res.priority = t.priority || 'medium';
+            }
             if (includeMeta) {
                 if (t.completedAt !== undefined) res.completedAt = t.completedAt;
                 if (t.addedAt !== undefined) res.addedAt = t.addedAt;
@@ -3709,25 +3764,40 @@
             return res;
         }
 
+        function safeUpsertTasks(client, tasksData, abortSignal = null) {
+            const tryUpsert = (includeMetaVal, includePriorityVal) => {
+                const payload = Array.isArray(tasksData)
+                    ? tasksData.map(t => sanitizeTask(t, includeMetaVal, includePriorityVal))
+                    : sanitizeTask(tasksData, includeMetaVal, includePriorityVal);
+                const query = client.from('tasks').upsert(payload);
+                if (abortSignal) {
+                    query.abortSignal(abortSignal);
+                }
+                return query;
+            };
+
+            return tryUpsert(true, true).then(({ data, error }) => {
+                if (error && error.message && (error.message.includes('column') || error.code === '42703')) {
+                    const errStr = error.message.toLowerCase();
+                    const hasPriorityErr = errStr.includes('priority');
+                    const hasMetaErr = errStr.includes('completedat') || errStr.includes('addedat');
+
+                    const stripPriority = hasPriorityErr || (!hasPriorityErr && !hasMetaErr);
+                    const stripMeta = hasMetaErr || (!hasPriorityErr && !hasMetaErr);
+
+                    return tryUpsert(!stripMeta, !stripPriority);
+                }
+                return { data, error };
+            });
+        }
+
         function upsertTaskToSupabase(taskObj) {
             const client = getSupabase();
             if (!client || !taskObj) return;
-            client.from('tasks').upsert(sanitizeTask(taskObj, true)).then(({ error }) => {
+            safeUpsertTasks(client, taskObj).then(({ error }) => {
                 if (error) {
-                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                        client.from('tasks').upsert(sanitizeTask(taskObj, false)).then(({ error: retryError }) => {
-                            if (retryError) {
-                                console.error('Supabase auto-save error on retry:', retryError);
-                                showToast('Sync failed: ' + retryError.message);
-                            } else {
-                                animateSyncSuccess();
-                                broadcastChange(taskObj.id, 'upsert');
-                            }
-                        });
-                    } else {
-                        console.error('Supabase auto-save error:', error);
-                        showToast('Sync failed: ' + error.message);
-                    }
+                    console.error('Supabase auto-save error:', error);
+                    showToast('Sync failed: ' + error.message);
                 } else {
                     animateSyncSuccess();
                     broadcastChange(taskObj.id, 'upsert');
@@ -4086,15 +4156,8 @@
                     }
 
                     if (toUpsert.length > 0) {
-                        const { error: upsertError } = await client.from('tasks').upsert(toUpsert.map(t => sanitizeTask(t, true)));
-                        if (upsertError) {
-                            if (upsertError.message && (upsertError.message.includes('column') || upsertError.code === '42703')) {
-                                const { error: retryError } = await client.from('tasks').upsert(toUpsert.map(t => sanitizeTask(t, false)));
-                                if (retryError) throw retryError;
-                            } else {
-                                throw upsertError;
-                            }
-                        }
+                        const { error: upsertError } = await safeUpsertTasks(client, toUpsert);
+                        if (upsertError) throw upsertError;
                     }
 
                     if (deleteFromRemoteIds.length > 0) {
@@ -4140,15 +4203,8 @@
                 }
 
                 if (transfersToUpsert.length > 0) {
-                    const { error: upsertError } = await client.from('tasks').upsert(transfersToUpsert.map(t => sanitizeTask(t, true)));
-                    if (upsertError) {
-                        if (upsertError.message && (upsertError.message.includes('column') || upsertError.code === '42703')) {
-                            const { error: retryError } = await client.from('tasks').upsert(transfersToUpsert.map(t => sanitizeTask(t, false)));
-                            if (retryError) throw retryError;
-                        } else {
-                            throw upsertError;
-                        }
-                    }
+                    const { error: upsertError } = await safeUpsertTasks(client, transfersToUpsert);
+                    if (upsertError) throw upsertError;
                 }
 
                 transfers = mergedTransfers;
@@ -5027,32 +5083,11 @@
             const client = getSupabase();
             if (!client || !transferObj) return Promise.reject('Supabase is not configured');
             
-            const query = client.from('tasks').upsert(sanitizeTask(transferObj, true));
-            if (abortSignal) {
-                query.abortSignal(abortSignal);
-            }
-            
-            return query.then(({ error }) => {
+            return safeUpsertTasks(client, transferObj, abortSignal).then(({ error }) => {
                 if (error) {
-                    if (error.message && (error.message.includes('column') || error.code === '42703')) {
-                        const retryQuery = client.from('tasks').upsert(sanitizeTask(transferObj, false));
-                        if (abortSignal) {
-                            retryQuery.abortSignal(abortSignal);
-                        }
-                        return retryQuery.then(({ error: retryError }) => {
-                            if (retryError) {
-                                showToast('Sync failed: ' + retryError.message, true);
-                                throw retryError;
-                            } else {
-                                animateSyncSuccess();
-                                broadcastChange(transferObj.id, 'upsert');
-                            }
-                        });
-                    } else {
-                        console.error('Supabase transfer sync error:', error);
-                        showToast('Sync failed: ' + error.message, true);
-                        throw error;
-                    }
+                    console.error('Supabase transfer sync error:', error);
+                    showToast('Sync failed: ' + error.message, true);
+                    throw error;
                 } else {
                     animateSyncSuccess();
                     broadcastChange(transferObj.id, 'upsert');
