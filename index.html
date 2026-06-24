@@ -1985,21 +1985,21 @@
             display: none !important;
         }
         body.mode-transfer h1 {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
         }
         body.mode-transfer .logo-icon-wrap {
-            background: linear-gradient(135deg, rgba(255, 65, 108, 0.15), rgba(255, 75, 43, 0.15)) !important;
-            border-color: rgba(255, 65, 108, 0.2) !important;
-            color: #ff416c !important;
+            background: rgba(var(--accent-rgb), 0.15) !important;
+            border-color: rgba(var(--accent-rgb), 0.2) !important;
+            color: var(--accent) !important;
         }
         body.mode-transfer .logo-icon-wrap stop:first-child {
-            stop-color: #ff416c !important;
+            stop-color: var(--accent-gradient-start) !important;
         }
         body.mode-transfer .logo-icon-wrap stop:last-child {
-            stop-color: #ff4b2b !important;
+            stop-color: var(--accent-gradient-end) !important;
         }
         .transfer-panel {
             display: flex;
@@ -2032,7 +2032,7 @@
         }
         .transfer-tab-btn.active {
             background: var(--hover);
-            color: #ff416c;
+            color: var(--accent);
         }
         .transfer-tab-content {
             display: none;
@@ -2053,7 +2053,7 @@
             gap: 0.5rem;
         }
         .dropzone:hover, .dropzone.dragover {
-            border-color: #ff416c;
+            border-color: var(--accent);
             background: var(--hover);
         }
         .dropzone svg {
@@ -2105,7 +2105,7 @@
         .transfer-doc-preview svg {
             width: 16px;
             height: 16px;
-            color: #ff416c;
+            color: var(--accent);
         }
     </style>
 </head>
@@ -2257,7 +2257,7 @@
                 <div class="form-group" style="margin-bottom: 0;">
                     <textarea id="transfer-text-input" placeholder="Type or paste text to share..." style="min-height: 100px; padding: calc(0.85rem * var(--density));" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
-                <button class="btn" onclick="shareTextTransfer()" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                <button class="btn" onclick="shareTextTransfer()" style="background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: white; width: 100%; justify-content: center; margin-top: 0.5rem;">
                     Share Text
                 </button>
             </div>
@@ -2291,9 +2291,13 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
                 <span>Select Multiple</span>
             </button>
-            <div id="transfer-bulk-actions" style="display: none; gap: 0.5rem; align-items: center;">
+            <div id="transfer-bulk-actions" style="display: none; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                 <span id="transfer-selected-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">0 selected</span>
                 <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Select All</button>
+                <button class="btn btn-secondary btn-sm" onclick="downloadSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download Selected
+                </button>
                 <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white;">Delete Selected</button>
             </div>
         </div>
@@ -2599,10 +2603,10 @@
 
     <!-- ===== Compression Modal ===== -->
     <div class="modal-overlay" id="compress-modal">
-        <div class="modal" style="max-width: 360px; padding: 1.25rem;">
+        <div class="modal" style="max-width: 480px; width: 95%; padding: 1.25rem;">
             <div class="modal-grip"></div>
-            <h2 style="margin-bottom: 1rem;">
-                <span>Optimize File</span>
+            <h2 style="margin-bottom: 0.75rem;">
+                <span id="compress-modal-title">Optimize Uploads</span>
                 <button class="modal-close" onclick="closeCompressModal()" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -2611,55 +2615,49 @@
                     </svg>
                 </button>
             </h2>
+            
+            <div id="compress-mode-selector" class="theme-mode-toggle" style="margin-bottom: 0.85rem; display: flex; gap: 0.35rem;">
+                <button type="button" id="compress-mode-all-btn" class="active" onclick="setCompressionMode('all')" style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Compress All At Once</button>
+                <button type="button" id="compress-mode-ind-btn" onclick="setCompressionMode('individual')" style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Configure Individually</button>
+            </div>
+
             <div class="compress-modal-body" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                
-                <div class="compress-preview-box" style="display: flex; gap: 0.75rem; align-items: center; background: var(--hover); padding: 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                    <div id="compress-preview-thumb" style="width: 48px; height: 48px; border-radius: 6px; overflow: hidden; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <!-- Preview -->
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div id="compress-file-name" style="font-weight: 600; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">File name</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;" id="compress-file-meta">Type</div>
-                    </div>
-                </div>
-
-                <div class="compress-size-comparison" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: center;">
-                    <div style="background: var(--bg); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Original</div>
-                        <div id="compress-orig-size" style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 0.15rem;">0 KB</div>
-                    </div>
-                    <div style="background: var(--bg); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Optimized</div>
-                        <div id="compress-new-size" style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-top: 0.15rem;">0 KB</div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="compress-slider-group" style="margin-bottom: 0;">
+                <div class="form-group" id="compress-global-slider-container" style="margin-bottom: 0; background: var(--hover); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                        <label for="compress-quality-slider" style="margin: 0; font-weight: 600; font-size: 0.8rem;">Quality / Scale</label>
-                        <span id="compress-quality-val" style="font-size: 0.8rem; font-weight: 700; color: var(--accent);">80%</span>
+                        <label for="compress-global-slider" style="margin: 0; font-weight: 700; font-size: 0.8rem; color: var(--text-main);">Global Compression Level</label>
+                        <span id="compress-global-val" style="font-size: 0.8rem; font-weight: 700; color: var(--accent);">20% Compression</span>
                     </div>
-                    <input type="range" id="compress-quality-slider" class="premium-slider" min="10" max="100" value="80" oninput="updateCompressQualityDisplay(this.value)">
+                    <input type="range" id="compress-global-slider" class="premium-slider" min="0" max="90" value="20" oninput="updateGlobalCompressionValue(this.value)">
                     <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
-                        <span>Smaller</span>
-                        <span>Original</span>
+                        <span>Original (Less)</span>
+                        <span>Smaller (More)</span>
+                    </div>
+                </div>
+
+                <div style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 2px;" id="compress-files-list">
+                    <!-- Dynamic Files list -->
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: center; margin-top: 0.25rem;">
+                    <div style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Total Original</div>
+                        <div id="compress-total-orig" style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-top: 0.1rem;">0 KB</div>
+                    </div>
+                    <div style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Total Optimized</div>
+                        <div id="compress-total-new" style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-top: 0.1rem;">0 KB</div>
                     </div>
                 </div>
 
                 <div id="compress-status-msg" style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; min-height: 16px; text-align: center;">
-                    Preparing preview...
-                </div>
-
-                <div id="compress-apply-all-container" style="display: none; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.25rem;">
-                    <input type="checkbox" id="compress-apply-all" style="width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent);">
-                    <label for="compress-apply-all" style="margin: 0; font-size: 0.75rem; cursor: pointer; color: var(--text-muted);">Apply to all remaining files</label>
+                    Ready to optimize
                 </div>
             </div>
             
-            <div class="modal-actions" style="margin-top: 1rem; display: flex; gap: 0.4rem; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadOriginalFile()" style="margin-right: auto; padding: 0.35rem 0.6rem; font-size: 0.75rem;">Original</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;">Cancel</button>
-                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadCompressedFile()" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Upload</button>
+            <div class="modal-actions" style="margin-top: 1.15rem; display: flex; gap: 0.4rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadAllOriginals()" style="margin-right: auto; padding: 0.35rem 0.65rem; font-size: 0.75rem;">Keep Originals</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Cancel</button>
+                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadAllConfigured()" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">Upload All</button>
             </div>
         </div>
     </div>
@@ -2937,6 +2935,21 @@
             if (diffDays === 1) return 'Tomorrow Tasks';
             if (diffDays === -1) return 'Yesterday Tasks';
             return `${formatted} Tasks`;
+        }
+
+        function formatTransferDate(dateStr) {
+            if (dateStr === 'legacy') return 'Earlier Files / Text';
+            const d = new Date(dateStr + 'T00:00:00');
+            const today = new Date(todayStr() + 'T00:00:00');
+            const diffDays = Math.round((d - today) / (1000 * 60 * 60 * 24));
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const formatted = `${dd}-${mm}-${yyyy}`;
+            if (diffDays === 0) return "Today's Files / Text";
+            if (diffDays === 1) return "Tomorrow's Files / Text";
+            if (diffDays === -1) return "Yesterday's Files / Text";
+            return `${formatted} Files / Text`;
         }
 
         function formatTime(t) {
@@ -5062,163 +5075,300 @@
 
         let compressionPromiseResolve = null;
         let compressionPromiseReject = null;
-        let currentRawFile = null;
-        let currentCompressedBlob = null;
-        let currentCompressedQuality = 80;
-        let compressionTimeout = null;
+        let compressionMode = 'all'; // 'all' or 'individual'
+        let globalQuality = 20; // 0 to 90 compression percentage
+        let currentFilesList = []; // List of objects
+        let previewTimeouts = {};
 
-        let batchApplyAll = false;
-        let batchAction = 'optimized'; // 'optimized' or 'original'
-        let batchQuality = 80;
-
-        function promptCompression(file) {
+        function promptCompression(files) {
             return new Promise((resolve, reject) => {
-                currentRawFile = file;
-                currentCompressedBlob = null;
-                currentCompressedQuality = 80;
                 compressionPromiseResolve = resolve;
                 compressionPromiseReject = reject;
+                compressionMode = 'all';
+                globalQuality = 20;
+                
+                currentFilesList = files.map(file => {
+                    const id = 'f_' + Math.random().toString(36).substring(2, 9);
+                    const mime = file.type || '';
+                    let type = 'document';
+                    if (mime.startsWith('image/')) type = 'photo';
+                    else if (mime.startsWith('video/')) type = 'video';
+                    
+                    return {
+                        id,
+                        file,
+                        type,
+                        mime,
+                        action: 'optimized', // 'optimized' or 'original'
+                        quality: 20, // default compression %
+                        originalSize: file.size,
+                        optimizedSize: file.size,
+                        compressedBlob: null,
+                        thumbData: null
+                    };
+                });
+
+                // Update tab classes
+                const modeAllBtn = document.getElementById('compress-mode-all-btn');
+                const modeIndBtn = document.getElementById('compress-mode-ind-btn');
+                if (modeAllBtn) modeAllBtn.classList.add('active');
+                if (modeIndBtn) modeIndBtn.classList.remove('active');
+
+                const globalContainer = document.getElementById('compress-global-slider-container');
+                if (globalContainer) globalContainer.style.display = 'block';
+
+                const globalSlider = document.getElementById('compress-global-slider');
+                if (globalSlider) globalSlider.value = 20;
+                
+                const globalVal = document.getElementById('compress-global-val');
+                if (globalVal) globalVal.textContent = '20% Compression';
 
                 const modalEl = document.getElementById('compress-modal');
                 if (modalEl) modalEl.classList.add('active');
 
-                document.getElementById('compress-file-name').textContent = file.name;
-                document.getElementById('compress-orig-size').textContent = formatSize(file.size);
-
-                const slider = document.getElementById('compress-quality-slider');
-                if (slider) slider.value = 80;
-                document.getElementById('compress-quality-val').textContent = '80%';
-
-                const mime = file.type || '';
-                let typeText = 'Document';
-                if (mime.startsWith('image/')) typeText = 'Photo / Image';
-                else if (mime.startsWith('video/')) typeText = 'Video';
-                document.getElementById('compress-file-meta').textContent = `${typeText} (${mime || 'unknown'})`;
-
-                const applyAllContainer = document.getElementById('compress-apply-all-container');
-                const applyAllChk = document.getElementById('compress-apply-all');
-                if (applyAllContainer) {
-                    applyAllContainer.style.display = uploadQueue.length > 0 ? 'flex' : 'none';
-                }
-                if (applyAllChk) applyAllChk.checked = false;
-
-                updateCompressPreview();
+                renderCompressFilesList();
+                calculateAllPreviews();
             });
         }
 
-        function updateCompressQualityDisplay(val) {
-            currentCompressedQuality = parseInt(val);
-            document.getElementById('compress-quality-val').textContent = val + '%';
+        function setCompressionMode(mode) {
+            compressionMode = mode;
+            const modeAllBtn = document.getElementById('compress-mode-all-btn');
+            const modeIndBtn = document.getElementById('compress-mode-ind-btn');
+            const globalContainer = document.getElementById('compress-global-slider-container');
+            
+            if (mode === 'all') {
+                if (modeAllBtn) modeAllBtn.classList.add('active');
+                if (modeIndBtn) modeIndBtn.classList.remove('active');
+                if (globalContainer) globalContainer.style.display = 'block';
+                
+                // Re-apply global quality
+                currentFilesList.forEach(item => {
+                    item.quality = globalQuality;
+                });
+            } else {
+                if (modeAllBtn) modeAllBtn.classList.remove('active');
+                if (modeIndBtn) modeIndBtn.classList.add('active');
+                if (globalContainer) globalContainer.style.display = 'none';
+            }
 
-            if (compressionTimeout) clearTimeout(compressionTimeout);
-            compressionTimeout = setTimeout(() => {
-                updateCompressPreview();
-            }, 150);
+            renderCompressFilesList();
+            calculateAllPreviews();
         }
 
-        function updateCompressPreview() {
-            const file = currentRawFile;
-            if (!file) return;
+        function updateGlobalCompressionValue(val) {
+            globalQuality = parseInt(val);
+            document.getElementById('compress-global-val').textContent = val + '% Compression';
+            
+            currentFilesList.forEach(item => {
+                item.quality = globalQuality;
+            });
 
-            const mime = file.type || '';
-            const size = file.size;
-            const quality = currentCompressedQuality / 100;
-            const thumbContainer = document.getElementById('compress-preview-thumb');
-            const statusMsg = document.getElementById('compress-status-msg');
-            const newSizeEl = document.getElementById('compress-new-size');
-            const sliderGroup = document.getElementById('compress-slider-group');
+            if (window._globalPreviewTimeout) clearTimeout(window._globalPreviewTimeout);
+            window._globalPreviewTimeout = setTimeout(() => {
+                calculateAllPreviews();
+            }, 200);
+        }
 
-            statusMsg.textContent = 'Processing...';
-            newSizeEl.textContent = 'Calculating...';
+        function updateIndividualCompressionValue(id, val) {
+            const item = currentFilesList.find(x => x.id === id);
+            if (!item) return;
+            item.quality = parseInt(val);
+            
+            const labelContainer = document.querySelector(`#slider-container-${id} span:last-child`);
+            if (labelContainer) labelContainer.textContent = val + '%';
 
-            if (mime.startsWith('image/')) {
-                if (sliderGroup) sliderGroup.style.display = 'block';
-                const reader = new FileReader();
-                reader.onload = function(e) {
+            if (previewTimeouts[id]) clearTimeout(previewTimeouts[id]);
+            previewTimeouts[id] = setTimeout(() => {
+                calculateSinglePreview(item);
+            }, 200);
+        }
+
+        function toggleFileIndividualAction(id) {
+            const item = currentFilesList.find(x => x.id === id);
+            if (!item) return;
+            item.action = item.action === 'optimized' ? 'original' : 'optimized';
+            renderCompressFilesList();
+            calculateSinglePreview(item);
+        }
+
+        function renderCompressFilesList() {
+            const listContainer = document.getElementById('compress-files-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            currentFilesList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'compress-file-item';
+                div.style.cssText = `border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem; display: flex; flex-direction: column; gap: 0.4rem; background: var(--card-bg); margin-bottom: 0.25rem;`;
+
+                const showSlider = compressionMode === 'individual' && item.action === 'optimized' && item.type !== 'document';
+
+                const fileIconSvg = item.type === 'photo' 
+                    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--accent);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
+                    : item.type === 'video'
+                    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent);"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>`
+                    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-muted);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>`;
+
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.6rem; width: 100%;">
+                        <div id="thumb-${item.id}" style="width: 36px; height: 36px; border-radius: 4px; background: var(--hover); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border);">
+                            ${item.thumbData ? `<img src="${item.thumbData}" style="width:100%;height:100%;object-fit:cover;">` : fileIconSvg}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.8rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 0.1rem;">
+                                <span>Orig: <span style="color:var(--text-main); font-weight:600;">${formatSize(item.originalSize)}</span></span>
+                                <span>•</span>
+                                <span style="font-weight: 600; color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--text-muted)'};">Est: <span>${formatSize(item.optimizedSize)}</span></span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFileIndividualAction('${item.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; min-height: 24px; border-color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--border)'}; background: ${item.action === 'optimized' ? 'rgba(var(--accent-rgb), 0.08)' : 'transparent'}; color: ${item.action === 'optimized' ? 'var(--accent)' : 'var(--text-muted)'};">
+                            ${item.action === 'optimized' ? 'Optimized' : 'Original'}
+                        </button>
+                    </div>
+                    <div id="slider-container-${item.id}" style="display: ${showSlider ? 'block' : 'none'}; padding-top: 0.2rem; border-top: 1px dashed var(--border); margin-top: 0.2rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">
+                            <span>Compression:</span>
+                            <span style="font-weight: 700; color: var(--accent);">${item.quality}%</span>
+                        </div>
+                        <input type="range" class="premium-slider" min="0" max="90" value="${item.quality}" oninput="updateIndividualCompressionValue('${item.id}', this.value)" style="height: 4px; padding: 0; margin: 0;">
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            updateTotalsSummary();
+        }
+
+        function calculateSinglePreview(item) {
+            if (item.action === 'original') {
+                item.optimizedSize = item.originalSize;
+                item.compressedBlob = null;
+                updateTotalsSummary();
+                return;
+            }
+
+            const q = (100 - item.quality) / 100;
+            if (item.type === 'photo') {
+                if (!item.thumbData) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        item.thumbData = e.target.result;
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            let w = img.width;
+                            let h = img.height;
+                            const maxDim = 1200; // Smaller resolution for quick previews
+                            if (w > maxDim || h > maxDim) {
+                                if (w > h) {
+                                    h = Math.round((h * maxDim) / w);
+                                    w = maxDim;
+                                } else {
+                                    w = Math.round((w * maxDim) / h);
+                                    h = maxDim;
+                                }
+                            }
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.drawImage(img, 0, 0, w, h);
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    item.compressedBlob = blob;
+                                    item.optimizedSize = blob.size;
+                                    updateTotalsSummary();
+                                    const estLabel = document.querySelector(`#thumb-${item.id}`)?.nextElementSibling?.querySelector('span style="font-weight: 600;"')?.nextElementSibling?.nextElementSibling;
+                                    if (estLabel) {
+                                        estLabel.textContent = `Est: ${formatSize(blob.size)}`;
+                                    } else {
+                                        renderCompressFilesList();
+                                    }
+                                }
+                            }, 'image/jpeg', q);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(item.file);
+                } else {
                     const img = new Image();
                     img.onload = function() {
-                        thumbContainer.innerHTML = '';
-                        const thumbImg = img.cloneNode();
-                        thumbImg.style.width = '100%';
-                        thumbImg.style.height = '100%';
-                        thumbImg.style.objectFit = 'cover';
-                        thumbContainer.appendChild(thumbImg);
-
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-
-                        let width = img.width;
-                        let height = img.height;
-                        const maxDim = 2048;
-                        if (width > maxDim || height > maxDim) {
-                            if (width > height) {
-                                height = Math.round((height * maxDim) / width);
-                                width = maxDim;
+                        let w = img.width;
+                        let h = img.height;
+                        const maxDim = 1200;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
                             } else {
-                                width = Math.round((width * maxDim) / height);
-                                height = maxDim;
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
                             }
                         }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
                         canvas.toBlob((blob) => {
                             if (blob) {
-                                currentCompressedBlob = blob;
-                                newSizeEl.textContent = formatSize(blob.size);
-                                const savings = Math.round((1 - (blob.size / size)) * 100);
-                                statusMsg.textContent = savings > 0 ? `Saves ~${savings}% space` : 'Quality scale is too high to save space';
-                            } else {
-                                statusMsg.textContent = 'Compression error';
+                                item.compressedBlob = blob;
+                                item.optimizedSize = blob.size;
+                                updateTotalsSummary();
+                                renderCompressFilesList();
                             }
-                        }, 'image/jpeg', quality);
+                        }, 'image/jpeg', q);
                     };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-
-            } else if (mime.startsWith('video/')) {
-                if (sliderGroup) sliderGroup.style.display = 'block';
-                thumbContainer.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;color:var(--text-muted);">
-                        <polygon points="23 7 16 12 23 17 23 7" />
-                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                    </svg>
-                `;
-
-                const estSize = Math.round(size * (quality * 0.75 + 0.15));
-                newSizeEl.textContent = `~${formatSize(estSize)}`;
-                const savings = Math.round((1 - (estSize / size)) * 100);
-                statusMsg.textContent = `Estimated savings: ~${savings}%`;
-
+                    img.src = item.thumbData;
+                }
+            } else if (item.type === 'video') {
+                const est = Math.round(item.originalSize * (q * 0.75 + 0.15));
+                item.optimizedSize = est;
+                updateTotalsSummary();
+                renderCompressFilesList();
             } else {
-                if (sliderGroup) sliderGroup.style.display = 'none';
-                thumbContainer.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;color:var(--text-muted);">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                `;
-
-                if (size < 15 * 1024 * 1024) {
-                    compressDocGzip(file).then(compressedFile => {
-                        currentCompressedBlob = compressedFile;
-                        newSizeEl.textContent = formatSize(compressedFile.size);
-                        const savings = Math.round((1 - (compressedFile.size / size)) * 100);
-                        statusMsg.textContent = savings > 0 ? `Saves ~${savings}% space (GZIP)` : 'Already fully compressed';
-                    }).catch(err => {
-                        newSizeEl.textContent = 'N/A';
-                        statusMsg.textContent = 'Unable to compress document';
+                if (item.originalSize < 10 * 1024 * 1024) {
+                    compressDocGzip(item.file).then(compFile => {
+                        item.compressedBlob = compFile;
+                        item.optimizedSize = compFile.size;
+                        updateTotalsSummary();
+                        renderCompressFilesList();
+                    }).catch(() => {
+                        item.optimizedSize = item.originalSize;
+                        updateTotalsSummary();
+                        renderCompressFilesList();
                     });
                 } else {
-                    newSizeEl.textContent = 'Estimating...';
-                    statusMsg.textContent = 'Document is too large for instant size check';
+                    item.optimizedSize = item.originalSize;
+                    updateTotalsSummary();
+                    renderCompressFilesList();
                 }
+            }
+        }
+
+        function calculateAllPreviews() {
+            document.getElementById('compress-status-msg').textContent = 'Processing previews...';
+            currentFilesList.forEach(item => {
+                calculateSinglePreview(item);
+            });
+        }
+
+        function updateTotalsSummary() {
+            let totalOriginal = 0;
+            let totalOptimized = 0;
+            currentFilesList.forEach(item => {
+                totalOriginal += item.originalSize;
+                totalOptimized += item.optimizedSize;
+            });
+
+            document.getElementById('compress-total-orig').textContent = formatSize(totalOriginal);
+            document.getElementById('compress-total-new').textContent = formatSize(totalOptimized);
+
+            const statusMsg = document.getElementById('compress-status-msg');
+            if (statusMsg) {
+                const savings = Math.round((1 - (totalOptimized / totalOriginal)) * 100);
+                statusMsg.textContent = savings > 0 ? `Saves ~${savings}% total space` : 'Ready to upload';
             }
         }
 
@@ -5372,44 +5522,48 @@
             }
         }
 
-        async function uploadCompressedFile() {
-            const file = currentRawFile;
-            if (!file) return;
+        function uploadAllOriginals() {
+            const resolveRef = compressionPromiseResolve;
+            closeCompressModal(true);
+            if (resolveRef) {
+                resolveRef(currentFilesList.map(item => item.file));
+            }
+        }
 
+        async function uploadAllConfigured() {
             const btn = document.getElementById('compress-upload-btn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-
-            const mime = file.type || '';
-            const quality = currentCompressedQuality / 100;
-
-            const applyAllChk = document.getElementById('compress-apply-all');
-            if (applyAllChk && applyAllChk.checked) {
-                batchApplyAll = true;
-                batchAction = 'optimized';
-                batchQuality = currentCompressedQuality;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Processing...';
             }
 
             try {
-                let finalFile = file;
-                if (mime.startsWith('image/')) {
-                    if (currentCompressedBlob) {
-                        finalFile = new File([currentCompressedBlob], file.name, { type: 'image/jpeg' });
-                    }
-                } else if (mime.startsWith('video/')) {
-                    try {
-                        finalFile = await compressVideo(file, quality);
-                    } catch (err) {
-                        console.warn('Video compression failed, using original:', err);
-                    }
-                } else {
-                    if (currentCompressedBlob) {
-                        finalFile = currentCompressedBlob;
+                const processedFiles = [];
+                for (const item of currentFilesList) {
+                    if (item.action === 'original') {
+                        processedFiles.push(item.file);
                     } else {
-                        try {
-                            finalFile = await compressDocGzip(file);
-                        } catch (err) {
-                            console.warn('Doc compression failed, using original:', err);
+                        if (item.type === 'photo') {
+                            if (item.compressedBlob) {
+                                processedFiles.push(new File([item.compressedBlob], item.file.name, { type: 'image/jpeg' }));
+                            } else {
+                                processedFiles.push(item.file);
+                            }
+                        } else if (item.type === 'video') {
+                            try {
+                                const q = (100 - item.quality) / 100;
+                                const compVid = await compressVideo(item.file, q);
+                                processedFiles.push(compVid);
+                            } catch (err) {
+                                console.warn('Video compression failed, using original:', err);
+                                processedFiles.push(item.file);
+                            }
+                        } else {
+                            if (item.compressedBlob) {
+                                processedFiles.push(item.compressedBlob);
+                            } else {
+                                processedFiles.push(item.file);
+                            }
                         }
                     }
                 }
@@ -5417,28 +5571,15 @@
                 const resolveRef = compressionPromiseResolve;
                 closeCompressModal(true);
                 if (resolveRef) {
-                    resolveRef(finalFile);
+                    resolveRef(processedFiles);
                 }
             } catch (err) {
                 console.error(err);
                 const resolveRef = compressionPromiseResolve;
                 closeCompressModal(true);
                 if (resolveRef) {
-                    resolveRef(file);
+                    resolveRef(currentFilesList.map(item => item.file));
                 }
-            }
-        }
-
-        function uploadOriginalFile() {
-            const applyAllChk = document.getElementById('compress-apply-all');
-            if (applyAllChk && applyAllChk.checked) {
-                batchApplyAll = true;
-                batchAction = 'original';
-            }
-            const resolveRef = compressionPromiseResolve;
-            closeCompressModal(true);
-            if (resolveRef) {
-                resolveRef(currentRawFile);
             }
         }
 
@@ -5448,7 +5589,7 @@
             const btn = document.getElementById('compress-upload-btn');
             if (btn) {
                 btn.disabled = false;
-                btn.textContent = 'Upload Optimized';
+                btn.textContent = 'Upload All';
             }
 
             if (!isSuccess && compressionPromiseReject) {
@@ -5456,8 +5597,7 @@
             }
             compressionPromiseResolve = null;
             compressionPromiseReject = null;
-            currentRawFile = null;
-            currentCompressedBlob = null;
+            currentFilesList = [];
         }
 
         function handleFileSelect(e) {
@@ -5473,40 +5613,35 @@
         async function processUploadQueue() {
             if (isUploading || uploadQueue.length === 0) return;
             isUploading = true;
-            batchApplyAll = false; // Reset batch settings on new select/upload start
 
             const progressContainer = document.getElementById('transfer-upload-progress');
             const progressStatus = document.getElementById('upload-progress-status');
             const progressPercent = document.getElementById('upload-progress-percent');
             const progressFill = document.getElementById('upload-progress-fill');
 
+            const filesToPrompt = [...uploadQueue];
+            uploadQueue = []; // Clear queue
+
+            let filesToUpload = [];
+            try {
+                filesToUpload = await promptCompression(filesToPrompt);
+            } catch (e) {
+                if (e === 'cancelled') {
+                    isUploading = false;
+                    const fileInput = document.getElementById('transfer-file-input');
+                    if (fileInput) fileInput.value = '';
+                    return;
+                }
+            }
+
             if (progressContainer) progressContainer.style.display = 'block';
 
-            while (uploadQueue.length > 0) {
-                const file = uploadQueue.shift();
-                
-                if (progressStatus) progressStatus.textContent = `Reading: ${file.name}`;
+            for (const fileToUpload of filesToUpload) {
+                if (progressStatus) progressStatus.textContent = `Uploading: ${fileToUpload.name}`;
                 if (progressPercent) progressPercent.textContent = `0%`;
                 if (progressFill) progressFill.style.width = `0%`;
 
                 try {
-                    let fileToUpload = file;
-                    if (batchApplyAll) {
-                        if (batchAction === 'optimized') {
-                            fileToUpload = await compressFileDirectly(file, batchQuality / 100);
-                        } else {
-                            fileToUpload = file;
-                        }
-                    } else {
-                        try {
-                            fileToUpload = await promptCompression(file);
-                        } catch (e) {
-                            if (e === 'cancelled') {
-                                continue;
-                            }
-                        }
-                    }
-
                     await uploadSingleFile(fileToUpload, (percent, stage) => {
                         if (progressStatus) progressStatus.textContent = `${stage}: ${fileToUpload.name}`;
                         if (progressPercent) progressPercent.textContent = `${percent}%`;
@@ -5514,7 +5649,7 @@
                     });
                 } catch (err) {
                     console.error('File upload failed:', err);
-                    showToast(`Failed to upload ${file.name}: ${err.message || err}`, true);
+                    showToast(`Failed to upload ${fileToUpload.name}: ${err.message || err}`, true);
                 }
             }
 
@@ -5752,17 +5887,17 @@
                 
                 const header = document.createElement('div');
                 header.className = 'day-header';
-                header.style.color = '#ff416c';
-                header.style.borderBottomColor = 'rgba(255, 65, 108, 0.2)';
+                header.style.color = 'var(--accent)';
+                header.style.borderBottomColor = 'rgba(var(--accent-rgb), 0.2)';
                 header.innerHTML = `
                     <div class="day-title-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:#ff416c;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:var(--accent);">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
-                        <span class="day-title-text" style="color:var(--text-main);">${escapeHtml(formatDate(date))}</span>
+                        <span class="day-title-text" style="color:var(--text-main);">${escapeHtml(formatTransferDate(date))}</span>
                     </div>
                     <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${dayTransfers.length} item${dayTransfers.length > 1 ? 's' : ''}</span>
                 `;
@@ -5781,7 +5916,7 @@
             if (sortedDates.length === 0) {
                 board.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon" style="color: #ff416c;">
+                        <div class="empty-state-icon" style="color: var(--accent);">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
@@ -6107,6 +6242,37 @@
             const countEl = document.getElementById('transfer-selected-count');
             if (countEl) {
                 countEl.textContent = `${selectedTransferIds.size} selected`;
+            }
+        }
+
+        async function downloadSelectedTransfers() {
+            if (selectedTransferIds.size === 0) {
+                showToast('No items selected');
+                return;
+            }
+            const idsToDownload = Array.from(selectedTransferIds);
+            let downloadedCount = 0;
+            for (const id of idsToDownload) {
+                const transfer = transfers.find(t => t.id === id);
+                if (transfer) {
+                    try {
+                        let data = { type: 'text' };
+                        if (transfer.note) {
+                            data = JSON.parse(transfer.note);
+                        }
+                        if (data.type !== 'text') {
+                            await downloadTransferFile(id);
+                            downloadedCount++;
+                        }
+                    } catch(e) {
+                        console.error('Error downloading batch transfer:', e);
+                    }
+                }
+            }
+            if (downloadedCount > 0) {
+                showToast(`Downloading ${downloadedCount} files...`);
+            } else {
+                showToast('No downloadable files selected');
             }
         }
 
