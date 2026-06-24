@@ -2575,7 +2575,7 @@
             }
 
             const oldState = JSON.parse(localStorage.getItem('khannaTasks')) || {};
-            const today = new Date().toISOString().split('T')[0];
+            const today = todayStr();
             return SEED_TASKS.map(task => ({
                 ...task,
                 date: task.date === 'legacy' ? today : task.date,
@@ -2644,7 +2644,13 @@
         saveTransfers();
 
         // ===== HELPERS =====
-        function todayStr() { return new Date().toISOString().split('T')[0]; }
+        function todayStr() {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
 
         function getTimestamp(val) {
             if (!val) return 0;
