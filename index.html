@@ -2247,6 +2247,17 @@
                 </div>
             </div>
         </div>
+        <div class="transfer-only-el" id="transfer-actions-bar" style="margin: 0.5rem 0 1rem 0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="transfer-select-mode-btn" onclick="toggleTransferSelectMode()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
+                <span>Select Multiple</span>
+            </button>
+            <div id="transfer-bulk-actions" style="display: none; gap: 0.5rem; align-items: center;">
+                <span id="transfer-selected-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">0 selected</span>
+                <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Select All</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white;">Delete Selected</button>
+            </div>
+        </div>
         <div class="board transfer-only-el" id="transfer-board"></div>
     </div>
 
@@ -4162,6 +4173,23 @@
                     }
                 }
 
+                // Sync deleted transfers if found
+                const remoteDeletedTransfers = remoteRecords.find(r => r.id === '_settings_deleted_transfers');
+                if (remoteDeletedTransfers && remoteDeletedTransfers.note) {
+                    try {
+                        const parsed = JSON.parse(remoteDeletedTransfers.note);
+                        const remoteTime = remoteDeletedTransfers.createdAt || 0;
+                        if (remoteTime > deletedTransfersUpdatedAt) {
+                            deletedTransfers = parsed.slice(0, 100);
+                            localStorage.setItem('khannaDeletedTransfers', JSON.stringify(deletedTransfers));
+                            deletedTransfersUpdatedAt = remoteTime;
+                            localStorage.setItem('khannaDeletedTransfersUpdatedAt', deletedTransfersUpdatedAt.toString());
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse remote deleted transfers:', e);
+                    }
+                }
+
                 // Filter out settings and transfer records for task list merging
                 const remoteTasks = remoteRecords.filter(r => !r.id.startsWith('_settings_') && !r.id.startsWith('_transfer_'));
                 const remoteTransfers = remoteRecords.filter(r => r.id.startsWith('_transfer_'));
@@ -4245,8 +4273,29 @@
                 const transfersToUpsert = [];
                 const mergedTransfers = [];
                 const allTransferIds = new Set([...localTransferMap.keys(), ...remoteTransferMap.keys()]);
+                const deletedTransferIds = new Set(deletedTransfers);
+                const deleteTransfersFromRemoteIds = [];
 
                 for (const id of allTransferIds) {
+                    if (deletedTransferIds.has(id)) {
+                        if (remoteTransferMap.has(id)) {
+                            deleteTransfersFromRemoteIds.push(id);
+                            
+                            // Delete physical file from storage if present
+                            const remoteRecord = remoteTransferMap.get(id);
+                            if (remoteRecord && remoteRecord.note) {
+                                try {
+                                    const parsed = JSON.parse(remoteRecord.note);
+                                    if (parsed && parsed.storagePath) {
+                                        await client.storage.from('transfers').remove([parsed.storagePath]);
+                                    }
+                                } catch(e) {
+                                    console.error('Failed to parse remote transfer for storage deletion:', e);
+                                }
+                            }
+                        }
+                        continue;
+                    }
                     const local = localTransferMap.get(id);
                     const remote = remoteTransferMap.get(id);
 
@@ -4270,6 +4319,14 @@
                 if (transfersToUpsert.length > 0) {
                     const { error: upsertError } = await safeUpsertTasks(client, transfersToUpsert);
                     if (upsertError) throw upsertError;
+                }
+
+                if (deleteTransfersFromRemoteIds.length > 0) {
+                    try {
+                        await client.from('tasks').delete().in('id', deleteTransfersFromRemoteIds);
+                    } catch (e) {
+                        console.error('Pruning deleted transfers from server error:', e);
+                    }
                 }
 
                 transfers = mergedTransfers;
@@ -4306,7 +4363,16 @@
                     completed: false,
                     createdAt: deletedTasksUpdatedAt
                 };
-                await client.from('tasks').upsert([settingsRecord, deletedRecord]);
+                const deletedTransfersRecord = {
+                    id: '_settings_deleted_transfers',
+                    title: 'Deleted Transfers',
+                    note: JSON.stringify(deletedTransfers),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: deletedTransfersUpdatedAt
+                };
+                await client.from('tasks').upsert([settingsRecord, deletedRecord, deletedTransfersRecord]);
 
                 updateSupabaseStatus();
 
@@ -4458,10 +4524,19 @@
         // ===== RECYCLE BIN =====
         let deletedTasks = JSON.parse(localStorage.getItem('khannaDeletedTasks')) || [];
         let deletedTasksUpdatedAt = parseInt(localStorage.getItem('khannaDeletedTasksUpdatedAt')) || 0;
+        let deletedTransfers = JSON.parse(localStorage.getItem('khannaDeletedTransfers')) || [];
+        let deletedTransfersUpdatedAt = parseInt(localStorage.getItem('khannaDeletedTransfersUpdatedAt')) || 0;
+
         function saveDeletedTasks() {
             localStorage.setItem('khannaDeletedTasks', JSON.stringify(deletedTasks));
             deletedTasksUpdatedAt = Date.now();
             localStorage.setItem('khannaDeletedTasksUpdatedAt', deletedTasksUpdatedAt.toString());
+        }
+
+        function saveDeletedTransfers() {
+            localStorage.setItem('khannaDeletedTransfers', JSON.stringify(deletedTransfers));
+            deletedTransfersUpdatedAt = Date.now();
+            localStorage.setItem('khannaDeletedTransfersUpdatedAt', deletedTransfersUpdatedAt.toString());
         }
 
         function openTrashModal() {
@@ -5606,30 +5681,57 @@
                 console.error('Error parsing transfer data:', e);
             }
             
+            const isSelected = selectedTransferIds.has(transfer.id);
+            
             let previewHtml = '';
             if (data.type === 'text') {
                 previewHtml = `<div class="text-share-preview">${escapeHtml(data.content)}</div>`;
             } else if (data.type === 'photo') {
-                previewHtml = `
-                    <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'photo')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <polyline points="21 15 16 10 5 21"></polyline>
-                        </svg>
-                        <span style="color:var(--accent); font-weight:600;">Click to load image preview</span>
-                    </div>
-                `;
+                if (transferSelectMode) {
+                    previewHtml = `
+                        <div class="transfer-doc-preview" style="background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span style="color:var(--accent); font-weight:600;">Image preview</span>
+                        </div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'photo')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span style="color:var(--accent); font-weight:600;">Click to load image preview</span>
+                        </div>
+                    `;
+                }
             } else if (data.type === 'video') {
-                previewHtml = `
-                    <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'video')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
-                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                        </svg>
-                        <span style="color:var(--accent); font-weight:600;">Click to load video preview</span>
-                    </div>
-                `;
+                if (transferSelectMode) {
+                    previewHtml = `
+                        <div class="transfer-doc-preview" style="background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                            <span style="color:var(--accent); font-weight:600;">Video preview</span>
+                        </div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <div class="transfer-doc-preview" id="preview-container-${transfer.id}" style="cursor:pointer; background:rgba(var(--accent-rgb), 0.05); border:1px dashed var(--accent);" onclick="loadMediaPreview('${transfer.id}', 'video')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+                                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                            <span style="color:var(--accent); font-weight:600;">Click to load video preview</span>
+                        </div>
+                    `;
+                }
             } else {
                 previewHtml = `
                     <div class="transfer-doc-preview">
@@ -5655,22 +5757,9 @@
             const showCopy = data.type === 'text';
             const showDownload = data.type !== 'text';
             
-            li.innerHTML = `
-                <div class="task-item" style="flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 0.8rem; user-select: text; -webkit-user-select: text;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 0.4rem; min-width: 0; flex-grow: 1;">
-                            <span style="font-weight: 700; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">
-                                ${escapeHtml(transfer.title || (data.type === 'text' ? 'Shared Text' : 'Shared File'))}
-                            </span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0;">
-                            <span>${escapeHtml(formatTime(transfer.time))}</span>
-                            ${sizeLabel ? `<span>•</span> <span>${sizeLabel}</span>` : ''}
-                        </div>
-                    </div>
-                    
-                    ${previewHtml}
-                    
+            let actionsHtml = '';
+            if (!transferSelectMode) {
+                actionsHtml = `
                     <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.25rem; width: 100%;">
                         ${showCopy ? `
                         <button class="btn btn-secondary btn-sm" onclick="copyTransferText('${transfer.id}')" style="padding: 0.25rem 0.6rem; min-height: 28px; font-size: 0.75rem; gap: 0.25rem;">
@@ -5692,6 +5781,33 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                             Delete
                         </button>
+                    </div>
+                `;
+            }
+            
+            li.innerHTML = `
+                <div class="task-item" ${transferSelectMode ? `onclick="toggleSelectTransfer('${transfer.id}')"` : ''} style="flex-direction: row; align-items: center; gap: 0.5rem; padding: 0.8rem; user-select: text; -webkit-user-select: text; cursor: ${transferSelectMode ? 'pointer' : 'default'};">
+                    ${transferSelectMode ? `
+                    <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding-right: 0.25rem;">
+                        <input type="checkbox" class="transfer-bulk-chk" data-id="${transfer.id}" ${isSelected ? 'checked' : ''} style="width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer;" onclick="event.stopPropagation(); toggleSelectTransfer('${transfer.id}')">
+                    </div>
+                    ` : ''}
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 0.4rem; min-width: 0; flex-grow: 1;">
+                                <span style="font-weight: 700; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">
+                                    ${escapeHtml(transfer.title || (data.type === 'text' ? 'Shared Text' : 'Shared File'))}
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0;">
+                                <span>${escapeHtml(formatTime(transfer.time))}</span>
+                                ${sizeLabel ? `<span>•</span> <span>${sizeLabel}</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${previewHtml}
+                        
+                        ${actionsHtml}
                     </div>
                 </div>
             `;
@@ -5802,6 +5918,151 @@
             }
         }
 
+        let transferSelectMode = false;
+        let selectedTransferIds = new Set();
+
+        function toggleTransferSelectMode() {
+            transferSelectMode = !transferSelectMode;
+            selectedTransferIds.clear();
+            
+            const btn = document.getElementById('transfer-select-mode-btn');
+            const bulkActions = document.getElementById('transfer-bulk-actions');
+            
+            if (transferSelectMode) {
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.style.borderColor = 'var(--accent)';
+                    btn.style.background = 'rgba(var(--accent-rgb), 0.08)';
+                    btn.style.color = 'var(--accent)';
+                }
+                if (bulkActions) bulkActions.style.display = 'flex';
+            } else {
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.style.borderColor = '';
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }
+                if (bulkActions) bulkActions.style.display = 'none';
+            }
+            
+            updateSelectedTransfersCount();
+            renderTransferBoard();
+        }
+
+        function toggleSelectTransfer(id) {
+            if (selectedTransferIds.has(id)) {
+                selectedTransferIds.delete(id);
+            } else {
+                selectedTransferIds.add(id);
+            }
+            updateSelectedTransfersCount();
+            
+            const chk = document.querySelector(`.transfer-bulk-chk[data-id="${id}"]`);
+            if (chk) {
+                chk.checked = selectedTransferIds.has(id);
+            }
+        }
+
+        function selectAllTransfers() {
+            transfers.forEach(t => selectedTransferIds.add(t.id));
+            updateSelectedTransfersCount();
+            
+            document.querySelectorAll('.transfer-bulk-chk').forEach(chk => {
+                chk.checked = true;
+            });
+        }
+
+        function updateSelectedTransfersCount() {
+            const countEl = document.getElementById('transfer-selected-count');
+            if (countEl) {
+                countEl.textContent = `${selectedTransferIds.size} selected`;
+            }
+        }
+
+        async function deleteSelectedTransfers() {
+            if (selectedTransferIds.size === 0) {
+                showToast('No items selected');
+                return;
+            }
+            
+            const ok = await customConfirm({
+                title: 'Delete Selected Items?',
+                message: `Are you sure you want to permanently delete these ${selectedTransferIds.size} items across all devices?`,
+                okText: 'Delete All',
+                okClass: 'btn-danger'
+            });
+            
+            if (!ok) return;
+            
+            const idsToDelete = Array.from(selectedTransferIds);
+            
+            const client = getSupabase();
+            if (client) {
+                for (const id of idsToDelete) {
+                    const transfer = transfers.find(t => t.id === id);
+                    if (transfer && transfer.note) {
+                        try {
+                            const parsed = JSON.parse(transfer.note);
+                            if (parsed && parsed.storagePath) {
+                                await client.storage.from('transfers').remove([parsed.storagePath]);
+                            }
+                        } catch(e) {
+                            console.error('Error parsing transfer storage path for deletion:', e);
+                        }
+                    }
+                }
+            }
+            
+            idsToDelete.forEach(id => {
+                deletedTransfers.push(id);
+            });
+            if (deletedTransfers.length > 100) {
+                deletedTransfers = deletedTransfers.slice(-100);
+            }
+            saveDeletedTransfers();
+            
+            transfers = transfers.filter(t => !selectedTransferIds.has(t.id));
+            saveTransfers();
+            
+            if (client) {
+                client.from('tasks').delete().in('id', idsToDelete).then(({ error }) => {
+                    if (error) {
+                        console.error('Supabase bulk delete transfers error:', error);
+                        showToast('Sync failed: ' + error.message);
+                    } else {
+                        idsToDelete.forEach(id => broadcastChange(id, 'delete'));
+                        syncDeletedTransfersToSupabase();
+                    }
+                });
+            }
+            
+            toggleTransferSelectMode();
+            showToast(`Deleted ${idsToDelete.length} items`);
+        }
+
+        function syncDeletedTransfersToSupabase() {
+            const client = getSupabase();
+            if (client) {
+                const deletedRecord = {
+                    id: '_settings_deleted_transfers',
+                    title: 'Deleted Transfers',
+                    note: JSON.stringify(deletedTransfers),
+                    date: 'legacy',
+                    time: '',
+                    completed: false,
+                    createdAt: deletedTransfersUpdatedAt
+                };
+                safeUpsertTasks(client, deletedRecord).then(({ error }) => {
+                    if (error) {
+                        console.error('Supabase deleted transfers save error:', error);
+                    } else {
+                        broadcastChange('_settings_deleted_transfers', 'upsert');
+                    }
+                });
+            }
+        }
+
         async function deleteTransfer(id) {
             const transfer = transfers.find(t => t.id === id);
             if (!transfer) return;
@@ -5812,12 +6073,29 @@
                 okClass: 'btn-danger'
             });
             if (ok) {
+                const client = getSupabase();
+                if (client && transfer.note) {
+                    try {
+                        const parsed = JSON.parse(transfer.note);
+                        if (parsed && parsed.storagePath) {
+                            await client.storage.from('transfers').remove([parsed.storagePath]);
+                        }
+                    } catch(e) {
+                        console.error('Error deleting transfer storage file:', e);
+                    }
+                }
+
+                deletedTransfers.push(id);
+                if (deletedTransfers.length > 100) {
+                    deletedTransfers = deletedTransfers.slice(-100);
+                }
+                saveDeletedTransfers();
+
                 transfers = transfers.filter(t => t.id !== id);
                 saveTransfers();
                 renderTransferBoard();
                 showToast('Deleted');
                 
-                const client = getSupabase();
                 if (client) {
                     client.from('tasks').delete().eq('id', id).then(({ error }) => {
                         if (error) {
@@ -5825,6 +6103,7 @@
                             showToast('Sync failed: ' + error.message);
                         } else {
                             broadcastChange(id, 'delete');
+                            syncDeletedTransfersToSupabase();
                         }
                     }).catch(e => console.error(e));
                 }
