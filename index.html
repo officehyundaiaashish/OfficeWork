@@ -2216,6 +2216,44 @@
         .ext-xls, .ext-xlsx, .ext-csv { background: #16a34a; color: white; } /* Green */
         .ext-mp3, .ext-wav, .ext-ogg { background: #0891b2; color: white; } /* Cyan */
         .ext-other { background: #4b5563; color: white; } /* Gray */
+
+        /* Responsive styling for Transfer actions bar */
+        #transfer-actions-bar {
+            margin: 0.5rem 0 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .transfer-actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        #transfer-bulk-actions {
+            display: none;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--hover);
+            border: 1px solid var(--border);
+            animation: fadeSlideDown 0.3s var(--transition-smooth) both;
+        }
+
+        /* Responsive button helper */
+        @media (max-width: 600px) {
+            .btn-text-responsive {
+                display: none;
+            }
+        }
     </style>
 </head>
 
@@ -2395,27 +2433,35 @@
                 </div>
             </div>
         </div>
-        <div class="transfer-only-el" id="transfer-actions-bar" style="margin: 0.5rem 0 1rem 0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%;">
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div class="transfer-only-el" id="transfer-actions-bar">
+            <!-- Row 1: Mode Switches (Always Visible, nicely aligned) -->
+            <div class="transfer-actions-row">
                 <button class="btn btn-secondary btn-sm" id="transfer-select-mode-btn" onclick="toggleTransferSelectMode()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
-                    <span>Select Multiple</span>
+                    <span>Select <span class="btn-text-responsive">Multiple</span></span>
                 </button>
-                <div id="transfer-bulk-actions" style="display: none; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                    <span id="transfer-selected-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">0 selected</span>
-                    <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Select All</button>
-                    <button class="btn btn-secondary btn-sm" onclick="downloadSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Download Selected
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white;">Delete Selected</button>
-                </div>
+                <button class="btn btn-secondary btn-sm" id="transfer-layout-toggle-btn" onclick="toggleTransferLayout()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <svg id="transfer-layout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;">
+                    </svg>
+                    <span id="transfer-layout-text">List View</span>
+                </button>
             </div>
-            <button class="btn btn-secondary btn-sm" id="transfer-layout-toggle-btn" onclick="toggleTransferLayout()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
-                <svg id="transfer-layout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;">
-                </svg>
-                <span id="transfer-layout-text">List View</span>
-            </button>
+            <!-- Row 2: Bulk actions (Conditional drawer appearing when selection is active) -->
+            <div id="transfer-bulk-actions">
+                <span id="transfer-selected-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-right: 0.25rem;">0 selected</span>
+                <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
+                    <span>Select All</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="downloadSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Download<span class="btn-text-responsive"> Selected</span></span>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    <span>Delete<span class="btn-text-responsive"> Selected</span></span>
+                </button>
+            </div>
         </div>
         <div class="board transfer-only-el" id="transfer-board"></div>
     </div>
