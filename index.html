@@ -1644,6 +1644,45 @@
             font-weight: 600;
         }
 
+        /* ===== Premium Slider ===== */
+        .premium-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: var(--border);
+            outline: none;
+            transition: background 0.2s;
+            margin: 0.5rem 0;
+        }
+        .premium-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .premium-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+        .premium-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .premium-slider::-moz-range-thumb:hover {
+            transform: scale(1.25);
+        }
+
         /* ===== Scrollbar ===== */
         ::-webkit-scrollbar {
             width: 6px;
@@ -2560,10 +2599,10 @@
 
     <!-- ===== Compression Modal ===== -->
     <div class="modal-overlay" id="compress-modal">
-        <div class="modal" style="max-width: 440px;">
+        <div class="modal" style="max-width: 360px; padding: 1.25rem;">
             <div class="modal-grip"></div>
-            <h2>
-                <span>Optimize File Upload</span>
+            <h2 style="margin-bottom: 1rem;">
+                <span>Optimize File</span>
                 <button class="modal-close" onclick="closeCompressModal()" aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -2572,53 +2611,55 @@
                     </svg>
                 </button>
             </h2>
-            <div class="compress-modal-body" style="padding: 0.5rem 0; display: flex; flex-direction: column; gap: 1rem;">
-                <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                    Reduce file size to speed up uploads and save server storage.
-                </div>
+            <div class="compress-modal-body" style="display: flex; flex-direction: column; gap: 0.85rem;">
                 
-                <div class="compress-preview-box" style="display: flex; gap: 1rem; align-items: center; background: var(--bg); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px dashed var(--border);">
-                    <div id="compress-preview-thumb" style="width: 60px; height: 60px; border-radius: 6px; overflow: hidden; background: var(--hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <div class="compress-preview-box" style="display: flex; gap: 0.75rem; align-items: center; background: var(--hover); padding: 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    <div id="compress-preview-thumb" style="width: 48px; height: 48px; border-radius: 6px; overflow: hidden; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <!-- Preview -->
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div id="compress-file-name" style="font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">File name</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;" id="compress-file-meta">Type</div>
+                        <div id="compress-file-name" style="font-weight: 600; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main);">File name</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;" id="compress-file-meta">Type</div>
                     </div>
                 </div>
 
-                <div class="compress-size-comparison" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; text-align: center;">
-                    <div style="background: var(--bg); padding: 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Original Size</div>
-                        <div id="compress-orig-size" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 0.2rem;">0 KB</div>
+                <div class="compress-size-comparison" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: center;">
+                    <div style="background: var(--bg); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Original</div>
+                        <div id="compress-orig-size" style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 0.15rem;">0 KB</div>
                     </div>
-                    <div style="background: var(--bg); padding: 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Optimized Size</div>
-                        <div id="compress-new-size" style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-top: 0.2rem;">0 KB</div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="compress-slider-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                        <label for="compress-quality-slider" style="margin: 0; font-weight: 600; font-size: 0.85rem;">Compression Quality</label>
-                        <span id="compress-quality-val" style="font-size: 0.85rem; font-weight: 700; color: var(--accent);">80%</span>
-                    </div>
-                    <input type="range" id="compress-quality-slider" min="10" max="100" value="80" style="width: 100%; accent-color: var(--accent); cursor: pointer;" oninput="updateCompressQualityDisplay(this.value)">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
-                        <span>Max Compression (Smaller)</span>
-                        <span>High Quality (Larger)</span>
+                    <div style="background: var(--bg); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Optimized</div>
+                        <div id="compress-new-size" style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-top: 0.15rem;">0 KB</div>
                     </div>
                 </div>
 
-                <div id="compress-status-msg" style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; min-height: 18px; text-align: center;">
+                <div class="form-group" id="compress-slider-group" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label for="compress-quality-slider" style="margin: 0; font-weight: 600; font-size: 0.8rem;">Quality / Scale</label>
+                        <span id="compress-quality-val" style="font-size: 0.8rem; font-weight: 700; color: var(--accent);">80%</span>
+                    </div>
+                    <input type="range" id="compress-quality-slider" class="premium-slider" min="10" max="100" value="80" oninput="updateCompressQualityDisplay(this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
+                        <span>Smaller</span>
+                        <span>Original</span>
+                    </div>
+                </div>
+
+                <div id="compress-status-msg" style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; min-height: 16px; text-align: center;">
                     Preparing preview...
+                </div>
+
+                <div id="compress-apply-all-container" style="display: none; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.25rem;">
+                    <input type="checkbox" id="compress-apply-all" style="width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent);">
+                    <label for="compress-apply-all" style="margin: 0; font-size: 0.75rem; cursor: pointer; color: var(--text-muted);">Apply to all remaining files</label>
                 </div>
             </div>
             
-            <div class="modal-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadOriginalFile()" style="margin-right: auto;">Keep Original</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()">Cancel</button>
-                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadCompressedFile()">Upload Optimized</button>
+            <div class="modal-actions" style="margin-top: 1rem; display: flex; gap: 0.4rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadOriginalFile()" style="margin-right: auto; padding: 0.35rem 0.6rem; font-size: 0.75rem;">Original</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;">Cancel</button>
+                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadCompressedFile()" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Upload</button>
             </div>
         </div>
     </div>
@@ -5014,7 +5055,7 @@
             isUploading = false;
             const progressContainer = document.getElementById('transfer-upload-progress');
             if (progressContainer) progressContainer.style.display = 'none';
-            showToast('Upload aborted', true);
+            showToast('Upload aborted');
             const fileInput = document.getElementById('transfer-file-input');
             if (fileInput) fileInput.value = '';
         }
@@ -5025,6 +5066,10 @@
         let currentCompressedBlob = null;
         let currentCompressedQuality = 80;
         let compressionTimeout = null;
+
+        let batchApplyAll = false;
+        let batchAction = 'optimized'; // 'optimized' or 'original'
+        let batchQuality = 80;
 
         function promptCompression(file) {
             return new Promise((resolve, reject) => {
@@ -5049,6 +5094,13 @@
                 if (mime.startsWith('image/')) typeText = 'Photo / Image';
                 else if (mime.startsWith('video/')) typeText = 'Video';
                 document.getElementById('compress-file-meta').textContent = `${typeText} (${mime || 'unknown'})`;
+
+                const applyAllContainer = document.getElementById('compress-apply-all-container');
+                const applyAllChk = document.getElementById('compress-apply-all');
+                if (applyAllContainer) {
+                    applyAllContainer.style.display = uploadQueue.length > 0 ? 'flex' : 'none';
+                }
+                if (applyAllChk) applyAllChk.checked = false;
 
                 updateCompressPreview();
             });
@@ -5247,7 +5299,7 @@
                         }
                         ctx.drawImage(video, 0, 0, w, h);
                         const pct = Math.round((video.currentTime / video.duration) * 100);
-                        statusMsg.textContent = `Compressing video: ${pct}%...`;
+                        if (statusMsg) statusMsg.textContent = `Compressing video: ${pct}%...`;
                         requestAnimationFrame(step);
                     }
 
@@ -5266,6 +5318,60 @@
             });
         }
 
+        async function compressFileDirectly(file, quality) {
+            const mime = file.type || '';
+            if (mime.startsWith('image/')) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            let width = img.width;
+                            let height = img.height;
+                            const maxDim = 2048;
+                            if (width > maxDim || height > maxDim) {
+                                if (width > height) {
+                                    height = Math.round((height * maxDim) / width);
+                                    width = maxDim;
+                                } else {
+                                    width = Math.round((width * maxDim) / height);
+                                    height = maxDim;
+                                }
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            ctx.drawImage(img, 0, 0, width, height);
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                                } else {
+                                    resolve(file);
+                                }
+                            }, 'image/jpeg', quality);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else if (mime.startsWith('video/')) {
+                try {
+                    return await compressVideo(file, quality);
+                } catch (e) {
+                    console.warn('Direct video compression failed:', e);
+                    return file;
+                }
+            } else {
+                try {
+                    return await compressDocGzip(file);
+                } catch (e) {
+                    console.warn('Direct doc compression failed:', e);
+                    return file;
+                }
+            }
+        }
+
         async function uploadCompressedFile() {
             const file = currentRawFile;
             if (!file) return;
@@ -5276,6 +5382,13 @@
 
             const mime = file.type || '';
             const quality = currentCompressedQuality / 100;
+
+            const applyAllChk = document.getElementById('compress-apply-all');
+            if (applyAllChk && applyAllChk.checked) {
+                batchApplyAll = true;
+                batchAction = 'optimized';
+                batchQuality = currentCompressedQuality;
+            }
 
             try {
                 let finalFile = file;
@@ -5301,27 +5414,35 @@
                     }
                 }
 
-                closeCompressModal();
-                if (compressionPromiseResolve) {
-                    compressionPromiseResolve(finalFile);
+                const resolveRef = compressionPromiseResolve;
+                closeCompressModal(true);
+                if (resolveRef) {
+                    resolveRef(finalFile);
                 }
             } catch (err) {
                 console.error(err);
-                closeCompressModal();
-                if (compressionPromiseResolve) {
-                    compressionPromiseResolve(file);
+                const resolveRef = compressionPromiseResolve;
+                closeCompressModal(true);
+                if (resolveRef) {
+                    resolveRef(file);
                 }
             }
         }
 
         function uploadOriginalFile() {
-            closeCompressModal();
-            if (compressionPromiseResolve) {
-                compressionPromiseResolve(currentRawFile);
+            const applyAllChk = document.getElementById('compress-apply-all');
+            if (applyAllChk && applyAllChk.checked) {
+                batchApplyAll = true;
+                batchAction = 'original';
+            }
+            const resolveRef = compressionPromiseResolve;
+            closeCompressModal(true);
+            if (resolveRef) {
+                resolveRef(currentRawFile);
             }
         }
 
-        function closeCompressModal() {
+        function closeCompressModal(isSuccess = false) {
             const modalEl = document.getElementById('compress-modal');
             if (modalEl) modalEl.classList.remove('active');
             const btn = document.getElementById('compress-upload-btn');
@@ -5330,7 +5451,7 @@
                 btn.textContent = 'Upload Optimized';
             }
 
-            if (compressionPromiseReject) {
+            if (!isSuccess && compressionPromiseReject) {
                 compressionPromiseReject('cancelled');
             }
             compressionPromiseResolve = null;
@@ -5352,6 +5473,7 @@
         async function processUploadQueue() {
             if (isUploading || uploadQueue.length === 0) return;
             isUploading = true;
+            batchApplyAll = false; // Reset batch settings on new select/upload start
 
             const progressContainer = document.getElementById('transfer-upload-progress');
             const progressStatus = document.getElementById('upload-progress-status');
@@ -5369,11 +5491,19 @@
 
                 try {
                     let fileToUpload = file;
-                    try {
-                        fileToUpload = await promptCompression(file);
-                    } catch (e) {
-                        if (e === 'cancelled') {
-                            continue;
+                    if (batchApplyAll) {
+                        if (batchAction === 'optimized') {
+                            fileToUpload = await compressFileDirectly(file, batchQuality / 100);
+                        } else {
+                            fileToUpload = file;
+                        }
+                    } else {
+                        try {
+                            fileToUpload = await promptCompression(file);
+                        } catch (e) {
+                            if (e === 'cancelled') {
+                                continue;
+                            }
                         }
                     }
 
@@ -5400,7 +5530,7 @@
                 const sizeInMB = file.size / (1024 * 1024);
                 const mime = file.type;
                 let type = 'document';
-                let limit = 100; // default doc limit 100MB
+                let limit = 100;
                 
                 if (mime.startsWith('image/')) {
                     type = 'photo';
