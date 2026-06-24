@@ -5441,7 +5441,7 @@
             return new File([blob], file.name + '.gz', { type: 'application/gzip' });
         }
 
-        async function compressVideo(file, quality) {
+        async function compressVideo(file, quality, onProgress) {
             return new Promise((resolve, reject) => {
                 const video = document.createElement('video');
                 video.src = URL.createObjectURL(file);
@@ -5499,6 +5499,7 @@
                         ctx.drawImage(video, 0, 0, w, h);
                         const pct = Math.round((video.currentTime / video.duration) * 100);
                         if (statusMsg) statusMsg.textContent = `Compressing video: ${pct}%...`;
+                        if (onProgress) onProgress(pct);
                         requestAnimationFrame(step);
                     }
 
@@ -5573,63 +5574,31 @@
 
         function uploadAllOriginals() {
             const resolveRef = compressionPromiseResolve;
-            const files = currentFilesList.map(item => item.file);
+            const configs = currentFilesList.map(item => ({
+                file: item.file,
+                action: 'original',
+                quality: item.quality,
+                type: item.type,
+                compressedBlob: null
+            }));
             closeCompressModal(true);
             if (resolveRef) {
-                resolveRef(files);
+                resolveRef(configs);
             }
         }
 
-        async function uploadAllConfigured() {
-            const btn = document.getElementById('compress-upload-btn');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Processing...';
-            }
-
-            try {
-                const processedFiles = [];
-                for (const item of currentFilesList) {
-                    if (item.action === 'original') {
-                        processedFiles.push(item.file);
-                    } else {
-                        if (item.type === 'photo') {
-                            if (item.compressedBlob) {
-                                processedFiles.push(new File([item.compressedBlob], item.file.name, { type: 'image/jpeg' }));
-                            } else {
-                                processedFiles.push(item.file);
-                            }
-                        } else if (item.type === 'video') {
-                            try {
-                                const q = (100 - item.quality) / 100;
-                                const compVid = await compressVideo(item.file, q);
-                                processedFiles.push(compVid);
-                            } catch (err) {
-                                console.warn('Video compression failed, using original:', err);
-                                processedFiles.push(item.file);
-                            }
-                        } else {
-                            if (item.compressedBlob) {
-                                processedFiles.push(item.compressedBlob);
-                            } else {
-                                processedFiles.push(item.file);
-                            }
-                        }
-                    }
-                }
-
-                const resolveRef = compressionPromiseResolve;
-                closeCompressModal(true);
-                if (resolveRef) {
-                    resolveRef(processedFiles);
-                }
-            } catch (err) {
-                console.error(err);
-                const resolveRef = compressionPromiseResolve;
-                closeCompressModal(true);
-                if (resolveRef) {
-                    resolveRef(currentFilesList.map(item => item.file));
-                }
+        function uploadAllConfigured() {
+            const resolveRef = compressionPromiseResolve;
+            const configs = currentFilesList.map(item => ({
+                file: item.file,
+                action: item.action,
+                quality: item.quality,
+                type: item.type,
+                compressedBlob: item.compressedBlob
+            }));
+            closeCompressModal(true);
+            if (resolveRef) {
+                resolveRef(configs);
             }
         }
 
@@ -5672,9 +5641,9 @@
             const filesToPrompt = [...uploadQueue];
             uploadQueue = []; // Clear queue
 
-            let filesToUpload = [];
+            let configs = [];
             try {
-                filesToUpload = await promptCompression(filesToPrompt);
+                configs = await promptCompression(filesToPrompt);
             } catch (e) {
                 if (e === 'cancelled') {
                     isUploading = false;
@@ -5686,7 +5655,59 @@
 
             if (progressContainer) progressContainer.style.display = 'block';
 
-            for (const fileToUpload of filesToUpload) {
+            for (const config of configs) {
+                if (!isUploading) break;
+                let fileToUpload = config.file;
+                const { action, quality, type, compressedBlob } = config;
+
+                // 1. Perform sequential compression if needed
+                if (action === 'optimized') {
+                    if (progressPercent) progressPercent.textContent = `0%`;
+                    if (progressFill) progressFill.style.width = `0%`;
+
+                    if (type === 'photo') {
+                        if (progressStatus) progressStatus.textContent = `Compressing image: ${fileToUpload.name}`;
+                        if (compressedBlob) {
+                            fileToUpload = new File([compressedBlob], fileToUpload.name, { type: 'image/jpeg' });
+                        } else {
+                            try {
+                                const compFile = await compressFileDirectly(fileToUpload, (100 - quality) / 100);
+                                fileToUpload = compFile;
+                            } catch (err) {
+                                console.warn('Photo compression failed, using original:', err);
+                            }
+                        }
+                    } else if (type === 'video') {
+                        if (progressStatus) progressStatus.textContent = `Compressing video (0%): ${fileToUpload.name}`;
+                        try {
+                            const q = (100 - quality) / 100;
+                            const compVid = await compressVideo(fileToUpload, q, (pct) => {
+                                if (progressStatus) progressStatus.textContent = `Compressing video (${pct}%): ${fileToUpload.name}`;
+                                if (progressPercent) progressPercent.textContent = `${pct}%`;
+                                if (progressFill) progressFill.style.width = `${pct}%`;
+                            });
+                            fileToUpload = compVid;
+                        } catch (err) {
+                            console.warn('Video compression failed, using original:', err);
+                        }
+                    } else {
+                        if (progressStatus) progressStatus.textContent = `Compressing document: ${fileToUpload.name}`;
+                        if (compressedBlob) {
+                            fileToUpload = compressedBlob;
+                        } else {
+                            try {
+                                const compFile = await compressDocGzip(fileToUpload);
+                                fileToUpload = compFile;
+                            } catch (err) {
+                                console.warn('Doc compression failed, using original:', err);
+                            }
+                        }
+                    }
+                }
+
+                if (!isUploading) break;
+
+                // 2. Upload the file
                 if (progressStatus) progressStatus.textContent = `Uploading: ${fileToUpload.name}`;
                 if (progressPercent) progressPercent.textContent = `0%`;
                 if (progressFill) progressFill.style.width = `0%`;
@@ -5733,7 +5754,7 @@
                 // Check if Supabase client is active
                 const client = getSupabase();
                 if (client) {
-                    onProgress(10, 'Checking storage');
+                    onProgress(5, 'Checking storage');
                     const bucketName = 'transfers';
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
@@ -5742,13 +5763,17 @@
                     client.storage.from(bucketName).upload(fileName, file, {
                         cacheControl: '3600',
                         upsert: false,
-                        contentType: mime
+                        contentType: mime,
+                        onUploadProgress: (progressEvent) => {
+                            const percent = Math.round((progressEvent.loaded / progressEvent.total) * 75) + 5; // map 0-100% to 5-80% progress
+                            onProgress(percent, 'Uploading');
+                        }
                     }).then(({ data: uploadData, error: uploadError }) => {
                         if (uploadError) {
                             console.warn('Supabase storage upload failed, falling back to base64:', uploadError);
                             fallbackToBase64();
                         } else {
-                            onProgress(60, 'Getting public URL');
+                            onProgress(85, 'Getting public URL');
                             const { data: urlData } = client.storage.from(bucketName).getPublicUrl(fileName);
                             const publicUrl = urlData.publicUrl;
 
@@ -5766,7 +5791,7 @@
 
                             const localTransferObj = stripTransferContent(dbTransferObj);
 
-                            onProgress(80, 'Syncing');
+                            onProgress(90, 'Syncing');
                             upsertTransferToSupabase(dbTransferObj, currentAbortController.signal).then(() => {
                                 transfers.unshift(localTransferObj);
                                 saveTransfers();
@@ -5785,17 +5810,18 @@
 
                 function fallbackToBase64() {
                     currentReader = new FileReader();
+                    let activeFakeProgressInterval = null;
 
                     currentReader.onprogress = function(e) {
                         if (e.lengthComputable) {
-                            const percent = Math.round((e.loaded / e.total) * 40) + 10; // 10% to 50%
+                            const percent = Math.round((e.loaded / e.total) * 30) + 10; // 10% to 40%
                             onProgress(percent, 'Reading');
                         }
                     };
 
                     currentReader.onload = async function(e) {
                         try {
-                            onProgress(50, 'Uploading');
+                            onProgress(40, 'Uploading');
                             const base64Data = e.target.result;
                             const now = Date.now();
                             
@@ -5812,9 +5838,23 @@
 
                             const localTransferObj = stripTransferContent(dbTransferObj);
 
-                            onProgress(70, 'Syncing');
+                            // Active simulated loader during network sync post
+                            let progressPct = 40;
+                            activeFakeProgressInterval = setInterval(() => {
+                                if (progressPct < 90) {
+                                    progressPct += Math.floor(Math.random() * 5) + 1;
+                                    onProgress(progressPct, 'Uploading');
+                                }
+                            }, 300);
+
+                            onProgress(progressPct, 'Syncing');
                             await upsertTransferToSupabase(dbTransferObj, currentAbortController.signal);
                             
+                            if (activeFakeProgressInterval) {
+                                clearInterval(activeFakeProgressInterval);
+                                activeFakeProgressInterval = null;
+                            }
+
                             transfers.unshift(localTransferObj);
                             saveTransfers();
                             renderTransferBoard();
@@ -5822,15 +5862,21 @@
                             onProgress(100, 'Finished');
                             resolve();
                         } catch (err) {
+                            if (activeFakeProgressInterval) {
+                                clearInterval(activeFakeProgressInterval);
+                                activeFakeProgressInterval = null;
+                            }
                             reject(err);
                         }
                     };
 
                     currentReader.onerror = function() {
+                        if (activeFakeProgressInterval) clearInterval(activeFakeProgressInterval);
                         reject('File read error');
                     };
 
                     currentReader.onabort = function() {
+                        if (activeFakeProgressInterval) clearInterval(activeFakeProgressInterval);
                         reject('File read aborted');
                     };
 
