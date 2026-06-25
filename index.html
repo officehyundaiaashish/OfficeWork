@@ -439,9 +439,9 @@
         }
 
         .sub-header-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
             margin-bottom: calc(0.6rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
         }
@@ -565,16 +565,14 @@
 
         /* ===== Filter Bar ===== */
         .filter-bar {
-            background: var(--card-bg);
-            padding: calc(0.45rem * var(--density)) calc(0.75rem * var(--density));
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
             display: flex;
             gap: 0.4rem;
             flex-wrap: wrap;
             align-items: center;
             font-size: calc(0.82rem * var(--font-scale));
-            box-shadow: var(--shadow-sm);
+            margin-top: 0.55rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
         }
 
         .filter-label {
@@ -1788,7 +1786,8 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 gap: 0.25rem;
-                padding: 0.4rem;
+                padding-top: 0.4rem;
+                margin-top: 0.4rem;
             }
 
             .filter-btn {
@@ -1962,7 +1961,6 @@
         html.texture-glassmorphism .day-card,
         html.texture-glassmorphism .modal,
         html.texture-glassmorphism .progress-container,
-        html.texture-glassmorphism .filter-bar,
         html.texture-glassmorphism .greeting-banner {
             background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.65) !important;
             backdrop-filter: blur(16px) saturate(180%);
@@ -1997,7 +1995,6 @@
 
         html.texture-gradientborder .day-card,
         html.texture-gradientborder .progress-container,
-        html.texture-gradientborder .filter-bar,
         html.texture-gradientborder .greeting-banner,
         html.texture-gradientborder .modal {
             border: 1px solid transparent !important;
@@ -2463,26 +2460,25 @@
                             <span id="stat-overdue">0</span>
                         </span>
                     </div>
-                </div>
-
-                <div class="filter-bar">
-                    <span class="filter-label">View:</span>
-                    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
-                    <button class="filter-btn" data-filter="today" onclick="setFilter('today')">Today</button>
-                    <button class="filter-btn" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
-                    <button class="filter-btn" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
-                    <button class="filter-btn" data-filter="pending" onclick="setFilter('pending')">Pending</button>
-                    <button class="filter-btn" data-filter="completed"
-                        onclick="setFilter('completed')">Completed</button>
-                    <div class="search-wrapper">
-                        <input type="text" class="search-input" id="search-input" placeholder="Search tasks..."
-                            oninput="renderBoard()" autocomplete="one-time-code" autocorrect="off" autocapitalize="off"
-                            spellcheck="false">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
+                    <div class="filter-bar">
+                        <span class="filter-label">View:</span>
+                        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+                        <button class="filter-btn" data-filter="today" onclick="setFilter('today')">Today</button>
+                        <button class="filter-btn" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
+                        <button class="filter-btn" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
+                        <button class="filter-btn" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+                        <button class="filter-btn" data-filter="completed"
+                            onclick="setFilter('completed')">Completed</button>
+                        <div class="search-wrapper">
+                            <input type="text" class="search-input" id="search-input" placeholder="Search tasks..."
+                                oninput="renderBoard()" autocomplete="one-time-code" autocorrect="off" autocapitalize="off"
+                                spellcheck="false">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
