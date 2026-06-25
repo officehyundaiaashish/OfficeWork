@@ -573,6 +573,16 @@
         .stat-pill.upcoming-pill svg { color: var(--warning); }
         .stat-pill.all-pill svg { color: var(--accent); }
 
+        /* Location filter pills */
+        .stat-pill.loc-roorkee { color: #7c3aed; }
+        .stat-pill.loc-roorkee.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white !important; }
+        .stat-pill.loc-kotdwar { color: #0369a1; }
+        .stat-pill.loc-kotdwar.active { background: linear-gradient(135deg, #0369a1, #0284c7); color: white !important; }
+        .stat-pill.loc-herbetpur { color: #b45309; }
+        .stat-pill.loc-herbetpur.active { background: linear-gradient(135deg, #b45309, #d97706); color: white !important; }
+        .stat-pill.loc-roorkee svg, .stat-pill.loc-kotdwar svg, .stat-pill.loc-herbetpur svg { flex-shrink: 0; }
+        .stat-pill.loc-roorkee.active svg, .stat-pill.loc-kotdwar.active svg, .stat-pill.loc-herbetpur.active svg { color: white !important; }
+
         /* ===== Search Bar ===== */
         .search-wrapper {
             position: relative;
@@ -2462,6 +2472,30 @@
                             <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
+                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Filter: Roorkee" onclick="setFilter('loc:Roorkee')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span class="stat-label">Roorkee</span>
+                        </span>
+                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Filter: Kotdwar" onclick="setFilter('loc:Kotdwar')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span class="stat-label">Kotdwar</span>
+                        </span>
+                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Filter: Herbetpur" onclick="setFilter('loc:Herbetpur')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span class="stat-label">Herbetpur</span>
+                        </span>
                     </div>
                     <div class="search-wrapper">
                         <input type="text" class="search-input" id="search-input" placeholder="Search tasks..."
@@ -3424,6 +3458,10 @@
                 if (currentFilter === 'overdue' && !isOverdue(t)) return false;
                 if (currentFilter === 'pending' && t.completed) return false;
                 if (currentFilter === 'completed' && !t.completed) return false;
+                if (currentFilter.startsWith('loc:')) {
+                    const loc = currentFilter.slice(4);
+                    if ((t.location || 'Roorkee') !== loc) return false;
+                }
                 if (search) {
                     const hay = (t.title + ' ' + (t.note || '')).toLowerCase();
                     if (!hay.includes(search)) return false;
@@ -7047,11 +7085,30 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
                     .then(reg => {
-                        console.log('Service Worker registered successfully:', reg.scope);
-                        // Proactively check for updates on load
+                        console.log('Service Worker registered:', reg.scope);
                         reg.update();
+
+                        // When a new SW is waiting, tell it to skip waiting immediately
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            if (!newWorker) return;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        });
                     })
                     .catch(err => console.log('Service Worker registration failed:', err));
+
+                // When the SW controller changes (new SW took over), reload the page
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
     </script>
