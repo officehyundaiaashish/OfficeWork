@@ -658,7 +658,7 @@
         .modal {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: calc(1.5rem * var(--density));
+            padding: calc(1.1rem * var(--density));
             width: 100%;
             max-width: 500px;
             max-height: calc(100vh - 3rem);
@@ -681,8 +681,8 @@
         }
 
         .modal h2 {
-            margin: 0 0 1.25rem 0;
-            font-size: calc(1.15rem * var(--font-scale));
+            margin: 0 0 0.8rem 0;
+            font-size: calc(1.05rem * var(--font-scale));
             color: var(--text-main);
             display: flex;
             justify-content: space-between;
@@ -718,29 +718,29 @@
         }
 
         .form-group {
-            margin-bottom: calc(1rem * var(--density));
+            margin-bottom: calc(0.6rem * var(--density));
         }
 
         .form-group label {
             display: block;
-            font-size: calc(0.82rem * var(--font-scale));
+            font-size: calc(0.78rem * var(--font-scale));
             font-weight: 600;
             color: var(--text-main);
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.2rem;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: calc(0.6rem * var(--density)) calc(0.75rem * var(--density));
+            padding: calc(0.45rem * var(--density)) calc(0.65rem * var(--density));
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            font-size: calc(0.95rem * var(--font-scale));
+            font-size: calc(0.88rem * var(--font-scale));
             font-family: inherit;
             background: var(--card-bg);
             color: var(--text-main);
-            min-height: 44px;
+            min-height: 38px;
             transition: all var(--transition-fast);
         }
 
@@ -767,7 +767,7 @@
         }
 
         .form-group textarea {
-            min-height: 68px;
+            min-height: 52px;
             resize: vertical;
         }
 
@@ -789,7 +789,7 @@
             display: flex;
             gap: 0.5rem;
             justify-content: flex-end;
-            margin-top: 1.5rem;
+            margin-top: 0.85rem;
             flex-wrap: wrap;
         }
 
@@ -1585,21 +1585,23 @@
             gap: 0.4rem;
         }
 
-        .priority-pill-toggle button {
+        .priority-pill-toggle button,
+        .location-pill-toggle button {
             flex: 1;
-            padding: 0.55rem 0.5rem;
+            padding: 0.38rem 0.5rem;
             border: 1.5px solid var(--border);
             background: var(--card-bg);
             border-radius: 9999px;
             cursor: pointer;
             font-family: inherit;
-            font-size: calc(0.82rem * var(--font-scale));
+            font-size: calc(0.8rem * var(--font-scale));
             color: var(--text-main);
             transition: all var(--transition-fast);
             font-weight: 500;
         }
 
-        .priority-pill-toggle button:hover {
+        .priority-pill-toggle button:hover,
+        .location-pill-toggle button:hover {
             border-color: #c4c7cc;
             background: var(--hover);
         }
@@ -1622,6 +1624,19 @@
             border-color: var(--danger);
             background: rgba(228, 30, 63, 0.08);
             color: var(--danger);
+            font-weight: 600;
+        }
+
+
+        .location-pill-toggle {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .location-pill-toggle button.active {
+            border-color: var(--success);
+            background: rgba(49, 162, 76, 0.1);
+            color: var(--success);
             font-weight: 600;
         }
 
@@ -2651,6 +2666,15 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label>Location</label>
+                    <div class="location-pill-toggle" id="task-location-toggle">
+                        <button type="button" data-location="Roorkee" onclick="setFormLocation('Roorkee')">Roorkee</button>
+                        <button type="button" data-location="Kotdwar" onclick="setFormLocation('Kotdwar')">Kotdwar</button>
+                        <button type="button" data-location="Herbetpur" onclick="setFormLocation('Herbetpur')">Herbetpur</button>
+                    </div>
+                    <input type="hidden" id="task-location-input" value="Roorkee">
+                </div>
+                <div class="form-group">
                     <label>Priority</label>
                     <div class="priority-pill-toggle" id="task-priority-toggle">
                         <button type="button" data-priority="low" onclick="setFormPriority('low')">Low</button>
@@ -3501,6 +3525,7 @@
             const metaPills = [];
             const priority = task.priority || 'medium';
             metaPills.push(`<span class="meta-pill priority-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>`);
+            if (task.location) metaPills.push(`<span class="meta-pill" style="background:rgba(49,162,76,0.1);color:var(--success);border-color:rgba(49,162,76,0.25);">📍 ${escapeHtml(task.location)}</span>`);
             if (task.time) metaPills.push(`<span class="meta-pill time">${ICONS.clock} ${formatTime(task.time)}</span>`);
             if (isOverdue(task)) metaPills.push(`<span class="meta-pill overdue">${ICONS.alertTriangle} Overdue</span>`);
             else if (isToday(task)) metaPills.push(`<span class="meta-pill today"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;"></span> Today</span>`);
@@ -3732,6 +3757,16 @@
             });
         }
 
+        function setFormLocation(location) {
+            const input = document.getElementById('task-location-input');
+            if (input) input.value = location;
+
+            const buttons = document.querySelectorAll('#task-location-toggle button');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.location === location);
+            });
+        }
+
         // ===== TASK MODAL =====
         function openAddModal() {
             if (isSelectMode) exitSelectionMode();
@@ -3745,6 +3780,7 @@
             const mm = String(now.getMinutes()).padStart(2, '0');
             document.getElementById('task-time-input').value = `${hh}:${mm}`;
             setFormPriority('medium');
+            setFormLocation('Roorkee');
             document.getElementById('delete-btn').style.display = 'none';
             document.getElementById('task-modal').classList.add('active');
             setTimeout(() => document.getElementById('task-title-input').focus(), 300);
@@ -3760,6 +3796,7 @@
             document.getElementById('task-date-input').value = t.date === 'legacy' ? todayStr() : t.date;
             document.getElementById('task-time-input').value = t.time || '';
             setFormPriority(t.priority || 'medium');
+            setFormLocation(t.location || 'Roorkee');
             document.getElementById('delete-btn').style.display = 'inline-flex';
             document.getElementById('task-modal').classList.add('active');
         }
@@ -3772,6 +3809,7 @@
             const date = document.getElementById('task-date-input').value;
             const time = document.getElementById('task-time-input').value;
             const priority = document.getElementById('task-priority-input').value;
+            const location = document.getElementById('task-location-input').value || 'Roorkee';
 
             if (!title || !date) {
                 showToast('Please fill required fields');
@@ -3782,7 +3820,7 @@
             if (id) {
                 const t = tasks.find(x => x.id === id);
                 if (t) {
-                    Object.assign(t, { title, note, date, time, priority });
+                    Object.assign(t, { title, note, date, time, priority, location });
                     t.createdAt = Date.now();
                     taskObj = t;
                 }
@@ -3790,7 +3828,7 @@
             } else {
                 const now = Date.now();
                 taskObj = {
-                    id: uid(), title, note, date, time, priority,
+                    id: uid(), title, note, date, time, priority, location,
                     completed: false, createdAt: now, addedAt: now
                 };
                 tasks.push(taskObj);
