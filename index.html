@@ -3534,7 +3534,7 @@
             const metaPills = [];
             const priority = task.priority || 'medium';
             metaPills.push(`<span class="meta-pill priority-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>`);
-            if (task.location) metaPills.push(`<span class="meta-pill location">📍 ${escapeHtml(task.location)}</span>`);
+            if (task.location) metaPills.push(`<span class="meta-pill location">${escapeHtml(task.location)}</span>`);
             if (task.time) metaPills.push(`<span class="meta-pill time">${ICONS.clock} ${formatTime(task.time)}</span>`);
             if (isOverdue(task)) metaPills.push(`<span class="meta-pill overdue">${ICONS.alertTriangle} Overdue</span>`);
             else if (isToday(task)) metaPills.push(`<span class="meta-pill today"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;"></span> Today</span>`);
