@@ -4319,7 +4319,8 @@
                 date: t.date || '',
                 time: t.time || '',
                 completed: !!t.completed,
-                createdAt: t.createdAt
+                createdAt: t.createdAt,
+                location: t.location || 'Roorkee'
             };
             if (includePriority) {
                 res.priority = t.priority || 'medium';
