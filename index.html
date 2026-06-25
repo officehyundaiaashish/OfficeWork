@@ -541,6 +541,12 @@
             flex-shrink: 0;
         }
 
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
         .stat-pill.done-pill svg {
             color: var(--success);
         }
@@ -782,8 +788,8 @@
 
         /* Autofill overrides for dark mode */
         input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset !important;
             -webkit-text-fill-color: var(--text-main) !important;
@@ -1394,21 +1400,25 @@
             animation: fadeSlideDown 0.35s var(--transition-smooth) both;
             line-height: 1.3;
         }
+
         .stale-warning-banner.visible {
             display: flex;
         }
+
         .stale-warning-banner svg {
             width: 14px;
             height: 14px;
             flex-shrink: 0;
             color: #d97706;
         }
+
         :root.theme-dark .stale-warning-banner,
         :root.theme-night .stale-warning-banner {
             background: rgba(245, 158, 11, 0.12);
             border-color: rgba(245, 158, 11, 0.28);
             color: #fcd34d;
         }
+
         :root.theme-dark .stale-warning-banner svg,
         :root.theme-night .stale-warning-banner svg {
             color: #fbbf24;
@@ -1453,35 +1463,42 @@
         .select-mode-fab {
             display: none !important;
         }
-        
+
         .select-mode-fab.active {
             display: flex !important;
             animation: popIn 0.3s var(--transition-spring);
         }
 
         @keyframes popIn {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Task Item Multi-Select Styles */
         .task-item-container.selecting-mode .swipe-background {
             display: none !important;
         }
-        
+
         .task-item-container.selecting-mode .task-item {
             transform: none !important;
             cursor: pointer;
             transition: all var(--transition-fast) !important;
         }
-        
+
         .task-item-container.selecting-mode .task-item.selected {
             border-color: var(--accent) !important;
             background: rgba(var(--accent-rgb), 0.12) !important;
             transform: scale(0.97) !important;
             box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.15) !important;
         }
-        
+
         .task-item-container.selecting-mode input[type="checkbox"] {
             pointer-events: none;
         }
@@ -1655,6 +1672,7 @@
             transition: background 0.2s;
             margin: 0.5rem 0;
         }
+
         .premium-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -1666,9 +1684,11 @@
             transition: transform 0.1s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         .premium-slider::-webkit-slider-thumb:hover {
             transform: scale(1.25);
         }
+
         .premium-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
@@ -1679,6 +1699,7 @@
             border: none;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         .premium-slider::-moz-range-thumb:hover {
             transform: scale(1.25);
         }
@@ -1933,8 +1954,8 @@
         /* ===== Texture & Border Style Types ===== */
         html.texture-glassmorphism body {
             background: radial-gradient(circle at 10% 20%, rgba(var(--accent-rgb), 0.06) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(49, 162, 76, 0.06) 0%, transparent 40%),
-                        var(--bg-color) !important;
+                radial-gradient(circle at 90% 80%, rgba(49, 162, 76, 0.06) 0%, transparent 40%),
+                var(--bg-color) !important;
             background-attachment: fixed !important;
         }
 
@@ -1949,13 +1970,30 @@
             border: 1px solid rgba(var(--accent-rgb), 0.18) !important;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08) !important;
         }
-        
-        :root.theme-light { --card-bg-rgb: 255, 255, 255; }
-        :root.theme-morning { --card-bg-rgb: 255, 255, 255; }
-        :root.theme-afternoon { --card-bg-rgb: 255, 255, 255; }
-        :root.theme-evening { --card-bg-rgb: 255, 251, 248; }
-        :root.theme-dark { --card-bg-rgb: 15, 23, 42; }
-        :root.theme-night { --card-bg-rgb: 15, 23, 42; }
+
+        :root.theme-light {
+            --card-bg-rgb: 255, 255, 255;
+        }
+
+        :root.theme-morning {
+            --card-bg-rgb: 255, 255, 255;
+        }
+
+        :root.theme-afternoon {
+            --card-bg-rgb: 255, 255, 255;
+        }
+
+        :root.theme-evening {
+            --card-bg-rgb: 255, 251, 248;
+        }
+
+        :root.theme-dark {
+            --card-bg-rgb: 15, 23, 42;
+        }
+
+        :root.theme-night {
+            --card-bg-rgb: 15, 23, 42;
+        }
 
         html.texture-gradientborder .day-card,
         html.texture-gradientborder .progress-container,
@@ -1963,15 +2001,15 @@
         html.texture-gradientborder .greeting-banner,
         html.texture-gradientborder .modal {
             border: 1px solid transparent !important;
-            background-image: linear-gradient(var(--card-bg), var(--card-bg)), 
-                              linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
+            background-image: linear-gradient(var(--card-bg), var(--card-bg)),
+                linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
             background-origin: border-box !important;
             background-clip: padding-box, border-box !important;
             box-shadow: var(--shadow-md) !important;
         }
 
         html.texture-subtlegrid body {
-            background-image: 
+            background-image:
                 linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
             background-size: 24px 24px;
@@ -1981,26 +2019,32 @@
         body.mode-transfer .tasks-only-el {
             display: none !important;
         }
+
         body.mode-tasker .transfer-only-el {
             display: none !important;
         }
+
         body.mode-transfer h1 {
             background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
         }
+
         body.mode-transfer .logo-icon-wrap {
             background: rgba(var(--accent-rgb), 0.15) !important;
             border-color: rgba(var(--accent-rgb), 0.2) !important;
             color: var(--accent) !important;
         }
+
         body.mode-transfer .logo-icon-wrap stop:first-child {
             stop-color: var(--accent-gradient-start) !important;
         }
+
         body.mode-transfer .logo-icon-wrap stop:last-child {
             stop-color: var(--accent-gradient-end) !important;
         }
+
         .transfer-panel {
             display: flex;
             flex-direction: column;
@@ -2013,12 +2057,14 @@
             margin-bottom: calc(0.85rem * var(--density));
             animation: fadeSlideDown 0.4s var(--transition-smooth) both;
         }
+
         .transfer-input-tabs {
             display: flex;
             gap: 0.5rem;
             border-bottom: 1.5px solid var(--border);
             padding-bottom: 0.5rem;
         }
+
         .transfer-tab-btn {
             background: transparent;
             border: none;
@@ -2030,16 +2076,20 @@
             border-radius: var(--radius-sm);
             transition: all var(--transition-fast);
         }
+
         .transfer-tab-btn.active {
             background: var(--hover);
             color: var(--accent);
         }
+
         .transfer-tab-content {
             display: none;
         }
+
         .transfer-tab-content.active {
             display: block;
         }
+
         .dropzone {
             border: 2px dashed var(--border);
             border-radius: var(--radius-sm);
@@ -2052,15 +2102,19 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .dropzone:hover, .dropzone.dragover {
+
+        .dropzone:hover,
+        .dropzone.dragover {
             border-color: var(--accent);
             background: var(--hover);
         }
+
         .dropzone svg {
             width: 32px;
             height: 32px;
             color: var(--text-muted);
         }
+
         .transfer-card-meta {
             display: flex;
             gap: 0.5rem;
@@ -2068,6 +2122,7 @@
             color: var(--text-muted);
             margin-top: 0.15rem;
         }
+
         .text-share-preview {
             background: var(--bg-color);
             border-radius: var(--radius-sm);
@@ -2082,6 +2137,7 @@
             margin-top: 0.35rem;
             border: 1px solid var(--border);
         }
+
         .transfer-media-preview {
             max-width: 100%;
             max-height: 200px;
@@ -2090,6 +2146,7 @@
             border: 1px solid var(--border);
             object-fit: contain;
         }
+
         .transfer-doc-preview {
             display: flex;
             align-items: center;
@@ -2102,6 +2159,7 @@
             font-size: calc(0.78rem * var(--font-scale));
             font-weight: 500;
         }
+
         .transfer-doc-preview svg {
             width: 16px;
             height: 16px;
@@ -2122,7 +2180,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        
+
         .transfer-item-card:hover {
             box-shadow: var(--shadow-md);
             border-color: rgba(var(--accent-rgb), 0.3);
@@ -2209,13 +2267,57 @@
         }
 
         /* File extension color coding matching accent selection */
-        .ext-pdf { background: #e11d48; color: white; } /* Crimson */
-        .ext-zip, .ext-rar, .ext-7z { background: #d97706; color: white; } /* Amber */
-        .ext-exe, .ext-dmg, .ext-iso { background: #7c3aed; color: white; } /* Violet */
-        .ext-doc, .ext-docx { background: #2563eb; color: white; } /* Blue */
-        .ext-xls, .ext-xlsx, .ext-csv { background: #16a34a; color: white; } /* Green */
-        .ext-mp3, .ext-wav, .ext-ogg { background: #0891b2; color: white; } /* Cyan */
-        .ext-other { background: #4b5563; color: white; } /* Gray */
+        .ext-pdf {
+            background: #e11d48;
+            color: white;
+        }
+
+        /* Crimson */
+        .ext-zip,
+        .ext-rar,
+        .ext-7z {
+            background: #d97706;
+            color: white;
+        }
+
+        /* Amber */
+        .ext-exe,
+        .ext-dmg,
+        .ext-iso {
+            background: #7c3aed;
+            color: white;
+        }
+
+        /* Violet */
+        .ext-doc,
+        .ext-docx {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Blue */
+        .ext-xls,
+        .ext-xlsx,
+        .ext-csv {
+            background: #16a34a;
+            color: white;
+        }
+
+        /* Green */
+        .ext-mp3,
+        .ext-wav,
+        .ext-ogg {
+            background: #0891b2;
+            color: white;
+        }
+
+        /* Cyan */
+        .ext-other {
+            background: #4b5563;
+            color: white;
+        }
+
+        /* Gray */
 
         /* Responsive styling for Transfer actions bar */
         #transfer-actions-bar {
@@ -2261,7 +2363,9 @@
     <div class="app-container">
         <div class="sticky-header-wrapper">
             <header class="app-header">
-                <div class="header-logo-container" onclick="toggleAppMode()" style="cursor: pointer; user-select: none; -webkit-user-select: none;" title="Click to swap parallel universes">
+                <div class="header-logo-container" onclick="toggleAppMode()"
+                    style="cursor: pointer; user-select: none; -webkit-user-select: none;"
+                    title="Click to swap parallel universes">
                     <div class="logo-icon-wrap">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -2319,22 +2423,24 @@
                         <div class="progress-fill" id="progress-fill"></div>
                     </div>
                     <div class="progress-stats">
-                        <span class="stat-pill done-pill">
+                        <span class="stat-pill done-pill" title="Done Tasks">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
+                            <span class="stat-label">Done</span>
                             <span id="stat-done">0</span>
                         </span>
-                        <span class="stat-pill pending-pill">
+                        <span class="stat-pill pending-pill" title="Pending Tasks">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <polyline points="12 6 12 12 16 14" />
                             </svg>
+                            <span class="stat-label">Pending</span>
                             <span id="stat-pending">0</span>
                         </span>
-                        <span class="stat-pill today-pill">
+                        <span class="stat-pill today-pill" title="Today's Tasks">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -2342,9 +2448,10 @@
                                 <line x1="8" y1="2" x2="8" y2="6" />
                                 <line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
+                            <span class="stat-label">Today</span>
                             <span id="stat-today">0</span>
                         </span>
-                        <span class="stat-pill overdue-pill">
+                        <span class="stat-pill overdue-pill" title="Overdue Tasks">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -2352,6 +2459,7 @@
                                 <line x1="12" y1="9" x2="12" y2="13" />
                                 <line x1="12" y1="17" x2="12.01" y2="17" />
                             </svg>
+                            <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
                     </div>
@@ -2402,33 +2510,48 @@
             </div>
             <div id="transfer-text-tab" class="transfer-tab-content active">
                 <div class="form-group" style="margin-bottom: 0;">
-                    <textarea id="transfer-text-input" placeholder="Type or paste text to share..." style="min-height: 100px; padding: calc(0.85rem * var(--density));" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                    <textarea id="transfer-text-input" placeholder="Type or paste text to share..."
+                        style="min-height: 100px; padding: calc(0.85rem * var(--density));" autocorrect="off"
+                        autocapitalize="off" spellcheck="false"></textarea>
                 </div>
-                <button class="btn" onclick="shareTextTransfer()" style="background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: white; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                <button class="btn" onclick="shareTextTransfer()"
+                    style="background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: white; width: 100%; justify-content: center; margin-top: 0.5rem;">
                     Share Text
                 </button>
             </div>
             <div id="transfer-file-tab" class="transfer-tab-content">
-                <div class="dropzone" id="transfer-dropzone" onclick="document.getElementById('transfer-file-input').click()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div class="dropzone" id="transfer-dropzone"
+                    onclick="document.getElementById('transfer-file-input').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
-                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Drag & Drop file here or Click to upload</span>
+                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Drag & Drop file here or
+                        Click to upload</span>
                     <span style="font-size: 0.75rem; color: var(--text-muted);">Max: 400MB per file / batch total</span>
-                    <input type="file" id="transfer-file-input" style="display: none;" onchange="handleFileSelect(event)" multiple>
+                    <input type="file" id="transfer-file-input" style="display: none;"
+                        onchange="handleFileSelect(event)" multiple>
                 </div>
-                <div id="transfer-upload-progress" style="display:none; margin-top: 1rem; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--hover); font-size: 0.85rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; align-items: center;">
-                        <span id="upload-progress-status" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">Uploading files...</span>
+                <div id="transfer-upload-progress"
+                    style="display:none; margin-top: 1rem; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--hover); font-size: 0.85rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; align-items: center;">
+                        <span id="upload-progress-status"
+                            style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">Uploading
+                            files...</span>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <span id="upload-progress-percent">0%</span>
-                            <button onclick="abortCurrentUpload()" style="background: var(--danger); color: white; border: none; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: 600;">Abort</button>
+                            <button onclick="abortCurrentUpload()"
+                                style="background: var(--danger); color: white; border: none; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: 600;">Abort</button>
                         </div>
                     </div>
-                    <div style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
-                        <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s ease;"></div>
+                    <div
+                        style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                        <div id="upload-progress-fill"
+                            style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s ease;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2436,29 +2559,57 @@
         <div class="transfer-only-el" id="transfer-actions-bar">
             <!-- Row 1: Mode Switches (Always Visible, nicely aligned) -->
             <div class="transfer-actions-row">
-                <button class="btn btn-secondary btn-sm" id="transfer-select-mode-btn" onclick="toggleTransferSelectMode()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
+                <button class="btn btn-secondary btn-sm" id="transfer-select-mode-btn"
+                    onclick="toggleTransferSelectMode()"
+                    style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:14px; height:14px;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <path d="M9 12l2 2 4-4" />
+                    </svg>
                     <span>Select <span class="btn-text-responsive">Multiple</span></span>
                 </button>
-                <button class="btn btn-secondary btn-sm" id="transfer-layout-toggle-btn" onclick="toggleTransferLayout()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
-                    <svg id="transfer-layout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;">
+                <button class="btn btn-secondary btn-sm" id="transfer-layout-toggle-btn"
+                    onclick="toggleTransferLayout()"
+                    style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <svg id="transfer-layout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="width:14px; height:14px;">
                     </svg>
                     <span id="transfer-layout-text">List View</span>
                 </button>
             </div>
             <!-- Row 2: Bulk actions (Conditional drawer appearing when selection is active) -->
             <div id="transfer-bulk-actions">
-                <span id="transfer-selected-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-right: 0.25rem;">0 selected</span>
-                <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 12l2 2 4-4"/></svg>
+                <span id="transfer-selected-count"
+                    style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-right: 0.25rem;">0
+                    selected</span>
+                <button class="btn btn-secondary btn-sm" onclick="selectAllTransfers()"
+                    style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:12px; height:12px;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <path d="M9 12l2 2 4-4" />
+                    </svg>
                     <span>Select All</span>
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="downloadSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <button class="btn btn-secondary btn-sm" onclick="downloadSelectedTransfers()"
+                    style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:12px; height:12px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
                     <span>Download<span class="btn-text-responsive"> Selected</span></span>
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white; display: flex; align-items: center; gap: 0.25rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                <button class="btn btn-danger btn-sm" onclick="deleteSelectedTransfers()"
+                    style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger); color: white; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:12px; height:12px;">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
                     <span>Delete<span class="btn-text-responsive"> Selected</span></span>
                 </button>
             </div>
@@ -2476,16 +2627,22 @@
     </button>
 
     <!-- Multi-Select Floating Buttons -->
-    <button class="fab select-mode-fab" id="delete-selected-fab" onclick="deleteSelectedTasks()" aria-label="Delete Selected Tasks" style="background: var(--danger);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <button class="fab select-mode-fab" id="delete-selected-fab" onclick="deleteSelectedTasks()"
+        aria-label="Delete Selected Tasks" style="background: var(--danger);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
         </svg>
-        <span id="delete-selected-count" style="position: absolute; top: -5px; right: -5px; background: white; color: var(--danger); font-size: 0.72rem; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1.5px solid var(--danger);">0</span>
+        <span id="delete-selected-count"
+            style="position: absolute; top: -5px; right: -5px; background: white; color: var(--danger); font-size: 0.72rem; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1.5px solid var(--danger);">0</span>
     </button>
 
-    <button class="fab select-mode-fab" id="cancel-select-fab" onclick="exitSelectionMode()" aria-label="Cancel Selection Mode" style="right: auto; left: 1.5rem; background: var(--card-bg); color: var(--text-main); border: 1.5px solid var(--border);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <button class="fab select-mode-fab" id="cancel-select-fab" onclick="exitSelectionMode()"
+        aria-label="Cancel Selection Mode"
+        style="right: auto; left: 1.5rem; background: var(--card-bg); color: var(--text-main); border: 1.5px solid var(--border);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
         </svg>
@@ -2509,13 +2666,14 @@
                 <input type="hidden" id="task-id">
                 <div class="form-group">
                     <label for="task-title-input">Task Title *</label>
-                    <textarea id="task-title-input" rows="1" required placeholder="Task title" style="resize: none; min-height: 44px; height: 44px; padding-top: calc(0.85rem * var(--density)); white-space: nowrap; overflow: hidden;" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                    <textarea id="task-title-input" rows="1" required placeholder="Task title"
+                        style="resize: none; min-height: 44px; height: 44px; padding-top: calc(0.85rem * var(--density)); white-space: nowrap; overflow: hidden;"
+                        autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
-                    <textarea id="task-note-input" rows="2" placeholder="Note (optional)"
-                        autocomplete="one-time-code" autocorrect="off" autocapitalize="off"
-                        spellcheck="false"></textarea>
+                    <textarea id="task-note-input" rows="2" placeholder="Note (optional)" autocomplete="one-time-code"
+                        autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -2579,8 +2737,13 @@
             </h2>
 
             <div class="theme-section">
-                <button type="button" class="btn btn-secondary" style="width: 100%; justify-content: center; gap: 0.5rem;" onclick="openAccentModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.32135 19.4628 5.48512 20.1425 5.27581 20.7573L5.03803 21.4573C4.83841 22.0432 5.37894 22.5837 5.96482 22.3841L6.66482 22.1463C7.2796 21.937 7.95932 22.1008 8.4221 22.5636C9.8542 21.9962 11.4 22 12 22Z"/></svg>
+                <button type="button" class="btn btn-secondary"
+                    style="width: 100%; justify-content: center; gap: 0.5rem;" onclick="openAccentModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:18px;height:18px;">
+                        <path
+                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.32135 19.4628 5.48512 20.1425 5.27581 20.7573L5.03803 21.4573C4.83841 22.0432 5.37894 22.5837 5.96482 22.3841L6.66482 22.1463C7.2796 21.937 7.95932 22.1008 8.4221 22.5636C9.8542 21.9962 11.4 22 12 22Z" />
+                    </svg>
                     Accent & Visual Styles
                 </button>
             </div>
@@ -2638,7 +2801,11 @@
 
             <div class="theme-section">
                 <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="width:14px;height:14px;color:var(--accent);">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="4" />
+                    </svg>
                     Matte / Solid Colors
                 </div>
                 <div class="color-grid" id="matte-grid"></div>
@@ -2646,7 +2813,10 @@
 
             <div class="theme-section">
                 <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><path d="M12 2L2 22h20L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="width:14px;height:14px;color:var(--accent);">
+                        <path d="M12 2L2 22h20L12 2z" />
+                    </svg>
                     Accent Gradients
                 </div>
                 <div class="color-grid" id="gradient-grid"></div>
@@ -2654,13 +2824,23 @@
 
             <div class="theme-section">
                 <div class="theme-section-title" style="display:flex; align-items:center; gap:0.4rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;color:var(--accent);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="width:14px;height:14px;color:var(--accent);">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="3" x2="9" y2="21" />
+                        <line x1="15" y1="3" x2="15" y2="21" />
+                        <line x1="3" y1="9" x2="21" y2="9" />
+                        <line x1="3" y1="15" x2="21" y2="15" />
+                    </svg>
                     App Texture & Border Style
                 </div>
-                <div class="theme-mode-toggle" id="texture-toggle" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <div class="theme-mode-toggle" id="texture-toggle"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                     <button data-texture="minimalist" onclick="setTextureStyle('minimalist')">Minimalist</button>
-                    <button data-texture="glassmorphism" onclick="setTextureStyle('glassmorphism')">Glassmorphic</button>
-                    <button data-texture="gradientborder" onclick="setTextureStyle('gradientborder')">Aurora Border</button>
+                    <button data-texture="glassmorphism"
+                        onclick="setTextureStyle('glassmorphism')">Glassmorphic</button>
+                    <button data-texture="gradientborder" onclick="setTextureStyle('gradientborder')">Aurora
+                        Border</button>
                     <button data-texture="subtlegrid" onclick="setTextureStyle('subtlegrid')">Subtle Grid</button>
                 </div>
             </div>
@@ -2692,24 +2872,28 @@
                         <label for="sb-password-input">Sync Password</label>
                         <div style="display:flex; gap:0.5rem;">
                             <input type="password" id="sb-password-input" placeholder="Enter password"
-                                autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;">
-                            <button type="button" class="btn btn-sm" onclick="connectWithPassword()" style="min-height:44px; padding:0 1rem;">Connect</button>
+                                autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                style="flex:1;">
+                            <button type="button" class="btn btn-sm" onclick="connectWithPassword()"
+                                style="min-height:44px; padding:0 1rem;">Connect</button>
                         </div>
                     </div>
                     <details style="margin-top:0.25rem;">
-                        <summary style="font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:600; user-select:none;">Manual Configuration</summary>
+                        <summary
+                            style="font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:600; user-select:none;">
+                            Manual Configuration</summary>
                         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-url-input">Supabase URL</label>
                                 <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co"
-                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                    onchange="updateSupabaseConfig()">
+                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off"
+                                    spellcheck="false" onchange="updateSupabaseConfig()">
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-key-input">Supabase Anon Key</label>
                                 <input type="password" id="sb-key-input" placeholder="your-anon-key"
-                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                    onchange="updateSupabaseConfig()">
+                                    autocomplete="one-time-code" autocorrect="off" autocapitalize="off"
+                                    spellcheck="false" onchange="updateSupabaseConfig()">
                             </div>
                         </div>
                     </details>
@@ -2777,49 +2961,78 @@
                     </svg>
                 </button>
             </h2>
-            
-            <div id="compress-mode-selector" class="theme-mode-toggle" style="margin-bottom: 0.85rem; display: flex; gap: 0.35rem;">
-                <button type="button" id="compress-mode-all-btn" class="active" onclick="setCompressionMode('all')" style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Compress All At Once</button>
-                <button type="button" id="compress-mode-ind-btn" onclick="setCompressionMode('individual')" style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Configure Individually</button>
+
+            <div id="compress-mode-selector" class="theme-mode-toggle"
+                style="margin-bottom: 0.85rem; display: flex; gap: 0.35rem;">
+                <button type="button" id="compress-mode-all-btn" class="active" onclick="setCompressionMode('all')"
+                    style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Compress All At
+                    Once</button>
+                <button type="button" id="compress-mode-ind-btn" onclick="setCompressionMode('individual')"
+                    style="flex: 1; font-size: 0.78rem; padding: 0.35rem 0.5rem; font-weight:600;">Configure
+                    Individually</button>
             </div>
 
             <div class="compress-modal-body" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                <div class="form-group" id="compress-global-slider-container" style="margin-bottom: 0; background: var(--hover); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                        <label for="compress-global-slider" style="margin: 0; font-weight: 700; font-size: 0.8rem; color: var(--text-main);">Global Compression Level</label>
-                        <span id="compress-global-val" style="font-size: 0.8rem; font-weight: 700; color: var(--accent);">20% Compression</span>
+                <div class="form-group" id="compress-global-slider-container"
+                    style="margin-bottom: 0; background: var(--hover); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label for="compress-global-slider"
+                            style="margin: 0; font-weight: 700; font-size: 0.8rem; color: var(--text-main);">Global
+                            Compression Level</label>
+                        <span id="compress-global-val"
+                            style="font-size: 0.8rem; font-weight: 700; color: var(--accent);">20% Compression</span>
                     </div>
-                    <input type="range" id="compress-global-slider" class="premium-slider" min="0" max="90" value="20" oninput="updateGlobalCompressionValue(this.value)">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
+                    <input type="range" id="compress-global-slider" class="premium-slider" min="0" max="90" value="20"
+                        oninput="updateGlobalCompressionValue(this.value)">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">
                         <span>Original (Less)</span>
                         <span>Smaller (More)</span>
                     </div>
                 </div>
 
-                <div style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 2px;" id="compress-files-list">
+                <div style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 2px;"
+                    id="compress-files-list">
                     <!-- Dynamic Files list -->
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: center; margin-top: 0.25rem;">
-                    <div style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Total Original</div>
-                        <div id="compress-total-orig" style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-top: 0.1rem;">0 KB</div>
+                <div
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: center; margin-top: 0.25rem;">
+                    <div
+                        style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div
+                            style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">
+                            Total Original</div>
+                        <div id="compress-total-orig"
+                            style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-top: 0.1rem;">0
+                            KB</div>
                     </div>
-                    <div style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Total Optimized</div>
-                        <div id="compress-total-new" style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-top: 0.1rem;">0 KB</div>
+                    <div
+                        style="background: var(--hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div
+                            style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">
+                            Total Optimized</div>
+                        <div id="compress-total-new"
+                            style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-top: 0.1rem;">0 KB
+                        </div>
                     </div>
                 </div>
 
-                <div id="compress-status-msg" style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; min-height: 16px; text-align: center;">
+                <div id="compress-status-msg"
+                    style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; min-height: 16px; text-align: center;">
                     Ready to optimize
                 </div>
             </div>
-            
-            <div class="modal-actions" style="margin-top: 1.15rem; display: flex; gap: 0.4rem; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadAllOriginals()" style="margin-right: auto; padding: 0.35rem 0.65rem; font-size: 0.75rem;">Keep Originals</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Cancel</button>
-                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadAllConfigured()" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">Upload All</button>
+
+            <div class="modal-actions"
+                style="margin-top: 1.15rem; display: flex; gap: 0.4rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="uploadAllOriginals()"
+                    style="margin-right: auto; padding: 0.35rem 0.65rem; font-size: 0.75rem;">Keep Originals</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="closeCompressModal()"
+                    style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">Cancel</button>
+                <button type="button" class="btn btn-sm" id="compress-upload-btn" onclick="uploadAllConfigured()"
+                    style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">Upload All</button>
             </div>
         </div>
     </div>
@@ -3249,7 +3462,7 @@
                 const dayTasks = byDate[date] || [];
                 if (dayTasks.length === 0) return;
 
-                 // Sort tasks within the day: completed at bottom (sorted by completedAt descending)
+                // Sort tasks within the day: completed at bottom (sorted by completedAt descending)
                 // Active tasks sorted by: 1. Priority (high > medium > low), 2. Time/Creation date ascending
                 dayTasks.sort((a, b) => {
                     if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -3357,7 +3570,7 @@
             const leftBg = container.querySelector('.swipe-left-bg');
             const rightBg = container.querySelector('.swipe-right-bg');
             const taskId = container.dataset.id;
-            
+
             let startX = 0;
             let startY = 0;
             let currentX = 0;
@@ -3367,7 +3580,7 @@
             let pressTimer = null;
             const threshold = 65; // px to trigger action
             const maxSwipe = 90; // max visual offset
-            
+
             function handleStart(e) {
                 if (isSelectMode) return;
                 if (e.target.closest('input[type="checkbox"], .checkbox-wrapper, .task-actions, .action-btn')) return;
@@ -3379,7 +3592,7 @@
                 taskItem.style.transition = 'none';
                 leftBg.style.opacity = '0';
                 rightBg.style.opacity = '0';
-                
+
                 clearTimeout(pressTimer);
                 pressTimer = setTimeout(() => {
                     if (isSwiping && !moved && !isSelectMode) {
@@ -3391,13 +3604,13 @@
                         }
                     }
                 }, 800); // 800ms to trigger select mode
-                
+
                 if (e.type === 'mousedown') {
                     window.addEventListener('mousemove', handleMove);
                     window.addEventListener('mouseup', handleEnd);
                 }
             }
-            
+
             function handleMove(e) {
                 if (!isSwiping) return;
                 const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
@@ -3448,21 +3661,21 @@
                     }
                 }
             }
-            
+
             function handleEnd(e) {
                 clearTimeout(pressTimer);
                 if (!isSwiping) return;
                 isSwiping = false;
                 taskItem.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
-                
+
                 window.removeEventListener('mousemove', handleMove);
                 window.removeEventListener('mouseup', handleEnd);
-                
+
                 const wasSwipe = Math.abs(currentX) > 10;
                 if (wasSwipe && e) {
                     e.preventDefault();
                 }
-                
+
                 if (currentX < -threshold) {
                     // Swipe Left (drag to left): Edit Task
                     taskItem.style.transform = `translateX(-100%)`;
@@ -3485,7 +3698,7 @@
                 }
                 currentX = 0;
             }
-            
+
             taskItem.addEventListener('touchstart', handleStart, { passive: true });
             taskItem.addEventListener('touchmove', handleMove, { passive: false });
             taskItem.addEventListener('touchend', handleEnd, { passive: false });
@@ -3886,6 +4099,7 @@
                 if (newRecord.note) {
                     try {
                         const parsed = JSON.parse(newRecord.note);
+                        const { mode: remoteMode, ...otherParsed } = parsed;
                         const currentThemeSerialized = JSON.stringify({
                             accentHex: theme.accentHex,
                             accentRgb: theme.accentRgb,
@@ -3893,13 +4107,11 @@
                             accentGradEnd: theme.accentGradEnd,
                             accentType: theme.accentType,
                             textureStyle: theme.textureStyle,
-                            mode: theme.mode,
                             fontScale: theme.fontScale,
                             density: theme.density
                         });
-                        if (JSON.stringify(parsed) !== currentThemeSerialized) {
-                            theme = { ...theme, ...parsed };
-                            if (!theme.mode) theme.mode = 'system';
+                        if (JSON.stringify(otherParsed) !== currentThemeSerialized) {
+                            theme = { ...theme, ...otherParsed };
                             saveTheme();
                             applyTheme();
                             if (document.getElementById('theme-modal').classList.contains('active')) {
@@ -4041,7 +4253,7 @@
                     if (data) {
                         applyOrUpdateRecord(data);
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error('Error fetching broadcasted change:', e);
                 }
             }
@@ -4130,7 +4342,7 @@
                 showToast('Please enter password', true);
                 return;
             }
-            
+
             showToast('Connecting...');
             try {
                 if (window.location.protocol === 'file:') {
@@ -4167,7 +4379,7 @@
                 } else {
                     throw new Error('Invalid credentials returned from server');
                 }
-            } catch(e) {
+            } catch (e) {
                 showToast('Connection failed: ' + e.message, true);
                 console.error(e);
             }
@@ -4287,14 +4499,14 @@
                 try {
                     const client = getSupabase();
                     if (client) client.removeChannel(dbChannel);
-                } catch(e){}
+                } catch (e) { }
                 dbChannel = null;
             }
             if (broadcastChannel) {
                 try {
                     const client = getSupabase();
                     if (client) client.removeChannel(broadcastChannel);
-                } catch(e){}
+                } catch (e) { }
                 broadcastChannel = null;
             }
 
@@ -4315,7 +4527,6 @@
                         accentGradEnd: theme.accentGradEnd,
                         accentType: theme.accentType,
                         textureStyle: theme.textureStyle,
-                        mode: theme.mode,
                         fontScale: theme.fontScale,
                         density: theme.density
                     }),
@@ -4377,7 +4588,8 @@
                 if (remoteTheme && remoteTheme.note) {
                     try {
                         const parsed = JSON.parse(remoteTheme.note);
-                        theme = { ...theme, ...parsed };
+                        const { mode: remoteMode, ...otherProps } = parsed;
+                        theme = { ...theme, ...otherProps };
                         saveTheme();
                         applyTheme();
                     } catch (e) {
@@ -4509,7 +4721,7 @@
                     if (deletedTransferIds.has(id)) {
                         if (remoteTransferMap.has(id)) {
                             deleteTransfersFromRemoteIds.push(id);
-                            
+
                             // Delete physical file from storage if present
                             const remoteRecord = remoteTransferMap.get(id);
                             if (remoteRecord && remoteRecord.note) {
@@ -4518,7 +4730,7 @@
                                     if (parsed && parsed.storagePath) {
                                         await client.storage.from('transfers').remove([parsed.storagePath]);
                                     }
-                                } catch(e) {
+                                } catch (e) {
                                     console.error('Failed to parse remote transfer for storage deletion:', e);
                                 }
                             }
@@ -4832,21 +5044,21 @@
         function enterSelectionMode(initialTaskId) {
             isSelectMode = true;
             selectedTaskIds.clear();
-            
+
             // Add selecting-mode class to all task item containers
             document.querySelectorAll('.task-item-container').forEach(el => {
                 el.classList.add('selecting-mode');
             });
-            
+
             // Show select mode FABs, hide add FAB
             const addFab = document.getElementById('add-task-fab');
             const delFab = document.getElementById('delete-selected-fab');
             const cancelFab = document.getElementById('cancel-select-fab');
-            
+
             if (addFab) addFab.style.display = 'none';
             if (delFab) delFab.classList.add('active');
             if (cancelFab) cancelFab.classList.add('active');
-            
+
             if (initialTaskId) {
                 toggleSelectTask(initialTaskId);
             }
@@ -4854,10 +5066,10 @@
 
         function toggleSelectTask(taskId) {
             if (!isSelectMode) return;
-            
+
             const el = document.querySelector(`.task-item-container[data-id="${taskId}"]`);
             const taskItem = el ? el.querySelector('.task-item') : null;
-            
+
             if (selectedTaskIds.has(taskId)) {
                 selectedTaskIds.delete(taskId);
                 if (taskItem) taskItem.classList.remove('selected');
@@ -4865,7 +5077,7 @@
                 selectedTaskIds.add(taskId);
                 if (taskItem) taskItem.classList.add('selected');
             }
-            
+
             // Update counter badge
             const countEl = document.getElementById('delete-selected-count');
             if (countEl) {
@@ -4876,19 +5088,19 @@
         function exitSelectionMode() {
             isSelectMode = false;
             selectedTaskIds.clear();
-            
+
             // Remove selecting-mode and selected classes
             document.querySelectorAll('.task-item-container').forEach(el => {
                 el.classList.remove('selecting-mode');
                 const taskItem = el.querySelector('.task-item');
                 if (taskItem) taskItem.classList.remove('selected');
             });
-            
+
             // Show add FAB, hide select FABs
             const addFab = document.getElementById('add-task-fab');
             const delFab = document.getElementById('delete-selected-fab');
             const cancelFab = document.getElementById('cancel-select-fab');
-            
+
             if (addFab) addFab.style.display = 'flex';
             if (delFab) delFab.classList.remove('active');
             if (cancelFab) cancelFab.classList.remove('active');
@@ -4899,7 +5111,7 @@
                 showToast('No tasks selected');
                 return;
             }
-            
+
             const count = selectedTaskIds.size;
             const ok = await customConfirm({
                 title: `Delete ${count} Task${count > 1 ? 's' : ''}?`,
@@ -4907,10 +5119,10 @@
                 okText: 'Delete All',
                 okClass: 'btn-danger'
             });
-            
+
             if (ok) {
                 const idsToDelete = Array.from(selectedTaskIds);
-                
+
                 idsToDelete.forEach(id => {
                     const t = tasks.find(x => x.id === id);
                     if (t) {
@@ -4921,10 +5133,10 @@
                     deletedTasks = deletedTasks.slice(0, 50);
                 }
                 saveDeletedTasks();
-                
+
                 tasks = tasks.filter(x => !selectedTaskIds.has(x.id));
                 saveTasks();
-                
+
                 const client = getSupabase();
                 if (client) {
                     client.from('tasks').delete().in('id', idsToDelete).then(({ error }) => {
@@ -4938,7 +5150,7 @@
                         }
                     });
                 }
-                
+
                 exitSelectionMode();
                 renderBoard();
                 showToast(`${count} task${count > 1 ? 's' : ''} deleted`);
@@ -5227,21 +5439,21 @@
                 showToast('Please enter text to share');
                 return;
             }
-            
+
             // Check size limit: 50MB limit
             const sizeInBytes = new Blob([val]).size;
             if (sizeInBytes > 50 * 1024 * 1024) {
                 showToast('Text too large! Limit is 50MB.');
                 return;
             }
-            
+
             createTransferRecord({
                 type: 'text',
                 content: val,
                 size: sizeInBytes,
                 mimeType: 'text/plain'
             });
-            
+
             textInput.value = '';
             showToast('Text shared');
         }
@@ -5255,13 +5467,13 @@
             if (currentReader) {
                 try {
                     currentReader.abort();
-                } catch (e) {}
+                } catch (e) { }
                 currentReader = null;
             }
             if (currentAbortController) {
                 try {
                     currentAbortController.abort();
-                } catch (e) {}
+                } catch (e) { }
                 currentAbortController = null;
             }
             uploadQueue = [];
@@ -5286,7 +5498,7 @@
                 compressionPromiseReject = reject;
                 compressionMode = 'all';
                 globalQuality = 20;
-                
+
                 currentFilesList = files.map(file => {
                     const id = 'f_' + Math.random().toString(36).substring(2, 9);
                     const mime = file.type || '';
@@ -5294,11 +5506,11 @@
                     let type = 'document';
                     if (mime.startsWith('image/')) type = 'photo';
                     else if (mime.startsWith('video/')) type = 'video';
-                    
+
                     // Default to 'original' for already compressed, binaries, or executable files
                     const skipOptimizedDefaults = ['exe', 'zip', 'rar', '7z', 'gz', 'tar', 'mp3', 'pdf', 'dmg', 'iso', 'bin'];
                     const defaultAction = skipOptimizedDefaults.includes(fileExt) ? 'original' : 'optimized';
-                    
+
                     return {
                         id,
                         file,
@@ -5324,7 +5536,7 @@
 
                 const globalSlider = document.getElementById('compress-global-slider');
                 if (globalSlider) globalSlider.value = 20;
-                
+
                 const globalVal = document.getElementById('compress-global-val');
                 if (globalVal) globalVal.textContent = '20% Compression';
 
@@ -5341,12 +5553,12 @@
             const modeAllBtn = document.getElementById('compress-mode-all-btn');
             const modeIndBtn = document.getElementById('compress-mode-ind-btn');
             const globalContainer = document.getElementById('compress-global-slider-container');
-            
+
             if (mode === 'all') {
                 if (modeAllBtn) modeAllBtn.classList.add('active');
                 if (modeIndBtn) modeIndBtn.classList.remove('active');
                 if (globalContainer) globalContainer.style.display = 'block';
-                
+
                 // Re-apply global quality
                 currentFilesList.forEach(item => {
                     item.quality = globalQuality;
@@ -5364,7 +5576,7 @@
         function updateGlobalCompressionValue(val) {
             globalQuality = parseInt(val);
             document.getElementById('compress-global-val').textContent = val + '% Compression';
-            
+
             currentFilesList.forEach(item => {
                 item.quality = globalQuality;
             });
@@ -5379,7 +5591,7 @@
             const item = currentFilesList.find(x => x.id === id);
             if (!item) return;
             item.quality = parseInt(val);
-            
+
             const labelContainer = document.querySelector(`#slider-container-${id} span:last-child`);
             if (labelContainer) labelContainer.textContent = val + '%';
 
@@ -5413,11 +5625,11 @@
 
                 const showSlider = compressionMode === 'individual' && item.action === 'optimized' && item.type !== 'document';
 
-                const fileIconSvg = item.type === 'photo' 
+                const fileIconSvg = item.type === 'photo'
                     ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--accent);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
                     : item.type === 'video'
-                    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent);"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>`
-                    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-muted);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>`;
+                        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent);"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>`
+                        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-muted);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>`;
 
                 const limit = getFileSizeLimit(item.file);
                 const isOverLimit = (item.optimizedSize / (1024 * 1024)) > limit;
@@ -5467,10 +5679,10 @@
             if (item.type === 'photo') {
                 if (!item.thumbData) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         item.thumbData = e.target.result;
                         const img = new Image();
-                        img.onload = function() {
+                        img.onload = function () {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             let w = img.width;
@@ -5507,7 +5719,7 @@
                     reader.readAsDataURL(item.file);
                 } else {
                     const img = new Image();
-                    img.onload = function() {
+                    img.onload = function () {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         let w = img.width;
@@ -5648,7 +5860,7 @@
                 video.muted = true;
                 video.playsInline = true;
 
-                video.onloadedmetadata = function() {
+                video.onloadedmetadata = function () {
                     let w = video.videoWidth;
                     let h = video.videoHeight;
                     const scale = Math.max(0.3, quality);
@@ -5723,9 +5935,9 @@
             if (mime.startsWith('image/')) {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const img = new Image();
-                        img.onload = function() {
+                        img.onload = function () {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             let width = img.width;
@@ -5937,13 +6149,13 @@
                 const mime = file.type || 'application/octet-stream';
                 let type = 'document';
                 let limit = 400; // 400MB limit for all files
-                
+
                 if (mime.startsWith('image/')) {
                     type = 'photo';
                 } else if (mime.startsWith('video/')) {
                     type = 'video';
                 }
-                
+
                 if (sizeInMB > limit) {
                     reject(`Exceeds ${limit}MB limit`);
                     return;
@@ -6012,19 +6224,19 @@
                     currentReader = new FileReader();
                     let activeFakeProgressInterval = null;
 
-                    currentReader.onprogress = function(e) {
+                    currentReader.onprogress = function (e) {
                         if (e.lengthComputable) {
                             const percent = Math.round((e.loaded / e.total) * 30) + 10; // 10% to 40%
                             onProgress(percent, 'Reading');
                         }
                     };
 
-                    currentReader.onload = async function(e) {
+                    currentReader.onload = async function (e) {
                         try {
                             onProgress(40, 'Uploading');
                             const base64Data = e.target.result;
                             const now = Date.now();
-                            
+
                             const dbTransferObj = {
                                 id: '_transfer_' + uid(),
                                 title: file.name,
@@ -6049,7 +6261,7 @@
 
                             onProgress(progressPct, 'Syncing');
                             await upsertTransferToSupabase(dbTransferObj, currentAbortController.signal);
-                            
+
                             if (activeFakeProgressInterval) {
                                 clearInterval(activeFakeProgressInterval);
                                 activeFakeProgressInterval = null;
@@ -6070,12 +6282,12 @@
                         }
                     };
 
-                    currentReader.onerror = function() {
+                    currentReader.onerror = function () {
                         if (activeFakeProgressInterval) clearInterval(activeFakeProgressInterval);
                         reject('File read error');
                     };
 
-                    currentReader.onabort = function() {
+                    currentReader.onabort = function () {
                         if (activeFakeProgressInterval) clearInterval(activeFakeProgressInterval);
                         reject('File read aborted');
                     };
@@ -6097,12 +6309,12 @@
                 createdAt: now,
                 addedAt: now
             };
-            
+
             const localTransferObj = stripTransferContent(transferObj);
             transfers.unshift(localTransferObj);
             saveTransfers();
             renderTransferBoard();
-            
+
             upsertTransferToSupabase(transferObj).catch(err => {
                 console.error('Failed to sync transfer record:', err);
             });
@@ -6111,7 +6323,7 @@
         function upsertTransferToSupabase(transferObj, abortSignal = null) {
             const client = getSupabase();
             if (!client || !transferObj) return Promise.reject('Supabase is not configured');
-            
+
             return safeUpsertTasks(client, transferObj, abortSignal).then(({ error }) => {
                 if (error) {
                     console.error('Supabase transfer sync error:', error);
@@ -6127,21 +6339,21 @@
         function initTransferDropzone() {
             const dropzone = document.getElementById('transfer-dropzone');
             if (!dropzone) return;
-            
+
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropzone.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     dropzone.classList.add('dragover');
                 }, false);
             });
-            
+
             ['dragleave', 'drop'].forEach(eventName => {
                 dropzone.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     dropzone.classList.remove('dragover');
                 }, false);
             });
-            
+
             dropzone.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
                 const files = dt.files;
@@ -6164,28 +6376,28 @@
             } else {
                 board.classList.remove('transfer-grid-mode');
             }
-            
+
             const byDate = {};
             transfers.forEach(t => {
                 const dateKey = t.date || todayStr();
                 if (!byDate[dateKey]) byDate[dateKey] = [];
                 byDate[dateKey].push(t);
             });
-            
+
             const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
-            
+
             let cardIndex = 0;
             sortedDates.forEach(date => {
                 const dayTransfers = byDate[date] || [];
                 if (dayTransfers.length === 0) return;
-                
+
                 dayTransfers.sort((a, b) => getTimestamp(b.createdAt) - getTimestamp(a.createdAt));
-                
+
                 const card = document.createElement('div');
                 card.className = 'day-card';
                 card.style.animationDelay = `${cardIndex * 0.06}s`;
                 cardIndex++;
-                
+
                 const header = document.createElement('div');
                 header.className = 'day-header';
                 header.style.color = 'var(--accent)';
@@ -6203,7 +6415,7 @@
                     <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${dayTransfers.length} item${dayTransfers.length > 1 ? 's' : ''}</span>
                 `;
                 card.appendChild(header);
-                
+
                 const list = document.createElement('ul');
                 list.className = 'task-list';
                 dayTransfers.forEach(transfer => {
@@ -6213,7 +6425,7 @@
                 card.appendChild(list);
                 board.appendChild(card);
             });
-            
+
             if (sortedDates.length === 0) {
                 board.innerHTML = `
                     <div class="empty-state">
@@ -6255,18 +6467,18 @@
         function buildTransferItem(transfer) {
             const li = document.createElement('li');
             li.className = 'task-item-container';
-            
+
             let data = { type: 'text', content: '', size: 0, mimeType: '', storagePath: '' };
             try {
                 if (transfer.note) {
                     data = JSON.parse(transfer.note);
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error('Error parsing transfer data:', e);
             }
-            
+
             const isSelected = selectedTransferIds.has(transfer.id);
-            
+
             let previewHtml = '';
             if (data.type === 'text') {
                 previewHtml = `<div class="text-share-preview">${escapeHtml(data.content)}</div>`;
@@ -6327,7 +6539,7 @@
                     </div>
                 `;
             }
-            
+
             let sizeLabel = '';
             if (data.size > 0) {
                 const kb = data.size / 1024;
@@ -6337,10 +6549,10 @@
                     sizeLabel = kb.toFixed(0) + ' KB';
                 }
             }
-            
+
             const showCopy = data.type === 'text';
             const showDownload = data.type !== 'text';
-            
+
             let actionsHtml = '';
             if (!transferSelectMode) {
                 actionsHtml = `
@@ -6368,7 +6580,7 @@
                     </div>
                 `;
             }
-            
+
             li.innerHTML = `
                 <div class="transfer-item-card" ${transferSelectMode ? `onclick="toggleSelectTransfer('${transfer.id}')"` : ''} style="cursor: ${transferSelectMode ? 'pointer' : 'default'};">
                     ${transferSelectMode ? `
@@ -6408,7 +6620,7 @@
                 }).catch(() => {
                     showToast('Failed to copy');
                 });
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
             }
         }
@@ -6420,11 +6632,11 @@
                 const data = JSON.parse(transfer.note);
                 await navigator.clipboard.writeText(data.content);
                 showToast('Copied to clipboard. Deleting...');
-                
+
                 transfers = transfers.filter(t => t.id !== id);
                 saveTransfers();
                 renderTransferBoard();
-                
+
                 const client = getSupabase();
                 if (client) {
                     client.from('tasks').delete().eq('id', id).then(({ error }) => {
@@ -6436,7 +6648,7 @@
                         }
                     }).catch(e => console.error(e));
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 showToast('Failed to cut');
             }
@@ -6473,7 +6685,7 @@
                 } else {
                     showToast('File content not found', true);
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 showToast('Failed to download file', true);
             }
@@ -6495,7 +6707,7 @@
                         container.innerHTML = `<video controls src="${parsed.content}"></video>`;
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 container.innerHTML = `<span style="color:var(--danger); font-size: 0.72rem;">Failed to load preview</span>`;
             }
@@ -6507,10 +6719,10 @@
         function toggleTransferSelectMode() {
             transferSelectMode = !transferSelectMode;
             selectedTransferIds.clear();
-            
+
             const btn = document.getElementById('transfer-select-mode-btn');
             const bulkActions = document.getElementById('transfer-bulk-actions');
-            
+
             if (transferSelectMode) {
                 if (btn) {
                     btn.classList.add('active');
@@ -6528,7 +6740,7 @@
                 }
                 if (bulkActions) bulkActions.style.display = 'none';
             }
-            
+
             updateSelectedTransfersCount();
             renderTransferBoard();
         }
@@ -6540,7 +6752,7 @@
                 selectedTransferIds.add(id);
             }
             updateSelectedTransfersCount();
-            
+
             const chk = document.querySelector(`.transfer-bulk-chk[data-id="${id}"]`);
             if (chk) {
                 chk.checked = selectedTransferIds.has(id);
@@ -6550,7 +6762,7 @@
         function selectAllTransfers() {
             transfers.forEach(t => selectedTransferIds.add(t.id));
             updateSelectedTransfersCount();
-            
+
             document.querySelectorAll('.transfer-bulk-chk').forEach(chk => {
                 chk.checked = true;
             });
@@ -6582,7 +6794,7 @@
                             await downloadTransferFile(id);
                             downloadedCount++;
                         }
-                    } catch(e) {
+                    } catch (e) {
                         console.error('Error downloading batch transfer:', e);
                     }
                 }
@@ -6599,18 +6811,18 @@
                 showToast('No items selected');
                 return;
             }
-            
+
             const ok = await customConfirm({
                 title: 'Delete Selected Items?',
                 message: `Are you sure you want to permanently delete these ${selectedTransferIds.size} items across all devices?`,
                 okText: 'Delete All',
                 okClass: 'btn-danger'
             });
-            
+
             if (!ok) return;
-            
+
             const idsToDelete = Array.from(selectedTransferIds);
-            
+
             const client = getSupabase();
             if (client) {
                 for (const id of idsToDelete) {
@@ -6621,13 +6833,13 @@
                             if (parsed && parsed.storagePath) {
                                 await client.storage.from('transfers').remove([parsed.storagePath]);
                             }
-                        } catch(e) {
+                        } catch (e) {
                             console.error('Error parsing transfer storage path for deletion:', e);
                         }
                     }
                 }
             }
-            
+
             idsToDelete.forEach(id => {
                 deletedTransfers.push(id);
             });
@@ -6635,10 +6847,10 @@
                 deletedTransfers = deletedTransfers.slice(-100);
             }
             saveDeletedTransfers();
-            
+
             transfers = transfers.filter(t => !selectedTransferIds.has(t.id));
             saveTransfers();
-            
+
             if (client) {
                 client.from('tasks').delete().in('id', idsToDelete).then(({ error }) => {
                     if (error) {
@@ -6650,7 +6862,7 @@
                     }
                 });
             }
-            
+
             toggleTransferSelectMode();
             showToast(`Deleted ${idsToDelete.length} items`);
         }
@@ -6694,7 +6906,7 @@
                         if (parsed && parsed.storagePath) {
                             await client.storage.from('transfers').remove([parsed.storagePath]);
                         }
-                    } catch(e) {
+                    } catch (e) {
                         console.error('Error deleting transfer storage file:', e);
                     }
                 }
@@ -6709,7 +6921,7 @@
                 saveTransfers();
                 renderTransferBoard();
                 showToast('Deleted');
-                
+
                 if (client) {
                     client.from('tasks').delete().eq('id', id).then(({ error }) => {
                         if (error) {
