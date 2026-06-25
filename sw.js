@@ -1,4 +1,4 @@
-const CACHE_NAME = "tasker-v3";
+const CACHE_NAME = "tasker-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -32,10 +32,17 @@ self.addEventListener("activate", e => {
   );
 });
 
+// Allow the page to trigger immediate activation of a waiting SW
+self.addEventListener("message", e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", e => {
-  const isHtmlOrManifest = 
-    e.request.mode === "navigate" || 
-    e.request.url.includes("index.html") || 
+  const isHtmlOrManifest =
+    e.request.mode === "navigate" ||
+    e.request.url.includes("index.html") ||
     e.request.url.includes("manifest.json");
 
   if (isHtmlOrManifest) {
