@@ -3514,7 +3514,7 @@
                         if (weightA !== weightB) {
                             return weightB - weightA;
                         }
-                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
+                        return (getTimestamp(b.addedAt) || getTimestamp(b.createdAt)) - (getTimestamp(a.addedAt) || getTimestamp(a.createdAt));
                     }
                 });
 
