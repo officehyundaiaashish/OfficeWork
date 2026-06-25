@@ -3504,28 +3504,19 @@
                 // Sort tasks within the day: completed at bottom (sorted by completedAt descending)
                 // Active tasks sorted by: 1. Priority (high > medium > low), 2. Time/Creation date ascending
                 dayTasks.sort((a, b) => {
-    // 1. Completed tasks always go to the bottom
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-
-    // 2. For completed tasks, sort by completion time (newest first)
-    if (a.completed) {
-        return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
-    }
-
-    // 3. For pending tasks: Priority first (High > Medium > Low)
-    const priorityWeight = { 'high': 3, 'medium': 2, 'low': 1 };
-    const weightA = priorityWeight[a.priority] || 2;
-    const weightB = priorityWeight[b.priority] || 2;
-    if (weightA !== weightB) {
-        return weightB - weightA; // descending: high first
-    }
-
-    // 4. Same priority → NEWEST creation date/time goes ABOVE older ones
-    //    Uses addedAt (when task was created) or createdAt as fallback
-    const timeA = getTimestamp(a.addedAt) || getTimestamp(a.createdAt) || 0;
-    const timeB = getTimestamp(b.addedAt) || getTimestamp(b.createdAt) || 0;
-    return timeB - timeA; // descending → newest on top
-});
+                    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                    if (a.completed) {
+                        return getTimestamp(b.completedAt) - getTimestamp(a.completedAt);
+                    } else {
+                        const priorityWeight = { 'high': 3, 'medium': 2, 'low': 1 };
+                        const weightA = priorityWeight[a.priority] || 2;
+                        const weightB = priorityWeight[b.priority] || 2;
+                        if (weightA !== weightB) {
+                            return weightB - weightA;
+                        }
+                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
+                    }
+                });
 
                 const totalTasks = dayTasks.length;
                 const completedTasks = dayTasks.filter(t => t.completed).length;
