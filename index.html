@@ -3502,7 +3502,10 @@
                 if (dayTasks.length === 0) return;
 
                 // Sort tasks within the day: completed at bottom (sorted by completedAt descending)
-                // Active tasks sorted by: 1. Priority (high > medium > low), 2. Time/Creation date ascending
+                // Active tasks sorted by:
+                //   1. Priority (high > medium > low)
+                //   2. User-set time descending (e.g. 09:00 before 07:00)
+                //   3. addedAt / createdAt descending (newest added first) as fallback
                 dayTasks.sort((a, b) => {
                     if (a.completed !== b.completed) return a.completed ? 1 : -1;
                     if (a.completed) {
@@ -3514,7 +3517,12 @@
                         if (weightA !== weightB) {
                             return weightB - weightA;
                         }
-                        return (getTimestamp(a.addedAt) || getTimestamp(a.createdAt)) - (getTimestamp(b.addedAt) || getTimestamp(b.createdAt));
+                        // Same priority: sort by user-set time descending (later time comes first)
+                        const ta = a.time || '';
+                        const tb = b.time || '';
+                        if (ta && tb && ta !== tb) return tb.localeCompare(ta);
+                        // Fallback: newer added/created first
+                        return (getTimestamp(b.addedAt) || getTimestamp(b.createdAt)) - (getTimestamp(a.addedAt) || getTimestamp(a.createdAt));
                     }
                 });
 
@@ -4736,6 +4744,9 @@
                                     time: remote.time,
                                     completed: remote.completed,
                                     createdAt: remote.createdAt,
+                                    // Carry location and priority from remote so they sync across all devices
+                                    location: remote.location !== undefined ? remote.location : (local.location || 'Roorkee'),
+                                    priority: remote.priority !== undefined ? remote.priority : (local.priority || ''),
                                     completedAt: remote.completedAt !== undefined ? remote.completedAt : local.completedAt,
                                     addedAt: remote.addedAt !== undefined ? remote.addedAt : local.addedAt
                                 };
