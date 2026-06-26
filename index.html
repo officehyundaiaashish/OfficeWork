@@ -4248,18 +4248,29 @@
                     const incomingTime = getTimestamp(incomingTask.createdAt);
                     const localTime = getTimestamp(localTask.createdAt);
 
+                    // If the server doesn't have location/priority columns, preserve local values
+                    const mergedIncoming = {
+                        ...incomingTask,
+                        location: newRecord.location !== undefined && newRecord.location !== null
+                            ? incomingTask.location
+                            : (localTask.location || 'Roorkee'),
+                        priority: newRecord.priority !== undefined && newRecord.priority !== null
+                            ? incomingTask.priority
+                            : (localTask.priority || '')
+                    };
+
                     if (incomingTime > localTime) {
                         tasks[localIndex] = {
                             ...localTask,
-                            ...incomingTask
+                            ...mergedIncoming
                         };
                         saveTasks();
                         renderBoard();
                     } else if (incomingTime === localTime) {
-                        if (JSON.stringify(localTask) !== JSON.stringify({ ...localTask, ...incomingTask })) {
+                        if (JSON.stringify(localTask) !== JSON.stringify({ ...localTask, ...mergedIncoming })) {
                             tasks[localIndex] = {
                                 ...localTask,
-                                ...incomingTask
+                                ...mergedIncoming
                             };
                             saveTasks();
                             renderBoard();
@@ -4326,7 +4337,7 @@
             }
         }
 
-        function sanitizeTask(t, includeMeta = true, includePriority = true) {
+        function sanitizeTask(t, includeMeta = true, includePriority = true, includeLocation = true) {
             if (!t) return null;
             migrateTaskDate(t);
             const res = {
@@ -4336,9 +4347,11 @@
                 date: t.date || '',
                 time: t.time || '',
                 completed: !!t.completed,
-                createdAt: t.createdAt,
-                location: t.location || 'Roorkee'
+                createdAt: t.createdAt
             };
+            if (includeLocation) {
+                res.location = t.location || 'Roorkee';
+            }
             if (includePriority) {
                 res.priority = t.priority || 'medium';
             }
@@ -4350,10 +4363,10 @@
         }
 
         function safeUpsertTasks(client, tasksData, abortSignal = null) {
-            const tryUpsert = (includeMetaVal, includePriorityVal) => {
+            const tryUpsert = (includeMetaVal, includePriorityVal, includeLocationVal = true) => {
                 const payload = Array.isArray(tasksData)
-                    ? tasksData.map(t => sanitizeTask(t, includeMetaVal, includePriorityVal))
-                    : sanitizeTask(tasksData, includeMetaVal, includePriorityVal);
+                    ? tasksData.map(t => sanitizeTask(t, includeMetaVal, includePriorityVal, includeLocationVal))
+                    : sanitizeTask(tasksData, includeMetaVal, includePriorityVal, includeLocationVal);
                 const query = client.from('tasks').upsert(payload);
                 if (abortSignal) {
                     query.abortSignal(abortSignal);
@@ -4361,16 +4374,24 @@
                 return query;
             };
 
-            return tryUpsert(true, true).then(({ data, error }) => {
+            return tryUpsert(true, true, true).then(({ data, error }) => {
                 if (error && error.message && (error.message.includes('column') || error.code === '42703')) {
                     const errStr = error.message.toLowerCase();
                     const hasPriorityErr = errStr.includes('priority');
                     const hasMetaErr = errStr.includes('completedat') || errStr.includes('addedat');
+                    const hasLocationErr = errStr.includes('location');
 
-                    const stripPriority = hasPriorityErr || (!hasPriorityErr && !hasMetaErr);
-                    const stripMeta = hasMetaErr || (!hasPriorityErr && !hasMetaErr);
+                    const stripPriority = hasPriorityErr || (!hasPriorityErr && !hasMetaErr && !hasLocationErr);
+                    const stripMeta = hasMetaErr || (!hasPriorityErr && !hasMetaErr && !hasLocationErr);
+                    const stripLocation = hasLocationErr;
 
-                    return tryUpsert(!stripMeta, !stripPriority);
+                    return tryUpsert(!stripMeta, !stripPriority, !stripLocation).then(({ data: d2, error: e2 }) => {
+                        if (e2 && e2.message && (e2.message.includes('column') || e2.code === '42703')) {
+                            // Last resort: strip everything optional
+                            return tryUpsert(false, false, false);
+                        }
+                        return { data: d2, error: e2 };
+                    });
                 }
                 return { data, error };
             });
