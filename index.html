@@ -2483,32 +2483,32 @@
                             <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
-                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Filter: Roorkee" onclick="setFilter('loc:Roorkee')">
+                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Roorkee: Completed / Pending" onclick="setFilter('loc:Roorkee')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Roorkee</span>
-                            <span class="stat-count" id="stat-roorkee">0</span>
+                            <span class="stat-count" id="stat-roorkee">0/0</span>
                         </span>
-                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Filter: Kotdwar" onclick="setFilter('loc:Kotdwar')">
+                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Kotdwar</span>
-                            <span class="stat-count" id="stat-kotdwar">0</span>
+                            <span class="stat-count" id="stat-kotdwar">0/0</span>
                         </span>
-                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Filter: Herbetpur" onclick="setFilter('loc:Herbetpur')">
+                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Herbetpur</span>
-                            <span class="stat-count" id="stat-herbetpur">0</span>
+                            <span class="stat-count" id="stat-herbetpur">0/0</span>
                         </span>
                     </div>
                     <div class="search-wrapper">
@@ -3806,9 +3806,20 @@
             const pending = total - completed;
             const todayCount = activeTasks.filter(t => isToday(t) && !t.completed).length;
             const overdueCount = activeTasks.filter(t => isOverdue(t)).length;
-            const roorkeeCount = activeTasks.filter(t => (t.location || 'Roorkee') === 'Roorkee').length;
-            const kotdwarCount = activeTasks.filter(t => (t.location || 'Roorkee') === 'Kotdwar').length;
-            const herbetpurCount = activeTasks.filter(t => (t.location || 'Roorkee') === 'Herbetpur').length;
+            const roorkeeTasks = activeTasks.filter(t => (t.location || 'Roorkee') === 'Roorkee');
+            const kotdwarTasks = activeTasks.filter(t => (t.location || 'Roorkee') === 'Kotdwar');
+            const herbetpurTasks = activeTasks.filter(t => (t.location || 'Roorkee') === 'Herbetpur');
+
+            const roorkeeDone = roorkeeTasks.filter(t => t.completed).length;
+            const roorkeePending = roorkeeTasks.length - roorkeeDone;
+            const kotdwarDone = kotdwarTasks.filter(t => t.completed).length;
+            const kotdwarPending = kotdwarTasks.length - kotdwarDone;
+            const herbetpurDone = herbetpurTasks.filter(t => t.completed).length;
+            const herbetpurPending = herbetpurTasks.length - herbetpurDone;
+
+            document.getElementById('stat-roorkee').textContent = `${roorkeeDone}/${roorkeePending}`;
+            document.getElementById('stat-kotdwar').textContent = `${kotdwarDone}/${kotdwarPending}`;
+            document.getElementById('stat-herbetpur').textContent = `${herbetpurDone}/${herbetpurPending}`;
 
             const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
             document.getElementById('progress-percentage').textContent = `${pct}%`;
@@ -3820,9 +3831,6 @@
             document.getElementById('stat-pending').textContent = pending;
             document.getElementById('stat-today').textContent = todayCount;
             document.getElementById('stat-overdue').textContent = overdueCount;
-            document.getElementById('stat-roorkee').textContent = roorkeeCount;
-            document.getElementById('stat-kotdwar').textContent = kotdwarCount;
-            document.getElementById('stat-herbetpur').textContent = herbetpurCount;
         }
 
         function setFormPriority(priority) {
