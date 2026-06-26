@@ -566,22 +566,69 @@
             font-weight: 600;
         }
 
-        .stat-pill.done-pill svg { color: var(--success); }
-        .stat-pill.pending-pill svg { color: var(--accent); }
-        .stat-pill.today-pill svg { color: var(--success); }
-        .stat-pill.overdue-pill svg { color: var(--danger); }
-        .stat-pill.upcoming-pill svg { color: var(--warning); }
-        .stat-pill.all-pill svg { color: var(--accent); }
+        .stat-pill.done-pill svg {
+            color: var(--success);
+        }
+
+        .stat-pill.pending-pill svg {
+            color: var(--accent);
+        }
+
+        .stat-pill.today-pill svg {
+            color: var(--success);
+        }
+
+        .stat-pill.overdue-pill svg {
+            color: var(--danger);
+        }
+
+        .stat-pill.upcoming-pill svg {
+            color: var(--warning);
+        }
+
+        .stat-pill.all-pill svg {
+            color: var(--accent);
+        }
 
         /* Location filter pills */
-        .stat-pill.loc-roorkee { color: #7c3aed; }
-        .stat-pill.loc-roorkee.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white !important; }
-        .stat-pill.loc-kotdwar { color: #0369a1; }
-        .stat-pill.loc-kotdwar.active { background: linear-gradient(135deg, #0369a1, #0284c7); color: white !important; }
-        .stat-pill.loc-herbetpur { color: #b45309; }
-        .stat-pill.loc-herbetpur.active { background: linear-gradient(135deg, #b45309, #d97706); color: white !important; }
-        .stat-pill.loc-roorkee svg, .stat-pill.loc-kotdwar svg, .stat-pill.loc-herbetpur svg { flex-shrink: 0; }
-        .stat-pill.loc-roorkee.active svg, .stat-pill.loc-kotdwar.active svg, .stat-pill.loc-herbetpur.active svg { color: white !important; }
+        .stat-pill.loc-roorkee {
+            color: #7c3aed;
+        }
+
+        .stat-pill.loc-roorkee.active {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white !important;
+        }
+
+        .stat-pill.loc-kotdwar {
+            color: #0369a1;
+        }
+
+        .stat-pill.loc-kotdwar.active {
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+            color: white !important;
+        }
+
+        .stat-pill.loc-herbetpur {
+            color: #b45309;
+        }
+
+        .stat-pill.loc-herbetpur.active {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            color: white !important;
+        }
+
+        .stat-pill.loc-roorkee svg,
+        .stat-pill.loc-kotdwar svg,
+        .stat-pill.loc-herbetpur svg {
+            flex-shrink: 0;
+        }
+
+        .stat-pill.loc-roorkee.active svg,
+        .stat-pill.loc-kotdwar.active svg,
+        .stat-pill.loc-herbetpur.active svg {
+            color: white !important;
+        }
 
         /* ===== Search Bar ===== */
         .search-wrapper {
@@ -2414,7 +2461,8 @@
                         <div class="progress-fill" id="progress-fill"></div>
                     </div>
                     <div class="progress-stats">
-                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks" onclick="setFilter('all')">
+                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks"
+                            onclick="setFilter('all')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="8" y1="6" x2="21" y2="6" />
@@ -2426,7 +2474,8 @@
                             </svg>
                             <span class="stat-label">All</span>
                         </span>
-                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks" onclick="setFilter('completed')">
+                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks"
+                            onclick="setFilter('completed')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
@@ -2434,7 +2483,8 @@
                             <span class="stat-label">Done</span>
                             <span id="stat-done">0</span>
                         </span>
-                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks" onclick="setFilter('pending')">
+                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks"
+                            onclick="setFilter('pending')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -2443,7 +2493,8 @@
                             <span class="stat-label">Pending</span>
                             <span id="stat-pending">0</span>
                         </span>
-                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks" onclick="setFilter('today')">
+                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks"
+                            onclick="setFilter('today')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -2454,14 +2505,16 @@
                             <span class="stat-label">Today</span>
                             <span id="stat-today">0</span>
                         </span>
-                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks" onclick="setFilter('upcoming')">
+                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks"
+                            onclick="setFilter('upcoming')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6" />
                             </svg>
                             <span class="stat-label">Upcoming</span>
                         </span>
-                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks" onclick="setFilter('overdue')">
+                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks"
+                            onclick="setFilter('overdue')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -2472,7 +2525,8 @@
                             <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
-                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Filter: Roorkee" onclick="setFilter('loc:Roorkee')">
+                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Filter: Roorkee"
+                            onclick="setFilter('loc:Roorkee')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2481,7 +2535,8 @@
                             <span class="stat-label">Roorkee</span>
                             <span class="stat-count" id="stat-roorkee">0</span>
                         </span>
-                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Filter: Kotdwar" onclick="setFilter('loc:Kotdwar')">
+                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Filter: Kotdwar"
+                            onclick="setFilter('loc:Kotdwar')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2490,7 +2545,8 @@
                             <span class="stat-label">Kotdwar</span>
                             <span class="stat-count" id="stat-kotdwar">0</span>
                         </span>
-                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Filter: Herbetpur" onclick="setFilter('loc:Herbetpur')">
+                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Filter: Herbetpur"
+                            onclick="setFilter('loc:Herbetpur')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2714,9 +2770,12 @@
                 <div class="form-group">
                     <label>Location</label>
                     <div class="location-pill-toggle" id="task-location-toggle">
-                        <button type="button" data-location="Roorkee" onclick="setFormLocation('Roorkee')">Roorkee</button>
-                        <button type="button" data-location="Kotdwar" onclick="setFormLocation('Kotdwar')">Kotdwar</button>
-                        <button type="button" data-location="Herbetpur" onclick="setFormLocation('Herbetpur')">Herbetpur</button>
+                        <button type="button" data-location="Roorkee"
+                            onclick="setFormLocation('Roorkee')">Roorkee</button>
+                        <button type="button" data-location="Kotdwar"
+                            onclick="setFormLocation('Kotdwar')">Kotdwar</button>
+                        <button type="button" data-location="Herbetpur"
+                            onclick="setFormLocation('Herbetpur')">Herbetpur</button>
                     </div>
                     <input type="hidden" id="task-location-input" value="Roorkee">
                 </div>
