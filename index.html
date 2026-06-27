@@ -1139,21 +1139,24 @@
         }
 
         .task-title {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
-            font-size: calc(0.9rem * var(--font-scale));
+            font-size: calc(1.05rem * var(--font-scale));
             word-wrap: break-word;
             overflow-wrap: anywhere;
             transition: all var(--transition-fast);
+            letter-spacing: -0.2px;
+            line-height: 1.35;
         }
 
         .task-note {
-            font-size: calc(0.78rem * var(--font-scale));
+            font-size: calc(0.85rem * var(--font-scale));
             color: var(--text-muted);
-            margin-top: 0.15rem;
+            margin-top: 0.25rem;
             word-wrap: break-word;
             overflow-wrap: anywhere;
             transition: all var(--transition-fast);
+            line-height: 1.4;
         }
 
         .task-meta {
@@ -2499,6 +2502,12 @@
                     <h1 id="app-title-heading">Tasker</h1>
                 </div>
                 <div class="header-actions">
+                    <button class="header-action-btn" onclick="window.location.reload()" title="Refresh Page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                    </button>
                     <button class="header-action-btn tasks-only-el" onclick="openTrashModal()" title="Recycle Bin">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -2839,21 +2848,21 @@
                     <label for="task-title-input">Task Title *</label>
                     <textarea id="task-title-input" rows="1" required placeholder="Task title"
                         style="resize: none; min-height: 44px; height: 44px; padding-top: calc(0.85rem * var(--density)); white-space: nowrap; overflow: hidden;"
-                        autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                        autocorrect="off" autocapitalize="off" spellcheck="false" autocomplete="new-password"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
-                    <textarea id="task-note-input" rows="2" placeholder="Note (optional)" autocomplete="one-time-code"
+                    <textarea id="task-note-input" rows="2" placeholder="Note (optional)" autocomplete="new-password"
                         autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="task-date-input">Date *</label>
-                        <input type="date" id="task-date-input" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="date" id="task-date-input" required autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
                     </div>
                     <div class="form-group">
                         <label for="task-time-input">Time</label>
-                        <input type="time" id="task-time-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="time" id="task-time-input" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
                     </div>
                 </div>
                 <div class="form-group">
@@ -3051,7 +3060,7 @@
                         <label for="sb-password-input">Sync Password</label>
                         <div style="display:flex; gap:0.5rem;">
                             <input type="text" id="sb-password-input" placeholder="Enter password"
-                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
                                 style="flex:1; -webkit-text-security: disc;">
                             <button type="button" class="btn btn-sm" onclick="connectWithPassword()"
                                 style="min-height:44px; padding:0 1rem;">Connect</button>
@@ -3065,13 +3074,13 @@
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-url-input">Supabase URL</label>
                                 <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co"
-                                    autocomplete="off" autocorrect="off" autocapitalize="off"
+                                    autocomplete="new-password" autocorrect="off" autocapitalize="off"
                                     spellcheck="false" onchange="updateSupabaseConfig()">
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-key-input">Supabase Anon Key</label>
                                 <input type="text" id="sb-key-input" placeholder="your-anon-key"
-                                    autocomplete="off" autocorrect="off" autocapitalize="off"
+                                    autocomplete="new-password" autocorrect="off" autocapitalize="off"
                                     spellcheck="false" onchange="updateSupabaseConfig()" style="-webkit-text-security: disc;">
                             </div>
                         </div>
