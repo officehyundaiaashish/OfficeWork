@@ -438,12 +438,24 @@
             display: none !important;
         }
 
+        /* Improvement 1: Collapsible Header Section styles */
         .sub-header-container {
             display: flex;
             flex-direction: column;
             gap: 0;
             margin-bottom: calc(0.6rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin-bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            opacity: 1;
+        }
+        
+        .sub-header-container.collapsed {
+            max-height: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* ===== Progress ===== */
@@ -1045,7 +1057,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.15s ease;
+            /* Improvement 10: Quick Swipe Feedback - support scale transition */
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .swipe-action-icon svg {
@@ -1059,13 +1072,21 @@
             background: var(--card-bg);
             z-index: 2;
             padding: calc(0.6rem * var(--density)) calc(0.8rem * var(--density));
-            border: 1px solid var(--border);
+            /* Improvement 8: Soften borders and cards styling */
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
             border-radius: var(--radius);
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s, box-shadow 0.2s;
             display: flex;
             align-items: center;
             width: 100%;
             gap: 0.6rem;
+        }
+
+        :root.theme-dark .task-item,
+        :root.theme-night .task-item {
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .task-item.context-active {
@@ -1223,13 +1244,27 @@
             font-weight: 700;
         }
 
+        /* Improvement 2: Simplified Location Tags as colored dots */
         .meta-pill.location {
-            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-            color: #ffffff;
-            font-weight: 700;
+            background: transparent !important;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-weight: 500;
             font-size: calc(0.72rem * var(--font-scale));
-            padding: 0.18rem 0.6rem;
+            padding: 0.18rem 0.5rem;
             letter-spacing: 0.01em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .meta-pill.location::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+            display: inline-block;
         }
 
         .meta-pill.date-pill {
@@ -1248,18 +1283,22 @@
         .completed .task-meta {
             text-decoration: line-through;
             color: var(--text-muted) !important;
-            opacity: 0.7;
+            opacity: 0.5;
         }
 
+        /* Improvement 3: Subtle Done Styling */
         .completed {
-            opacity: 0.6;
-            transition: opacity 0.4s ease;
+            opacity: 0.45;
+            background: rgba(var(--accent-rgb), 0.02) !important;
+            border-color: var(--border) !important;
+            box-shadow: none !important;
+            transition: opacity 0.4s ease, background 0.4s ease, border-color 0.4s ease;
         }
 
         /* In dark/night mode, completed tasks — keep card readable */
         :root.theme-dark .task-item.completed,
         :root.theme-night .task-item.completed {
-            background: var(--hover);
+            background: rgba(255, 255, 255, 0.01) !important;
         }
 
         .task-actions {
@@ -1841,6 +1880,36 @@
 
             h1 {
                 font-size: calc(1.25rem * var(--font-scale));
+            }
+
+            /* Improvement 14: Bottom Sheet Modals for Mobile */
+            .modal-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal {
+                border-radius: 20px 20px 0 0;
+                max-width: 100%;
+                width: 100%;
+                max-height: 85vh;
+                padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+                transform: translateY(100%);
+                opacity: 1;
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .modal-overlay.active .modal {
+                transform: translateY(0);
+            }
+
+            .modal-grip {
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: var(--border);
+                border-radius: 2px;
+                margin: -0.75rem auto 1rem auto;
             }
         }
 
@@ -2529,6 +2598,13 @@
                             <circle cx="12" cy="12" r="3" />
                             <path
                                 d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                    </button>
+                    <!-- Improvement 1: Collapsible Header Button Toggle -->
+                    <button class="header-action-btn tasks-only-el" id="collapse-toggle-btn" onclick="toggleSubHeader()" title="Toggle Header Information">
+                        <svg id="collapse-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
                         </svg>
                     </button>
                 </div>
@@ -3568,6 +3644,36 @@
             }
         }
 
+        // Improvement 1: Collapsible Header Section logic
+        let subHeaderCollapsed = localStorage.getItem('khannaSubHeaderCollapsed') === 'true';
+
+        function applySubHeaderCollapseState() {
+            const container = document.querySelector('.sub-header-container');
+            const btn = document.getElementById('collapse-toggle-btn');
+            const icon = document.getElementById('collapse-toggle-icon');
+            if (container) {
+                container.classList.toggle('collapsed', subHeaderCollapsed);
+            }
+            if (btn) {
+                btn.classList.toggle('active', subHeaderCollapsed);
+                btn.title = subHeaderCollapsed ? 'Show Header Information' : 'Hide Header Information';
+            }
+            if (icon) {
+                // Change chevron icon dynamically
+                if (subHeaderCollapsed) {
+                    icon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+                } else {
+                    icon.innerHTML = '<polyline points="18 15 12 9 6 15"></polyline>';
+                }
+            }
+        }
+
+        function toggleSubHeader() {
+            subHeaderCollapsed = !subHeaderCollapsed;
+            localStorage.setItem('khannaSubHeaderCollapsed', subHeaderCollapsed);
+            applySubHeaderCollapseState();
+        }
+
         function uid() { return 't' + Date.now() + Math.floor(Math.random() * 1000); }
 
         function escapeHtml(s) {
@@ -3890,7 +3996,9 @@
                 clearTimeout(pressTimer);
                 if (!isSwiping) return;
                 isSwiping = false;
-                taskItem.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
+                
+                // Improvement 11: Smooth spring transition animations
+                taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
                 window.removeEventListener('mousemove', handleMove);
                 window.removeEventListener('mouseup', handleEnd);
@@ -3905,6 +4013,8 @@
                     taskItem.style.transform = `translateX(-100%)`;
                     setTimeout(() => {
                         editTask(taskId);
+                        // Return with bounce spring
+                        taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
                         taskItem.style.transform = 'translateX(0)';
                     }, 200);
                 } else if (currentX > threshold) {
@@ -3913,6 +4023,8 @@
                     setTimeout(() => {
                         confirmDelete(taskId).then(ok => {
                             if (!ok) {
+                                // Return with bounce spring
+                                taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
                                 taskItem.style.transform = 'translateX(0)';
                             }
                         });
@@ -4333,15 +4445,80 @@
                 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 activeClass = systemDark ? 'theme-dark' : 'theme-light';
             } else if (mode === 'time') {
-                const hour = new Date().getHours();
-                if (hour >= 5 && hour < 12) {
-                    activeClass = 'theme-morning';
-                } else if (hour >= 12 && hour < 17) {
-                    activeClass = 'theme-afternoon';
-                } else if (hour >= 17 && hour < 21) {
-                    activeClass = 'theme-evening';
+                // Improvement 19: Auto-Dimming Dark Mode (Geolocation API sunset/sunrise matching)
+                const cachedSunrise = localStorage.getItem('khannaGeoSunrise');
+                const cachedSunset = localStorage.getItem('khannaGeoSunset');
+                const lastGeoCheck = localStorage.getItem('khannaGeoLastCheck');
+                
+                const now = Date.now();
+                const today = new Date();
+                const hour = today.getHours();
+                
+                let isNightTime = false;
+                
+                if (cachedSunrise && cachedSunset && lastGeoCheck && (now - parseInt(lastGeoCheck) < 86400000)) {
+                    // Use cached sunrise/sunset times
+                    const sunriseTime = new Date(parseInt(cachedSunrise));
+                    const sunsetTime = new Date(parseInt(cachedSunset));
+                    
+                    // Match dates to today
+                    sunriseTime.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+                    sunsetTime.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+                    
+                    isNightTime = (today < sunriseTime || today > sunsetTime);
                 } else {
+                    // Try getting fresh coords once, non-blocking
+                    if (navigator.geolocation && (!lastGeoCheck || (now - parseInt(lastGeoCheck) > 1800000))) {
+                        localStorage.setItem('khannaGeoLastCheck', now);
+                        navigator.geolocation.getCurrentPosition(pos => {
+                            const lat = pos.coords.latitude;
+                            const lng = pos.coords.longitude;
+                            // Approximate calculation for sunrise and sunset
+                            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+                            
+                            // Highly approximate solar calculations
+                            const declination = 23.45 * Math.sin((Math.PI / 180) * (360 / 365) * (284 + dayOfYear));
+                            const declRad = declination * Math.PI / 180;
+                            const latRad = lat * Math.PI / 180;
+                            
+                            // Hour angle (cos H = -tan lat * tan decl)
+                            let cosH = -Math.tan(latRad) * Math.tan(declRad);
+                            cosH = Math.max(-1, Math.min(1, cosH)); // clamp to valid ranges
+                            const H = Math.acos(cosH) * (180 / Math.PI);
+                            
+                            const solarNoon = 12; // Approx 12:00 local time
+                            const sunriseHour = solarNoon - (H / 15);
+                            const sunsetHour = solarNoon + (H / 15);
+                            
+                            const sunriseDate = new Date();
+                            sunriseDate.setHours(Math.floor(sunriseHour), Math.round((sunriseHour % 1) * 60), 0);
+                            const sunsetDate = new Date();
+                            sunsetDate.setHours(Math.floor(sunsetHour), Math.round((sunsetHour % 1) * 60), 0);
+                            
+                            localStorage.setItem('khannaGeoSunrise', sunriseDate.getTime());
+                            localStorage.setItem('khannaGeoSunset', sunsetDate.getTime());
+                            
+                            // Re-apply immediately now that cache is populated
+                            applyTheme();
+                        }, err => {
+                            console.warn('Geolocation denied or failed, using fallback hours', err);
+                        }, { timeout: 8000 });
+                    }
+                    
+                    // Fallback to static hour slots
+                    isNightTime = (hour < 5 || hour >= 21);
+                }
+                
+                if (isNightTime) {
                     activeClass = 'theme-night';
+                } else {
+                    if (hour >= 5 && hour < 12) {
+                        activeClass = 'theme-morning';
+                    } else if (hour >= 12 && hour < 17) {
+                        activeClass = 'theme-afternoon';
+                    } else {
+                        activeClass = 'theme-evening';
+                    }
                 }
             }
 
@@ -7338,6 +7515,7 @@
         // ===== INIT =====
         applyTheme();
         applyAppMode();
+        applySubHeaderCollapseState();
         initTransferDropzone();
         displayGreeting();
         displayStaleWarning();
