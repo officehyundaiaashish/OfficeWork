@@ -7537,6 +7537,46 @@
         displayStaleWarning();
         preloadSounds();
 
+        // Modern Visual Viewport keyboard compensation used by top-tier platforms (Slack, Trello, etc.)
+        if (window.visualViewport) {
+            const handleViewportChange = () => {
+                const activeOverlay = document.querySelector('.modal-overlay.active');
+                if (!activeOverlay) return;
+                
+                const modal = activeOverlay.querySelector('.modal');
+                if (!modal) return;
+                
+                const keyboardHeight = window.innerHeight - window.visualViewport.height;
+                
+                if (keyboardHeight > 100) {
+                    // Keyboard is visible: Shift the modal up exactly above the keyboard layout
+                    activeOverlay.style.bottom = `${keyboardHeight}px`;
+                    activeOverlay.style.height = `${window.visualViewport.height}px`;
+                    modal.style.maxHeight = `${window.visualViewport.height - 40}px`;
+                } else {
+                    // Keyboard is closed: Reset positions back to default stylesheet rules
+                    activeOverlay.style.bottom = '0';
+                    activeOverlay.style.height = '100%';
+                    modal.style.maxHeight = '';
+                }
+            };
+            
+            window.visualViewport.addEventListener('resize', handleViewportChange);
+            window.visualViewport.addEventListener('scroll', handleViewportChange);
+            
+            // Re-apply viewport check when any modal is opened/closed
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        handleViewportChange();
+                    }
+                });
+            });
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                observer.observe(overlay, { attributes: true });
+            });
+        }
+
         // Submit task form on Enter inside the title textarea (prevents newlines)
         const titleInputEl = document.getElementById('task-title-input');
         if (titleInputEl) {
