@@ -2636,7 +2636,7 @@
                     </div>
                     <div class="search-wrapper">
                         <input type="text" class="search-input" id="search-input" placeholder="Search tasks..."
-                            oninput="renderBoard()" autocomplete="off" autocorrect="off" autocapitalize="off"
+                            oninput="renderBoard()" autocomplete="new-password" autocorrect="off" autocapitalize="off"
                             spellcheck="false">
                         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -3073,15 +3073,15 @@
                         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-url-input">Supabase URL</label>
-                                <input type="text" id="sb-url-input" placeholder="https://your-project.supabase.co"
+                                <input type="search" id="sb-url-input" placeholder="https://your-project.supabase.co"
                                     autocomplete="new-password" autocorrect="off" autocapitalize="off"
-                                    spellcheck="false" onchange="updateSupabaseConfig()">
+                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_url_field_noop" data-lpignore="true">
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-key-input">Supabase Anon Key</label>
-                                <input type="text" id="sb-key-input" placeholder="your-anon-key"
+                                <input type="search" id="sb-key-input" placeholder="your-anon-key"
                                     autocomplete="new-password" autocorrect="off" autocapitalize="off"
-                                    spellcheck="false" onchange="updateSupabaseConfig()" style="-webkit-text-security: disc;">
+                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_key_field_noop" data-lpignore="true" style="-webkit-text-security: disc;">
                             </div>
                         </div>
                     </details>
