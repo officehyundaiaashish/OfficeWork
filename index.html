@@ -574,12 +574,9 @@
         .stat-pill.all-pill svg { color: var(--accent); }
 
         /* Location filter pills */
-        .stat-pill.loc-roorkee { color: #7c3aed; }
-        .stat-pill.loc-roorkee.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white !important; }
-        .stat-pill.loc-kotdwar { color: #0369a1; }
-        .stat-pill.loc-kotdwar.active { background: linear-gradient(135deg, #0369a1, #0284c7); color: white !important; }
-        .stat-pill.loc-herbetpur { color: #b45309; }
-        .stat-pill.loc-herbetpur.active { background: linear-gradient(135deg, #b45309, #d97706); color: white !important; }
+        .stat-pill.loc-roorkee svg { color: #7c3aed; }
+        .stat-pill.loc-kotdwar svg { color: #0369a1; }
+        .stat-pill.loc-herbetpur svg { color: #b45309; }
         .stat-pill.loc-roorkee svg, .stat-pill.loc-kotdwar svg, .stat-pill.loc-herbetpur svg { flex-shrink: 0; }
         .stat-pill.loc-roorkee.active svg, .stat-pill.loc-kotdwar.active svg, .stat-pill.loc-herbetpur.active svg { color: white !important; }
 
@@ -2364,6 +2361,60 @@
                 display: none;
             }
         }
+        /* ===== Priority Grouping Styles ===== */
+        .priority-group-header {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.8rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0 0.25rem;
+            user-select: none;
+        }
+        .priority-group-header:first-child {
+            margin-top: 0.2rem;
+        }
+        .priority-group-header.high-priority {
+            color: var(--danger);
+        }
+        .priority-group-header.medium-priority {
+            color: #d97706;
+        }
+        :root.theme-dark .priority-group-header.medium-priority {
+            color: #fbbf24;
+        }
+        .priority-group-header.low-priority {
+            color: var(--accent);
+        }
+        .priority-group-header.completed-priority {
+            color: var(--success);
+        }
+        .priority-indicator-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .priority-indicator-dot.high-dot {
+            background-color: var(--danger);
+        }
+        .priority-indicator-dot.medium-dot {
+            background-color: #d97706;
+        }
+        :root.theme-dark .priority-indicator-dot.medium-dot {
+            background-color: #fbbf24;
+        }
+        .priority-indicator-dot.low-dot {
+            background-color: var(--accent);
+        }
+        .priority-indicator-dot.completed-dot {
+            background-color: var(--success);
+        }
+
         /* ===== Task Context Menu Style ===== */
         .task-context-menu {
             position: fixed;
@@ -2553,7 +2604,7 @@
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Roorkee</span>
-                            <span class="stat-count" id="stat-roorkee">0/0</span>
+                            <span class="stat-count" id="stat-roorkee">0 Done, 0 Pending</span>
                         </span>
                         <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -2562,7 +2613,7 @@
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Kotdwar</span>
-                            <span class="stat-count" id="stat-kotdwar">0/0</span>
+                            <span class="stat-count" id="stat-kotdwar">0 Done, 0 Pending</span>
                         </span>
                         <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -2571,7 +2622,7 @@
                                 <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span class="stat-label">Herbetpur</span>
-                            <span class="stat-count" id="stat-herbetpur">0/0</span>
+                            <span class="stat-count" id="stat-herbetpur">0 Done, 0 Pending</span>
                         </span>
                     </div>
                     <div class="search-wrapper">
@@ -3644,14 +3695,33 @@
                 `;
                 card.appendChild(header);
 
-                const list = document.createElement('ul');
-                list.className = 'task-list';
-                dayTasks.forEach(task => {
-                    const item = buildTaskItem(task);
-                    list.appendChild(item);
-                    makeSwipable(item);
+                // Group tasks by priority status: high, medium, low, completed
+                const groups = [
+                    { id: 'high', label: 'High Priority', colorClass: 'high', tasks: dayTasks.filter(t => t.priority === 'high' && !t.completed) },
+                    { id: 'medium', label: 'Medium Priority', colorClass: 'medium', tasks: dayTasks.filter(t => (t.priority === 'medium' || !t.priority) && !t.completed) },
+                    { id: 'low', label: 'Low Priority', colorClass: 'low', tasks: dayTasks.filter(t => t.priority === 'low' && !t.completed) },
+                    { id: 'completed', label: 'Completed Tasks', colorClass: 'completed', tasks: dayTasks.filter(t => t.completed) }
+                ];
+
+                groups.forEach(group => {
+                    if (group.tasks.length === 0) return;
+
+                    // Create group header element
+                    const grpHeader = document.createElement('div');
+                    grpHeader.className = `priority-group-header ${group.colorClass}-priority`;
+                    grpHeader.innerHTML = `<span class="priority-indicator-dot ${group.colorClass}-dot"></span> ${group.label} (${group.tasks.length})`;
+                    card.appendChild(grpHeader);
+
+                    const list = document.createElement('ul');
+                    list.className = 'task-list';
+                    list.style.marginTop = '0.2rem';
+                    group.tasks.forEach(task => {
+                        const item = buildTaskItem(task);
+                        list.appendChild(item);
+                        makeSwipable(item);
+                    });
+                    card.appendChild(list);
                 });
-                card.appendChild(list);
                 board.appendChild(card);
             });
 
@@ -3906,9 +3976,9 @@
             const herbetpurDone = herbetpurTasks.filter(t => t.completed).length;
             const herbetpurPending = herbetpurTasks.length - herbetpurDone;
 
-            document.getElementById('stat-roorkee').textContent = `${roorkeeDone}/${roorkeePending}`;
-            document.getElementById('stat-kotdwar').textContent = `${kotdwarDone}/${kotdwarPending}`;
-            document.getElementById('stat-herbetpur').textContent = `${herbetpurDone}/${herbetpurPending}`;
+            document.getElementById('stat-roorkee').textContent = `${roorkeeDone} Done, ${roorkeePending} Pending`;
+            document.getElementById('stat-kotdwar').textContent = `${kotdwarDone} Done, ${kotdwarPending} Pending`;
+            document.getElementById('stat-herbetpur').textContent = `${herbetpurDone} Done, ${herbetpurPending} Pending`;
 
             const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
             document.getElementById('progress-percentage').textContent = `${pct}%`;
@@ -5146,7 +5216,13 @@
             { name: 'Charcoal', hex: '#475569', rgb: '71, 85, 105' },
             { name: 'Warm Amber', hex: '#d97706', rgb: '217, 119, 6' },
             { name: 'Crimson Matte', hex: '#be123c', rgb: '190, 18, 60' },
-            { name: 'Deep Indigo', hex: '#4338ca', rgb: '67, 56, 202' }
+            { name: 'Deep Indigo', hex: '#4338ca', rgb: '67, 56, 202' },
+            { name: 'Emerald', hex: '#059669', rgb: '5, 150, 105' },
+            { name: 'Vibrant Orange', hex: '#ea580c', rgb: '234, 88, 12' },
+            { name: 'Royal Purple', hex: '#7c3aed', rgb: '124, 58, 237' },
+            { name: 'Cherry Red', hex: '#dc2626', rgb: '220, 38, 38' },
+            { name: 'Orchid Pink', hex: '#db2777', rgb: '219, 39, 119' },
+            { name: 'Sky Blue', hex: '#0284c7', rgb: '2, 132, 199' }
         ];
 
         const GRADIENT_PRESETS = [
@@ -5159,7 +5235,13 @@
             { name: 'Deep Space', start: '#000000', end: '#434343', accent: '#434343', rgb: '67, 67, 67' },
             { name: 'Nordic Frost', start: '#00d2ff', end: '#3a7bd5', accent: '#00d2ff', rgb: '0, 210, 255' },
             { name: 'Sweet Tangerine', start: '#ffb347', end: '#ffcc33', accent: '#ffb347', rgb: '255, 179, 71' },
-            { name: 'Aurora Borealis', start: '#0575e6', end: '#00f260', accent: '#0575e6', rgb: '5, 117, 230' }
+            { name: 'Aurora Borealis', start: '#0575e6', end: '#00f260', accent: '#0575e6', rgb: '5, 117, 230' },
+            { name: 'Miami Beach', start: '#f12711', end: '#f5af19', accent: '#f12711', rgb: '241, 39, 17' },
+            { name: 'Cosmic Fusion', start: '#8a2387', end: '#e94057', accent: '#8a2387', rgb: '138, 35, 135' },
+            { name: 'Neon Green', start: '#00f260', end: '#0575e6', accent: '#00f260', rgb: '0, 242, 96' },
+            { name: 'Plum Plate', start: '#4568dc', end: '#b06ab3', accent: '#4568dc', rgb: '69, 104, 220' },
+            { name: 'Rose Water', start: '#e55d87', end: '#5fc3e4', accent: '#e55d87', rgb: '229, 93, 135' },
+            { name: 'Mint Gold', start: '#a8ff78', end: '#78ffd6', accent: '#a8ff78', rgb: '168, 255, 120' }
         ];
 
         function renderAccentGrids() {
