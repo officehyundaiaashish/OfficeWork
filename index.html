@@ -1778,6 +1778,10 @@
 
         /* ===== Mobile Responsive ===== */
         @media (max-width: 768px) {
+            .hide-on-mobile {
+                display: none !important;
+            }
+
             body {
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
@@ -1897,6 +1901,18 @@
                 transform: translateY(100%);
                 opacity: 1;
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            /* Support pushing modal view when keyboard is visible on mobile devices */
+            @media (max-height: 520px) {
+                .modal {
+                    max-height: 92vh;
+                    padding-top: 1rem;
+                    padding-bottom: 1rem;
+                }
+                .modal-grip {
+                    margin-bottom: 0.5rem !important;
+                }
             }
 
             .modal-overlay.active .modal {
@@ -2571,7 +2587,7 @@
                     <h1 id="app-title-heading">Tasker</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="header-action-btn" onclick="window.location.reload()" title="Refresh Page">
+                    <button class="header-action-btn hide-on-mobile" onclick="window.location.reload()" title="Refresh Page">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
