@@ -2779,7 +2779,7 @@
                     </svg>
                     <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Drag & Drop file here or
                         Click to upload</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">Max: 400MB per file / batch total</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Max: 45MB per file / batch total</span>
                     <input type="file" id="transfer-file-input" style="display: none;"
                         onchange="handleFileSelect(event)" multiple>
                 </div>
@@ -6199,7 +6199,7 @@
         }
 
         function getFileSizeLimit(file) {
-            return 400; // 400MB limit for all files
+            return 45; // 45MB limit for all files
         }
 
         function renderCompressFilesList() {
@@ -6319,8 +6319,8 @@
 
             const totalOptimizedMB = totalOptimized / (1024 * 1024);
             const totalOriginalMB = totalOriginal / (1024 * 1024);
-            const totalOverLimit = totalOptimizedMB > 400;
-            const totalOriginalOverLimit = totalOriginalMB > 400;
+            const totalOverLimit = totalOptimizedMB > 45;
+            const totalOriginalOverLimit = totalOriginalMB > 45;
 
             document.getElementById('compress-total-orig').textContent = formatSize(totalOriginal);
             document.getElementById('compress-total-new').textContent = formatSize(totalOptimized);
@@ -6337,9 +6337,9 @@
                 if (uploadBtn) uploadBtn.disabled = true;
                 if (statusMsg) {
                     if (totalOverLimit) {
-                        statusMsg.innerHTML = `<span style="color: var(--danger); font-weight: 700;">⚠️ Batch total exceeds 400MB limit. Compress more or remove files.</span>`;
+                        statusMsg.innerHTML = `<span style="color: var(--danger); font-weight: 700;">⚠️ Batch total exceeds 45MB limit. Compress more or remove files.</span>`;
                     } else {
-                        statusMsg.innerHTML = `<span style="color: var(--danger); font-weight: 700;">⚠️ File exceeds 400MB limit. Compress more or cancel.</span>`;
+                        statusMsg.innerHTML = `<span style="color: var(--danger); font-weight: 700;">⚠️ File exceeds 45MB limit. Compress more or cancel.</span>`;
                     }
                 }
             } else {
@@ -6672,7 +6672,7 @@
                 const sizeInMB = file.size / (1024 * 1024);
                 const mime = file.type || 'application/octet-stream';
                 let type = 'document';
-                let limit = 400; // 400MB limit for all files
+                let limit = 45; // 45MB limit for all files
 
                 if (mime.startsWith('image/')) {
                     type = 'photo';
@@ -6695,59 +6695,79 @@
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
 
-                    // Attempt uploading directly to transfers bucket
-                    client.storage.from(bucketName).upload(fileName, file, {
-                        cacheControl: '3600',
-                        upsert: false,
-                        contentType: mime,
-                        onUploadProgress: (progressEvent) => {
-                            const percent = Math.round((progressEvent.loaded / progressEvent.total) * 75) + 5; // map 0-100% to 5-80% progress
-                            onProgress(percent, 'Uploading');
-                        }
-                    }).then(({ data: uploadData, error: uploadError }) => {
-                        if (uploadError) {
-                            console.warn('Supabase storage upload failed, checking fallback:', uploadError);
+                    function performUpload(isRetry = false) {
+                        client.storage.from(bucketName).upload(fileName, file, {
+                            cacheControl: '3600',
+                            upsert: false,
+                            contentType: mime,
+                            onUploadProgress: (progressEvent) => {
+                                const percent = Math.round((progressEvent.loaded / progressEvent.total) * 75) + 5; // map 0-100% to 5-80% progress
+                                onProgress(percent, 'Uploading');
+                            }
+                        }).then(({ data: uploadData, error: uploadError }) => {
+                            if (uploadError) {
+                                const errMsg = uploadError.message || '';
+                                if (!isRetry && errMsg.toLowerCase().includes('bucket not found')) {
+                                    onProgress(5, 'Creating storage bucket');
+                                    client.storage.createBucket(bucketName, { public: true }).then(({ error: createError }) => {
+                                        if (createError) {
+                                            console.warn('Auto-creation of bucket failed:', createError);
+                                            reject(`Storage upload failed: Bucket 'transfers' not found. Please create a public bucket named 'transfers' in your Supabase project dashboard.`);
+                                        } else {
+                                            // Retry upload after creating the bucket
+                                            performUpload(true);
+                                        }
+                                    }).catch(err => {
+                                        console.warn('Auto-creation of bucket failed:', err);
+                                        reject(`Storage upload failed: Bucket 'transfers' not found. Please create a public bucket named 'transfers' in your Supabase project dashboard.`);
+                                    });
+                                } else {
+                                    console.warn('Supabase storage upload failed, checking fallback:', uploadError);
+                                    if (file.size > 2 * 1024 * 1024) {
+                                        reject(`Storage upload failed: ${errMsg}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
+                                    } else {
+                                        fallbackToBase64();
+                                    }
+                                }
+                            } else {
+                                onProgress(85, 'Getting public URL');
+                                const { data: urlData } = client.storage.from(bucketName).getPublicUrl(fileName);
+                                const publicUrl = urlData.publicUrl;
+
+                                const now = Date.now();
+                                const dbTransferObj = {
+                                    id: '_transfer_' + uid(),
+                                    title: file.name,
+                                    note: JSON.stringify({ type, content: publicUrl, size: file.size, mimeType: mime, storagePath: fileName }),
+                                    date: todayStr(),
+                                    time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                                    completed: false,
+                                    createdAt: now,
+                                    addedAt: now
+                                };
+
+                                const localTransferObj = stripTransferContent(dbTransferObj);
+
+                                onProgress(90, 'Syncing');
+                                upsertTransferToSupabase(dbTransferObj, currentAbortController.signal).then(() => {
+                                    transfers.unshift(localTransferObj);
+                                    saveTransfers();
+                                    renderTransferBoard();
+                                    onProgress(100, 'Finished');
+                                    resolve();
+                                }).catch(reject);
+                            }
+                        }).catch(err => {
+                            console.warn('Storage upload error, checking fallback:', err);
                             if (file.size > 2 * 1024 * 1024) {
-                                reject(`Storage upload failed: ${uploadError.message || JSON.stringify(uploadError)}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
+                                reject(`Storage upload failed: ${err.message || JSON.stringify(err)}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
                             } else {
                                 fallbackToBase64();
                             }
-                        } else {
-                            onProgress(85, 'Getting public URL');
-                            const { data: urlData } = client.storage.from(bucketName).getPublicUrl(fileName);
-                            const publicUrl = urlData.publicUrl;
+                        });
+                    }
 
-                            const now = Date.now();
-                            const dbTransferObj = {
-                                id: '_transfer_' + uid(),
-                                title: file.name,
-                                note: JSON.stringify({ type, content: publicUrl, size: file.size, mimeType: mime, storagePath: fileName }),
-                                date: todayStr(),
-                                time: new Date().toTimeString().split(' ')[0].substring(0, 5),
-                                completed: false,
-                                createdAt: now,
-                                addedAt: now
-                            };
-
-                            const localTransferObj = stripTransferContent(dbTransferObj);
-
-                            onProgress(90, 'Syncing');
-                            upsertTransferToSupabase(dbTransferObj, currentAbortController.signal).then(() => {
-                                transfers.unshift(localTransferObj);
-                                saveTransfers();
-                                renderTransferBoard();
-                                onProgress(100, 'Finished');
-                                resolve();
-                            }).catch(reject);
-                        }
-                    }).catch(err => {
-                        console.warn('Storage upload error, checking fallback:', err);
-                        if (file.size > 2 * 1024 * 1024) {
-                            reject(`Storage upload failed: ${err.message || JSON.stringify(err)}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
-                        } else {
-                            fallbackToBase64();
-                        }
-                    });
+                    performUpload();
                 } else {
                     reject('Supabase is not configured. Please configure Supabase Sync to upload files.');
                 }
