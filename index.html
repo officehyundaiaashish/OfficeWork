@@ -6267,98 +6267,27 @@
             const q = (100 - item.quality) / 100;
             if (item.type === 'photo') {
                 if (!item.thumbData) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        item.thumbData = e.target.result;
-                        const img = new Image();
-                        img.onload = function () {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            let w = img.width;
-                            let h = img.height;
-                            const maxDim = 1200; // Smaller resolution for quick previews
-                            if (w > maxDim || h > maxDim) {
-                                if (w > h) {
-                                    h = Math.round((h * maxDim) / w);
-                                    w = maxDim;
-                                } else {
-                                    w = Math.round((w * maxDim) / h);
-                                    h = maxDim;
-                                }
-                            }
-                            canvas.width = w;
-                            canvas.height = h;
-                            ctx.drawImage(img, 0, 0, w, h);
-                            canvas.toBlob((blob) => {
-                                if (blob) {
-                                    item.compressedBlob = blob;
-                                    item.optimizedSize = blob.size;
-                                    updateTotalsSummary();
-                                    const estLabel = document.querySelector(`#thumb-${item.id}`)?.nextElementSibling?.querySelector('span style="font-weight: 600;"')?.nextElementSibling?.nextElementSibling;
-                                    if (estLabel) {
-                                        estLabel.textContent = `Est: ${formatSize(blob.size)}`;
-                                    } else {
-                                        renderCompressFilesList();
-                                    }
-                                }
-                            }, 'image/jpeg', q);
-                        };
-                        img.src = e.target.result;
-                    };
-                    reader.readAsDataURL(item.file);
-                } else {
-                    const img = new Image();
-                    img.onload = function () {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        let w = img.width;
-                        let h = img.height;
-                        const maxDim = 1200;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) {
-                                h = Math.round((h * maxDim) / w);
-                                w = maxDim;
-                            } else {
-                                w = Math.round((w * maxDim) / h);
-                                h = maxDim;
-                            }
-                        }
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-                        canvas.toBlob((blob) => {
-                            if (blob) {
-                                item.compressedBlob = blob;
-                                item.optimizedSize = blob.size;
-                                updateTotalsSummary();
-                                renderCompressFilesList();
-                            }
-                        }, 'image/jpeg', q);
-                    };
-                    img.src = item.thumbData;
+                    try {
+                        item.thumbData = URL.createObjectURL(item.file);
+                    } catch (e) {
+                        console.warn('Failed to create object URL for preview:', e);
+                    }
                 }
+                // Estimate the optimized size instantly to avoid freezing the browser with heavy canvas scaling
+                const factor = 1 - (item.quality * 0.008);
+                item.optimizedSize = Math.max(1024, Math.round(item.originalSize * factor * 0.4));
+                item.compressedBlob = null; // Compress on-the-fly during upload
+                updateTotalsSummary();
+                renderCompressFilesList();
             } else if (item.type === 'video') {
                 const est = Math.round(item.originalSize * (q * 0.75 + 0.15));
                 item.optimizedSize = est;
                 updateTotalsSummary();
                 renderCompressFilesList();
             } else {
-                if (item.originalSize < 10 * 1024 * 1024) {
-                    compressDocGzip(item.file).then(compFile => {
-                        item.compressedBlob = compFile;
-                        item.optimizedSize = compFile.size;
-                        updateTotalsSummary();
-                        renderCompressFilesList();
-                    }).catch(() => {
-                        item.optimizedSize = item.originalSize;
-                        updateTotalsSummary();
-                        renderCompressFilesList();
-                    });
-                } else {
-                    item.optimizedSize = item.originalSize;
-                    updateTotalsSummary();
-                    renderCompressFilesList();
-                }
+                item.optimizedSize = item.originalSize;
+                updateTotalsSummary();
+                renderCompressFilesList();
             }
         }
 
@@ -6615,6 +6544,12 @@
             if (!isSuccess && compressionPromiseReject) {
                 compressionPromiseReject('cancelled');
             }
+            // Revoke any created object URLs to prevent memory leaks
+            currentFilesList.forEach(item => {
+                if (item.thumbData && item.thumbData.startsWith('blob:')) {
+                    URL.revokeObjectURL(item.thumbData);
+                }
+            });
             compressionPromiseResolve = null;
             compressionPromiseReject = null;
             currentFilesList = [];
@@ -6771,8 +6706,12 @@
                         }
                     }).then(({ data: uploadData, error: uploadError }) => {
                         if (uploadError) {
-                            console.warn('Supabase storage upload failed, falling back to base64:', uploadError);
-                            fallbackToBase64();
+                            console.warn('Supabase storage upload failed, checking fallback:', uploadError);
+                            if (file.size > 2 * 1024 * 1024) {
+                                reject(`Storage upload failed: ${uploadError.message || JSON.stringify(uploadError)}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
+                            } else {
+                                fallbackToBase64();
+                            }
                         } else {
                             onProgress(85, 'Getting public URL');
                             const { data: urlData } = client.storage.from(bucketName).getPublicUrl(fileName);
@@ -6802,11 +6741,15 @@
                             }).catch(reject);
                         }
                     }).catch(err => {
-                        console.warn('Storage upload error, falling back to base64:', err);
-                        fallbackToBase64();
+                        console.warn('Storage upload error, checking fallback:', err);
+                        if (file.size > 2 * 1024 * 1024) {
+                            reject(`Storage upload failed: ${err.message || JSON.stringify(err)}. File is too large (${formatSize(file.size)}) for database fallback (limit 2MB).`);
+                        } else {
+                            fallbackToBase64();
+                        }
                     });
                 } else {
-                    fallbackToBase64();
+                    reject('Supabase is not configured. Please configure Supabase Sync to upload files.');
                 }
 
                 function fallbackToBase64() {
