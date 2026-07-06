@@ -8241,6 +8241,50 @@
                     document.getElementById('custom-time-picker-modal').classList.add('active');
                 });
             }
+
+            bindDrumScrollAndSwipe('wheel-hour-list', adjustHour);
+            bindDrumScrollAndSwipe('wheel-minute-list', adjustMinute);
+        }
+
+        function bindDrumScrollAndSwipe(viewportId, onAdjust) {
+            const viewport = document.getElementById(viewportId);
+            if (!viewport) return;
+
+            // 1. Mouse Wheel Scroll (PC)
+            let lastWheelTime = 0;
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - lastWheelTime < 50) return; // Decreased throttle for faster scrolling
+                lastWheelTime = now;
+
+                if (e.deltaY > 0) {
+                    onAdjust(1); // Scroll down -> Increment
+                } else if (e.deltaY < 0) {
+                    onAdjust(-1); // Scroll up -> Decrement
+                }
+            }, { passive: false });
+
+            // 2. Touch Swipe (Mobile)
+            let touchStartY = 0;
+            viewport.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            viewport.addEventListener('touchmove', (e) => {
+                const touchY = e.touches[0].clientY;
+                const deltaY = touchY - touchStartY;
+
+                // Move by exactly 1 item per 10px swipe (Decreased for faster swipe response)
+                if (Math.abs(deltaY) >= 10) {
+                    if (deltaY > 0) {
+                        onAdjust(-1); // Drag down -> Decrement
+                    } else {
+                        onAdjust(1); // Drag up -> Increment
+                    }
+                    touchStartY = touchY; // Reset base
+                }
+            }, { passive: true });
         }
 
         function renderHourDrum() {
