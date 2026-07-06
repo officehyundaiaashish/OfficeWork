@@ -2555,6 +2555,56 @@
         .context-menu-item.danger-item:hover {
             background: var(--confirm-icon-bg);
         }
+
+        /* Fast scroll arrows */
+        .fast-scroll-arrows {
+            position: fixed;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .fast-scroll-arrows.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-arrow-btn {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1.5px solid var(--border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-fast);
+            padding: 0;
+        }
+
+        .scroll-arrow-btn:hover {
+            background: var(--hover);
+            transform: scale(1.05);
+        }
+
+        .scroll-arrow-btn:active {
+            transform: scale(0.95);
+        }
+
+        .scroll-arrow-btn svg {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 
@@ -3364,6 +3414,20 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- Fast Scroll Arrows -->
+    <div class="fast-scroll-arrows" id="fast-scroll-arrows">
+        <button class="scroll-arrow-btn" id="scroll-to-top-btn" onclick="scrollToTop()" aria-label="Scroll to top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        </button>
+        <button class="scroll-arrow-btn" id="scroll-to-bottom-btn" onclick="scrollToBottom()" aria-label="Scroll to bottom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </button>
+    </div>
 
     <script>
         // ===== SVG ICON HELPERS =====
@@ -7653,6 +7717,27 @@
                     }
                 });
             });
+        }
+
+        // Fast scroll arrows show/hide on scroll, and actions
+        let scrollTimeout;
+        function handleScrollArrows() {
+            const arrows = document.getElementById('fast-scroll-arrows');
+            if (!arrows) return;
+            arrows.classList.add('show');
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                arrows.classList.remove('show');
+            }, 2000);
+        }
+        window.addEventListener('scroll', handleScrollArrows, { passive: true });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToBottom() {
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
         }
     </script>
 </body>
