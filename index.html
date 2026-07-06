@@ -2615,7 +2615,7 @@
             <header class="app-header">
                 <div class="header-logo-container" onclick="toggleAppMode()"
                     style="cursor: pointer; user-select: none; -webkit-user-select: none;"
-                    title="Click to swap parallel universes">
+                    title="Click to swap parallel universes" tabindex="0" role="button">
                     <div class="logo-icon-wrap">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -2686,7 +2686,7 @@
                         <div class="progress-fill" id="progress-fill"></div>
                     </div>
                     <div class="progress-stats">
-                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks" onclick="setFilter('all')">
+                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks" onclick="setFilter('all')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="8" y1="6" x2="21" y2="6" />
@@ -2699,7 +2699,7 @@
                             <span class="stat-label">All</span>
                             <span id="stat-all">0</span>
                         </span>
-                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks" onclick="setFilter('completed')">
+                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks" onclick="setFilter('completed')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
@@ -2707,7 +2707,7 @@
                             <span class="stat-label">Done</span>
                             <span id="stat-done">0</span>
                         </span>
-                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks" onclick="setFilter('pending')">
+                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks" onclick="setFilter('pending')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -2716,7 +2716,7 @@
                             <span class="stat-label">Pending</span>
                             <span id="stat-pending">0</span>
                         </span>
-                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks" onclick="setFilter('today')">
+                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks" onclick="setFilter('today')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -2727,7 +2727,7 @@
                             <span class="stat-label">Today</span>
                             <span id="stat-today">0</span>
                         </span>
-                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks" onclick="setFilter('upcoming')">
+                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks" onclick="setFilter('upcoming')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6" />
@@ -2735,7 +2735,7 @@
                             <span class="stat-label">Upcoming</span>
                             <span id="stat-upcoming">0</span>
                         </span>
-                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks" onclick="setFilter('overdue')">
+                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks" onclick="setFilter('overdue')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -2746,7 +2746,7 @@
                             <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
-                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Roorkee: Completed / Pending" onclick="setFilter('loc:Roorkee')">
+                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Roorkee: Completed / Pending" onclick="setFilter('loc:Roorkee')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2755,7 +2755,7 @@
                             <span class="stat-label">Roorkee</span>
                             <span class="stat-count" id="stat-roorkee">0 Done, 0 Pending</span>
                         </span>
-                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')">
+                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2764,7 +2764,7 @@
                             <span class="stat-label">Kotdwar</span>
                             <span class="stat-count" id="stat-kotdwar">0 Done, 0 Pending</span>
                         </span>
-                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')">
+                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -5516,7 +5516,9 @@
                          data-hex="${c.hex}" data-rgb="${c.rgb}"
                          style="background:${c.hex};"
                          onclick="setMatteAccent('${c.hex}', '${c.rgb}')"
-                         title="${c.name}"></div>
+                         title="${c.name}"
+                         tabindex="0"
+                         role="button"></div>
                 `).join('');
             }
 
@@ -5526,7 +5528,9 @@
                     <div class="color-swatch ${theme.accentType === 'gradient' && g.start === theme.accentGradStart && g.end === theme.accentGradEnd ? 'active' : ''}"
                          style="background: linear-gradient(135deg, ${g.start}, ${g.end});"
                          onclick="setGradientAccent('${g.start}', '${g.end}', '${g.accent}', '${g.rgb}')"
-                         title="${g.name}"></div>
+                         title="${g.name}"
+                         tabindex="0"
+                         role="button"></div>
                 `).join('');
             }
         }
@@ -7658,6 +7662,17 @@
                     document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
                 }
             }
+            if (!inField) {
+                if (e.key === 'PageUp') {
+                    e.preventDefault();
+                    scrollToTop();
+                    handleScrollArrows();
+                } else if (e.key === 'PageDown') {
+                    e.preventDefault();
+                    scrollToBottom();
+                    handleScrollArrows();
+                }
+            }
         });
 
         // PWA Install Prompt Flow
@@ -7776,6 +7791,18 @@
             const targetY = Math.min(maxScroll, currentY + 350);
             smoothScrollTo(targetY, 300);
         }
+
+        // Global keyboard accessibility for custom elements with tabindex="0"
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const target = e.target;
+                const tag = target.tagName.toUpperCase();
+                if (target.getAttribute('tabindex') === '0' && !['INPUT', 'TEXTAREA', 'BUTTON', 'A'].includes(tag)) {
+                    e.preventDefault();
+                    target.click();
+                }
+            }
+        });
     </script>
 </body>
 
