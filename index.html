@@ -7757,10 +7757,13 @@
         }
 
         function scrollToTop() {
-            smoothScrollTo(0, 500);
+            const currentY = window.scrollY || window.pageYOffset || 0;
+            const targetY = Math.max(0, currentY - 350);
+            smoothScrollTo(targetY, 300);
         }
 
         function scrollToBottom() {
+            const currentY = window.scrollY || window.pageYOffset || 0;
             const maxScroll = Math.max(
                 document.body.scrollHeight,
                 document.documentElement.scrollHeight,
@@ -7769,7 +7772,8 @@
                 document.body.clientHeight,
                 document.documentElement.clientHeight
             ) - window.innerHeight;
-            smoothScrollTo(maxScroll, 500);
+            const targetY = Math.min(maxScroll, currentY + 350);
+            smoothScrollTo(targetY, 300);
         }
     </script>
 </body>
