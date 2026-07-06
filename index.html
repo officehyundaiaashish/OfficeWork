@@ -7732,12 +7732,44 @@
         }
         window.addEventListener('scroll', handleScrollArrows, { passive: true });
 
+        function smoothScrollTo(targetY, duration = 500) {
+            const startY = window.scrollY || window.pageYOffset || 0;
+            const difference = targetY - startY;
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // EaseInOutQuad easing function
+                const ease = progress < 0.5 
+                    ? 2 * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                window.scrollTo(0, startY + difference * ease);
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
         function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            smoothScrollTo(0, 500);
         }
 
         function scrollToBottom() {
-            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            const maxScroll = Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.offsetHeight,
+                document.body.clientHeight,
+                document.documentElement.clientHeight
+            ) - window.innerHeight;
+            smoothScrollTo(maxScroll, 500);
         }
     </script>
 </body>
