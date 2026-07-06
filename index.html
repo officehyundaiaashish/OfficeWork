@@ -50,6 +50,11 @@
             --toast-text: #ffffff;
         }
 
+        body.modal-open {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
+
         /* Default / System / Light Mode */
         :root.theme-light {
             color-scheme: light;
@@ -447,7 +452,7 @@
             transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin-bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
             opacity: 1;
         }
-        
+
         .sub-header-container.collapsed {
             max-height: 0;
             margin-bottom: 0;
@@ -575,19 +580,54 @@
             font-weight: 600;
         }
 
-        .stat-pill.done-pill svg { color: var(--success); }
-        .stat-pill.pending-pill svg { color: var(--accent); }
-        .stat-pill.today-pill svg { color: var(--success); }
-        .stat-pill.overdue-pill svg { color: var(--danger); }
-        .stat-pill.upcoming-pill svg { color: var(--warning); }
-        .stat-pill.all-pill svg { color: var(--accent); }
+        .stat-pill.done-pill svg {
+            color: var(--success);
+        }
+
+        .stat-pill.pending-pill svg {
+            color: var(--accent);
+        }
+
+        .stat-pill.today-pill svg {
+            color: var(--success);
+        }
+
+        .stat-pill.overdue-pill svg {
+            color: var(--danger);
+        }
+
+        .stat-pill.upcoming-pill svg {
+            color: var(--warning);
+        }
+
+        .stat-pill.all-pill svg {
+            color: var(--accent);
+        }
 
         /* Location filter pills */
-        .stat-pill.loc-roorkee svg { color: #7c3aed; }
-        .stat-pill.loc-kotdwar svg { color: #0369a1; }
-        .stat-pill.loc-herbetpur svg { color: #b45309; }
-        .stat-pill.loc-roorkee svg, .stat-pill.loc-kotdwar svg, .stat-pill.loc-herbetpur svg { flex-shrink: 0; }
-        .stat-pill.loc-roorkee.active svg, .stat-pill.loc-kotdwar.active svg, .stat-pill.loc-herbetpur.active svg { color: white !important; }
+        .stat-pill.loc-roorkee svg {
+            color: #7c3aed;
+        }
+
+        .stat-pill.loc-kotdwar svg {
+            color: #0369a1;
+        }
+
+        .stat-pill.loc-herbetpur svg {
+            color: #b45309;
+        }
+
+        .stat-pill.loc-roorkee svg,
+        .stat-pill.loc-kotdwar svg,
+        .stat-pill.loc-herbetpur svg {
+            flex-shrink: 0;
+        }
+
+        .stat-pill.loc-roorkee.active svg,
+        .stat-pill.loc-kotdwar.active svg,
+        .stat-pill.loc-herbetpur.active svg {
+            color: white !important;
+        }
 
         /* ===== Search Bar ===== */
         .search-wrapper {
@@ -1907,6 +1947,7 @@
                     padding-top: 1rem;
                     padding-bottom: 1rem;
                 }
+
                 .modal-grip {
                     margin-bottom: 0.5rem !important;
                 }
@@ -2446,6 +2487,7 @@
                 display: none;
             }
         }
+
         /* ===== Priority Grouping Styles ===== */
         .priority-group-header {
             font-size: 0.68rem;
@@ -2460,42 +2502,54 @@
             padding: 0 0.25rem;
             user-select: none;
         }
+
         .priority-group-header:first-child {
             margin-top: 0.2rem;
         }
+
         .priority-group-header.high-priority {
             color: var(--danger);
         }
+
         .priority-group-header.medium-priority {
             color: #d97706;
         }
+
         :root.theme-dark .priority-group-header.medium-priority {
             color: #fbbf24;
         }
+
         .priority-group-header.low-priority {
             color: var(--accent);
         }
+
         .priority-group-header.completed-priority {
             color: var(--success);
         }
+
         .priority-indicator-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
             display: inline-block;
         }
+
         .priority-indicator-dot.high-dot {
             background-color: var(--danger);
         }
+
         .priority-indicator-dot.medium-dot {
             background-color: #d97706;
         }
+
         :root.theme-dark .priority-indicator-dot.medium-dot {
             background-color: #fbbf24;
         }
+
         .priority-indicator-dot.low-dot {
             background-color: var(--accent);
         }
+
         .priority-indicator-dot.completed-dot {
             background-color: var(--success);
         }
@@ -2517,10 +2571,19 @@
             -webkit-backdrop-filter: blur(12px);
             animation: contextMenuFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         @keyframes contextMenuFadeIn {
-            from { opacity: 0; transform: scale(0.96); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
+
         .context-menu-item {
             display: flex;
             align-items: center;
@@ -2537,21 +2600,26 @@
             cursor: pointer;
             transition: background var(--transition-fast);
         }
+
         .context-menu-item:hover {
             background: var(--hover);
         }
+
         .context-menu-item svg {
             width: 16px;
             height: 16px;
             color: var(--text-muted);
             flex-shrink: 0;
         }
+
         .context-menu-item.danger-item {
             color: var(--danger);
         }
+
         .context-menu-item.danger-item svg {
             color: var(--danger);
         }
+
         .context-menu-item.danger-item:hover {
             background: var(--confirm-icon-bg);
         }
@@ -2606,6 +2674,206 @@
             width: 20px;
             height: 20px;
         }
+
+        /* Custom Date & Time Pickers */
+        .custom-picker-input {
+            cursor: pointer;
+            background: var(--card-bg) !important;
+        }
+
+        /* Calendar Styles */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            height: 36px;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .calendar-day-btn:hover {
+            background: var(--hover);
+        }
+
+        .calendar-day-btn.selected {
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+        }
+
+        .calendar-day-btn.today {
+            border: 1.5px solid var(--accent);
+        }
+
+        .calendar-day-btn.empty {
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .calendar-actions,
+        .time-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.75rem;
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+        }
+
+        .calendar-actions .btn,
+        .time-actions .btn {
+            flex: 1;
+            justify-content: center;
+            min-height: 36px;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+        }
+
+        /* Time Picker Styles */
+        .time-picker-selectors {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .time-column {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .time-column label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .time-column select {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.95rem;
+            min-height: 38px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card-bg);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        /* Time Drum Selector Styles */
+        .time-picker-wheels {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .time-drum-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+        }
+
+        .drum-btn {
+            background: var(--hover);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            padding: 0;
+        }
+
+        .drum-btn:hover {
+            background: var(--border);
+            color: var(--accent);
+        }
+
+        .drum-viewport {
+            height: 154px; /* 30px * 5 + margins */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            margin: 8px 0;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .drum-item {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            opacity: 0.35;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            user-select: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .drum-item.secondary {
+            opacity: 0.65;
+            font-size: 1.05rem;
+        }
+
+        .drum-item.active {
+            color: var(--accent);
+            opacity: 1;
+            font-weight: 800;
+            font-size: 1.35rem;
+            background: rgba(var(--accent-rgb), 0.05);
+            border-radius: var(--radius-sm);
+            border-top: 1px solid rgba(var(--accent-rgb), 0.15);
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.15);
+            height: 32px;
+        }
     </style>
 </head>
 
@@ -2635,10 +2903,11 @@
                     <h1 id="app-title-heading">Tasker</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="header-action-btn hide-on-mobile" onclick="window.location.reload()" title="Refresh Page">
+                    <button class="header-action-btn hide-on-mobile" onclick="window.location.reload()"
+                        title="Refresh Page">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                         </svg>
                     </button>
                     <button class="header-action-btn tasks-only-el" onclick="openTrashModal()" title="Recycle Bin">
@@ -2665,9 +2934,10 @@
                         </svg>
                     </button>
                     <!-- Improvement 1: Collapsible Header Button Toggle -->
-                    <button class="header-action-btn tasks-only-el" id="collapse-toggle-btn" onclick="toggleSubHeader()" title="Toggle Header Information">
-                        <svg id="collapse-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
+                    <button class="header-action-btn tasks-only-el" id="collapse-toggle-btn" onclick="toggleSubHeader()"
+                        title="Toggle Header Information">
+                        <svg id="collapse-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="18 15 12 9 6 15"></polyline>
                         </svg>
                     </button>
@@ -2686,7 +2956,8 @@
                         <div class="progress-fill" id="progress-fill"></div>
                     </div>
                     <div class="progress-stats">
-                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks" onclick="setFilter('all')" tabindex="0" role="button">
+                        <span class="stat-pill all-pill active" data-filter="all" title="All Tasks"
+                            onclick="setFilter('all')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="8" y1="6" x2="21" y2="6" />
@@ -2699,7 +2970,8 @@
                             <span class="stat-label">All</span>
                             <span id="stat-all">0</span>
                         </span>
-                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks" onclick="setFilter('completed')" tabindex="0" role="button">
+                        <span class="stat-pill done-pill" data-filter="completed" title="Done Tasks"
+                            onclick="setFilter('completed')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
@@ -2707,7 +2979,8 @@
                             <span class="stat-label">Done</span>
                             <span id="stat-done">0</span>
                         </span>
-                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks" onclick="setFilter('pending')" tabindex="0" role="button">
+                        <span class="stat-pill pending-pill" data-filter="pending" title="Pending Tasks"
+                            onclick="setFilter('pending')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -2716,7 +2989,8 @@
                             <span class="stat-label">Pending</span>
                             <span id="stat-pending">0</span>
                         </span>
-                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks" onclick="setFilter('today')" tabindex="0" role="button">
+                        <span class="stat-pill today-pill" data-filter="today" title="Today's Tasks"
+                            onclick="setFilter('today')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -2727,7 +3001,8 @@
                             <span class="stat-label">Today</span>
                             <span id="stat-today">0</span>
                         </span>
-                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks" onclick="setFilter('upcoming')" tabindex="0" role="button">
+                        <span class="stat-pill upcoming-pill" data-filter="upcoming" title="Upcoming Tasks"
+                            onclick="setFilter('upcoming')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6" />
@@ -2735,7 +3010,8 @@
                             <span class="stat-label">Upcoming</span>
                             <span id="stat-upcoming">0</span>
                         </span>
-                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks" onclick="setFilter('overdue')" tabindex="0" role="button">
+                        <span class="stat-pill overdue-pill" data-filter="overdue" title="Overdue Tasks"
+                            onclick="setFilter('overdue')" tabindex="0" role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -2746,7 +3022,9 @@
                             <span class="stat-label">Overdue</span>
                             <span id="stat-overdue">0</span>
                         </span>
-                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee" title="Roorkee: Completed / Pending" onclick="setFilter('loc:Roorkee')" tabindex="0" role="button">
+                        <span class="stat-pill loc-roorkee" data-filter="loc:Roorkee"
+                            title="Roorkee: Completed / Pending" onclick="setFilter('loc:Roorkee')" tabindex="0"
+                            role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2755,7 +3033,9 @@
                             <span class="stat-label">Roorkee</span>
                             <span class="stat-count" id="stat-roorkee">0 Done, 0 Pending</span>
                         </span>
-                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar" title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')" tabindex="0" role="button">
+                        <span class="stat-pill loc-kotdwar" data-filter="loc:Kotdwar"
+                            title="Kotdwar: Completed / Pending" onclick="setFilter('loc:Kotdwar')" tabindex="0"
+                            role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2764,7 +3044,9 @@
                             <span class="stat-label">Kotdwar</span>
                             <span class="stat-count" id="stat-kotdwar">0 Done, 0 Pending</span>
                         </span>
-                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur" title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')" tabindex="0" role="button">
+                        <span class="stat-pill loc-herbetpur" data-filter="loc:Herbetpur"
+                            title="Herbetpur: Completed / Pending" onclick="setFilter('loc:Herbetpur')" tabindex="0"
+                            role="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -2951,19 +3233,35 @@
     <!-- ===== Task Context Menu ===== -->
     <div id="task-context-menu" class="task-context-menu">
         <button class="context-menu-item" id="ctx-select">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><polyline points="9 11 12 14 22 4"></polyline></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <polyline points="9 11 12 14 22 4"></polyline>
+            </svg>
             Select Task
         </button>
         <button class="context-menu-item" id="ctx-duplicate">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
             Duplicate Task
         </button>
         <button class="context-menu-item" id="ctx-edit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+            </svg>
             Edit Task
         </button>
         <button class="context-menu-item danger-item" id="ctx-delete">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
             Delete Task
         </button>
     </div>
@@ -2988,7 +3286,8 @@
                     <label for="task-title-input">Task Title *</label>
                     <textarea id="task-title-input" rows="1" required placeholder="Task title"
                         style="resize: none; min-height: 44px; height: 44px; padding-top: calc(0.85rem * var(--density)); white-space: nowrap; overflow: hidden;"
-                        autocorrect="off" autocapitalize="off" spellcheck="false" autocomplete="new-password"></textarea>
+                        autocorrect="off" autocapitalize="off" spellcheck="false"
+                        autocomplete="new-password"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="task-note-input">Note / Description</label>
@@ -2998,19 +3297,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="task-date-input">Date *</label>
-                        <input type="date" id="task-date-input" required autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="text" id="task-date-input" required readonly placeholder="Select Date" class="custom-picker-input">
                     </div>
                     <div class="form-group">
                         <label for="task-time-input">Time</label>
-                        <input type="time" id="task-time-input" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="text" id="task-time-input" readonly placeholder="Select Time" class="custom-picker-input">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Location</label>
                     <div class="location-pill-toggle" id="task-location-toggle">
-                        <button type="button" data-location="Roorkee" onclick="setFormLocation('Roorkee')">Roorkee</button>
-                        <button type="button" data-location="Kotdwar" onclick="setFormLocation('Kotdwar')">Kotdwar</button>
-                        <button type="button" data-location="Herbetpur" onclick="setFormLocation('Herbetpur')">Herbetpur</button>
+                        <button type="button" data-location="Roorkee"
+                            onclick="setFormLocation('Roorkee')">Roorkee</button>
+                        <button type="button" data-location="Kotdwar"
+                            onclick="setFormLocation('Kotdwar')">Kotdwar</button>
+                        <button type="button" data-location="Herbetpur"
+                            onclick="setFormLocation('Herbetpur')">Herbetpur</button>
                     </div>
                     <input type="hidden" id="task-location-input" value="Roorkee">
                 </div>
@@ -3045,6 +3347,80 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- ===== Custom Date Picker Modal ===== -->
+    <div class="modal-overlay" id="custom-date-picker-modal" style="z-index: 1050;">
+        <div class="modal" style="max-width: 320px; padding: 1.1rem;">
+            <h2>
+                <span>Select Date</span>
+                <button type="button" class="modal-close" onclick="closeModal('custom-date-picker-modal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </h2>
+            <div class="calendar-header">
+                <button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="prevMonth()" style="min-height:28px;width:28px;height:28px;">&lt;</button>
+                <span id="calendar-month-year"></span>
+                <button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="nextMonth()" style="min-height:28px;width:28px;height:28px;">&gt;</button>
+            </div>
+            <div class="calendar-weekdays" style="margin-top: 0.5rem;">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+            </div>
+            <div class="calendar-days" id="calendar-days" style="margin-top: 0.25rem;"></div>
+            <div class="calendar-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCustomTodayDate()">Today</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearCustomDate()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Custom Time Picker Modal ===== -->
+    <div class="modal-overlay" id="custom-time-picker-modal" style="z-index: 1050;">
+        <div class="modal" style="max-width: 280px; padding: 1.1rem;">
+            <h2>
+                <span>Select Time</span>
+                <button type="button" class="modal-close" onclick="closeModal('custom-time-picker-modal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </h2>
+            <div class="time-picker-selectors">
+                <div class="time-picker-wheels">
+                    <!-- Hour Drum -->
+                    <div class="time-drum-column">
+                        <button type="button" class="drum-btn" onclick="adjustHour(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                        </button>
+                        <div class="drum-viewport" id="wheel-hour-list"></div>
+                        <button type="button" class="drum-btn" onclick="adjustHour(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                    <!-- Minute Drum -->
+                    <div class="time-drum-column">
+                        <button type="button" class="drum-btn" onclick="adjustMinute(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                        </button>
+                        <div class="drum-viewport" id="wheel-minute-list"></div>
+                        <button type="button" class="drum-btn" onclick="adjustMinute(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="time-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCustomCurrentTime()">Now</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearCustomTime()">Clear</button>
+                <button type="button" class="btn btn-sm" onclick="closeModal('custom-time-picker-modal')">Done</button>
+            </div>
         </div>
     </div>
 
@@ -3196,7 +3572,8 @@
                 </button>
             </h2>
             <div class="theme-section">
-                <div style="display:flex; flex-direction:column; gap:0.75rem;">                    <div class="form-group" id="sb-password-group" style="margin-bottom:0;">
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <div class="form-group" id="sb-password-group" style="margin-bottom:0;">
                         <label for="sb-password-input">Sync Password</label>
                         <div style="display:flex; gap:0.5rem;">
                             <input type="text" id="sb-password-input" placeholder="Enter password"
@@ -3208,20 +3585,22 @@
                     </div>
                     <details style="margin-top:0.25rem;">
                         <summary
-                             style="font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:600; user-select:none;">
+                            style="font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:600; user-select:none;">
                             Manual Configuration</summary>
                         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-url-input">Supabase URL</label>
                                 <input type="search" id="sb-url-input" placeholder="https://your-project.supabase.co"
                                     autocomplete="new-password" autocorrect="off" autocapitalize="off"
-                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_url_field_noop" data-lpignore="true">
+                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_url_field_noop"
+                                    data-lpignore="true">
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label for="sb-key-input">Supabase Anon Key</label>
                                 <input type="search" id="sb-key-input" placeholder="your-anon-key"
                                     autocomplete="new-password" autocorrect="off" autocapitalize="off"
-                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_key_field_noop" data-lpignore="true" style="-webkit-text-security: disc;">
+                                    spellcheck="false" onchange="updateSupabaseConfig()" name="sb_key_field_noop"
+                                    data-lpignore="true" style="-webkit-text-security: disc;">
                             </div>
                         </div>
                     </details>
@@ -3419,12 +3798,15 @@
     <!-- Fast Scroll Arrows -->
     <div class="fast-scroll-arrows" id="fast-scroll-arrows">
         <button class="scroll-arrow-btn" id="scroll-to-top-btn" onclick="scrollToTop()" aria-label="Scroll to top">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
         </button>
-        <button class="scroll-arrow-btn" id="scroll-to-bottom-btn" onclick="scrollToBottom()" aria-label="Scroll to bottom">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <button class="scroll-arrow-btn" id="scroll-to-bottom-btn" onclick="scrollToBottom()"
+            aria-label="Scroll to bottom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
         </button>
@@ -4074,7 +4456,7 @@
                 clearTimeout(pressTimer);
                 if (!isSwiping) return;
                 isSwiping = false;
-                
+
                 // Improvement 11: Smooth spring transition animations
                 taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
@@ -4527,22 +4909,22 @@
                 const cachedSunrise = localStorage.getItem('khannaGeoSunrise');
                 const cachedSunset = localStorage.getItem('khannaGeoSunset');
                 const lastGeoCheck = localStorage.getItem('khannaGeoLastCheck');
-                
+
                 const now = Date.now();
                 const today = new Date();
                 const hour = today.getHours();
-                
+
                 let isNightTime = false;
-                
+
                 if (cachedSunrise && cachedSunset && lastGeoCheck && (now - parseInt(lastGeoCheck) < 86400000)) {
                     // Use cached sunrise/sunset times
                     const sunriseTime = new Date(parseInt(cachedSunrise));
                     const sunsetTime = new Date(parseInt(cachedSunset));
-                    
+
                     // Match dates to today
                     sunriseTime.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
                     sunsetTime.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
-                    
+
                     isNightTime = (today < sunriseTime || today > sunsetTime);
                 } else {
                     // Try getting fresh coords once, non-blocking
@@ -4553,40 +4935,40 @@
                             const lng = pos.coords.longitude;
                             // Approximate calculation for sunrise and sunset
                             const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-                            
+
                             // Highly approximate solar calculations
                             const declination = 23.45 * Math.sin((Math.PI / 180) * (360 / 365) * (284 + dayOfYear));
                             const declRad = declination * Math.PI / 180;
                             const latRad = lat * Math.PI / 180;
-                            
+
                             // Hour angle (cos H = -tan lat * tan decl)
                             let cosH = -Math.tan(latRad) * Math.tan(declRad);
                             cosH = Math.max(-1, Math.min(1, cosH)); // clamp to valid ranges
                             const H = Math.acos(cosH) * (180 / Math.PI);
-                            
+
                             const solarNoon = 12; // Approx 12:00 local time
                             const sunriseHour = solarNoon - (H / 15);
                             const sunsetHour = solarNoon + (H / 15);
-                            
+
                             const sunriseDate = new Date();
                             sunriseDate.setHours(Math.floor(sunriseHour), Math.round((sunriseHour % 1) * 60), 0);
                             const sunsetDate = new Date();
                             sunsetDate.setHours(Math.floor(sunsetHour), Math.round((sunsetHour % 1) * 60), 0);
-                            
+
                             localStorage.setItem('khannaGeoSunrise', sunriseDate.getTime());
                             localStorage.setItem('khannaGeoSunset', sunsetDate.getTime());
-                            
+
                             // Re-apply immediately now that cache is populated
                             applyTheme();
                         }, err => {
                             console.warn('Geolocation denied or failed, using fallback hours', err);
                         }, { timeout: 8000 });
                     }
-                    
+
                     // Fallback to static hour slots
                     isNightTime = (hour < 5 || hour >= 21);
                 }
-                
+
                 if (isNightTime) {
                     activeClass = 'theme-night';
                 } else {
@@ -7565,18 +7947,32 @@
         displayGreeting();
         displayStaleWarning();
         preloadSounds();
+        initCustomPickers();
+
+        // Automatically toggle body.modal-open when any modal is active to block background scrolling
+        const modalObserver = new MutationObserver(() => {
+            const anyActive = Array.from(document.querySelectorAll('.modal-overlay')).some(ov => ov.classList.contains('active'));
+            if (anyActive) {
+                document.body.classList.add('modal-open');
+            } else {
+                document.body.classList.remove('modal-open');
+            }
+        });
+        document.querySelectorAll('.modal-overlay').forEach(ov => {
+            modalObserver.observe(ov, { attributes: true, attributeFilter: ['class'] });
+        });
 
         // Modern Visual Viewport keyboard compensation used by top-tier platforms (Slack, Trello, etc.)
         if (window.visualViewport) {
             const handleViewportChange = () => {
                 const activeOverlay = document.querySelector('.modal-overlay.active');
                 if (!activeOverlay) return;
-                
+
                 const modal = activeOverlay.querySelector('.modal');
                 if (!modal) return;
-                
+
                 const keyboardHeight = window.innerHeight - window.visualViewport.height;
-                
+
                 if (keyboardHeight > 100) {
                     // Keyboard is visible: Shift the modal up exactly above the keyboard layout
                     activeOverlay.style.bottom = `${keyboardHeight}px`;
@@ -7589,10 +7985,10 @@
                     modal.style.maxHeight = '';
                 }
             };
-            
+
             window.visualViewport.addEventListener('resize', handleViewportChange);
             window.visualViewport.addEventListener('scroll', handleViewportChange);
-            
+
             // Re-apply viewport check when any modal is opened/closed
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -7756,10 +8152,10 @@
             function step(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
+
                 // EaseInOutQuad easing function
-                const ease = progress < 0.5 
-                    ? 2 * progress * progress 
+                const ease = progress < 0.5
+                    ? 2 * progress * progress
                     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
                 window.scrollTo(0, startY + difference * ease);
@@ -7803,6 +8199,226 @@
                 }
             }
         });
+
+        // Date & Time Picker Helpers
+        let currentCalendarDate = new Date();
+        let selectedCalendarDate = null;
+        let activeHour = '12';
+        let activeMinute = '00';
+
+        function initCustomPickers() {
+            // Toggle custom modals
+            const dateInput = document.getElementById('task-date-input');
+            if (dateInput) {
+                dateInput.addEventListener('click', () => {
+                    const val = dateInput.value;
+                    if (val) {
+                        selectedCalendarDate = new Date(val + 'T00:00:00');
+                        currentCalendarDate = new Date(selectedCalendarDate);
+                    } else {
+                        currentCalendarDate = new Date();
+                    }
+                    renderCalendar();
+                    document.getElementById('custom-date-picker-modal').classList.add('active');
+                });
+            }
+
+            const timeInput = document.getElementById('task-time-input');
+            if (timeInput) {
+                timeInput.addEventListener('click', () => {
+                    const val = timeInput.value;
+                    if (val) {
+                        const [h, m] = val.split(':');
+                        activeHour = h;
+                        activeMinute = m;
+                    } else {
+                        activeHour = '12';
+                        activeMinute = '00';
+                    }
+                    updateCustomTimeVal();
+                    renderHourDrum();
+                    renderMinuteDrum();
+                    document.getElementById('custom-time-picker-modal').classList.add('active');
+                });
+            }
+        }
+
+        function renderHourDrum() {
+            const container = document.getElementById('wheel-hour-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const current = parseInt(activeHour, 10);
+            const offsets = [-2, -1, 0, 1, 2];
+            offsets.forEach(offset => {
+                let val = (current + offset) % 24;
+                if (val < 0) val += 24;
+                const formatted = String(val).padStart(2, '0');
+                
+                const div = document.createElement('div');
+                div.className = 'drum-item';
+                if (offset === 0) div.classList.add('active');
+                else if (Math.abs(offset) === 1) div.classList.add('secondary');
+                
+                div.textContent = formatted;
+                div.onclick = () => {
+                    activeHour = formatted;
+                    updateCustomTimeVal();
+                    renderHourDrum();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function adjustHour(amount) {
+            let current = parseInt(activeHour, 10);
+            current = (current + amount) % 24;
+            if (current < 0) current += 24;
+            activeHour = String(current).padStart(2, '0');
+            updateCustomTimeVal();
+            renderHourDrum();
+        }
+
+        function renderMinuteDrum() {
+            const container = document.getElementById('wheel-minute-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const current = parseInt(activeMinute, 10);
+            const offsets = [-2, -1, 0, 1, 2];
+            offsets.forEach(offset => {
+                let val = (current + offset) % 60;
+                if (val < 0) val += 60;
+                const formatted = String(val).padStart(2, '0');
+                
+                const div = document.createElement('div');
+                div.className = 'drum-item';
+                if (offset === 0) div.classList.add('active');
+                else if (Math.abs(offset) === 1) div.classList.add('secondary');
+                
+                div.textContent = formatted;
+                div.onclick = () => {
+                    activeMinute = formatted;
+                    updateCustomTimeVal();
+                    renderMinuteDrum();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function adjustMinute(amount) {
+            let current = parseInt(activeMinute, 10);
+            current = (current + amount) % 60;
+            if (current < 0) current += 60;
+            activeMinute = String(current).padStart(2, '0');
+            updateCustomTimeVal();
+            renderMinuteDrum();
+        }
+
+        const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        function renderCalendar() {
+            const monthYearSpan = document.getElementById('calendar-month-year');
+            const daysContainer = document.getElementById('calendar-days');
+            if (!monthYearSpan || !daysContainer) return;
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            monthYearSpan.textContent = `${MONTHS[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            daysContainer.innerHTML = '';
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day-btn empty';
+                daysContainer.appendChild(empty);
+            }
+
+            const today = new Date();
+            const dateStrFormat = (d) => {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            };
+
+            for (let day = 1; day <= totalDays; day++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'calendar-day-btn';
+                btn.textContent = day;
+
+                const thisDayDate = new Date(year, month, day);
+                const thisDayStr = dateStrFormat(thisDayDate);
+
+                if (selectedCalendarDate && dateStrFormat(selectedCalendarDate) === thisDayStr) {
+                    btn.classList.add('selected');
+                }
+                if (dateStrFormat(today) === thisDayStr) {
+                    btn.classList.add('today');
+                }
+
+                btn.onclick = (e) => {
+                    const input = document.getElementById('task-date-input');
+                    input.value = thisDayStr;
+                    selectedCalendarDate = thisDayDate;
+                    closeModal('custom-date-picker-modal');
+                };
+
+                daysContainer.appendChild(btn);
+            }
+        }
+
+        function prevMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function setCustomTodayDate() {
+            const input = document.getElementById('task-date-input');
+            if (input) {
+                input.value = todayStr();
+                selectedCalendarDate = new Date(todayStr() + 'T00:00:00');
+            }
+            closeModal('custom-date-picker-modal');
+        }
+
+        function clearCustomDate() {
+            const input = document.getElementById('task-date-input');
+            if (input) {
+                input.value = '';
+                selectedCalendarDate = null;
+            }
+            closeModal('custom-date-picker-modal');
+        }
+
+        function updateCustomTimeVal() {
+            document.getElementById('task-time-input').value = `${activeHour}:${activeMinute}`;
+        }
+
+        function setCustomCurrentTime() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            activeHour = hh;
+            activeMinute = mm;
+            updateCustomTimeVal();
+            closeModal('custom-time-picker-modal');
+        }
+
+        function clearCustomTime() {
+            document.getElementById('task-time-input').value = '';
+            closeModal('custom-time-picker-modal');
+        }
     </script>
 </body>
 
