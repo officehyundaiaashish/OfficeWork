@@ -8190,13 +8190,21 @@
 
         // Global keyboard accessibility for custom elements with tabindex="0"
         document.addEventListener('keydown', e => {
+            const target = e.target;
+            const tag = target.tagName.toUpperCase();
+            const isEditing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || target.isContentEditable;
+
             if (e.key === 'Enter' || e.key === ' ') {
-                const target = e.target;
-                const tag = target.tagName.toUpperCase();
                 if (target.getAttribute('tabindex') === '0' && !['INPUT', 'TEXTAREA', 'BUTTON', 'A'].includes(tag)) {
                     e.preventDefault();
                     target.click();
                 }
+            }
+
+            // Keyboard shortcut '+' (or '=') to open add new task modal when not typing
+            if ((e.key === '+' || e.key === '=') && !isEditing) {
+                e.preventDefault();
+                openAddModal();
             }
         });
 
