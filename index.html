@@ -8218,6 +8218,31 @@
                     openAddModal();
                 }
             }
+        
+                    // Escape key handler to close pickers first, then main task modal
+            if (e.key === 'Escape') {
+                const datePicker = document.getElementById('custom-date-picker-modal');
+                const timePicker = document.getElementById('custom-time-picker-modal');
+                
+                if (datePicker && datePicker.classList.contains('active')) {
+                    e.preventDefault();
+                    closeModal('custom-date-picker-modal');
+                } else if (timePicker && timePicker.classList.contains('active')) {
+                    e.preventDefault();
+                    closeModal('custom-time-picker-modal');
+                } else {
+                    const activeOverlays = Array.from(document.querySelectorAll('.modal-overlay.active'));
+                    if (activeOverlays.length > 0) {
+                        e.preventDefault();
+                        const taskModal = document.getElementById('task-modal');
+                        if (taskModal && taskModal.classList.contains('active')) {
+                            closeModal('task-modal');
+                        } else {
+                            activeOverlays.forEach(ov => closeModal(ov.id));
+                        }
+                    }
+                }
+            }
         });
 
         // Date & Time Picker Helpers
