@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <meta name="theme-color" content="#f0f2f5">
+    <meta name="theme-color" content="#fafbfc">
     <title>Tasker : Task Manager</title>
     <link rel="icon" type="image/svg+xml" href="icon.svg?v=2">
     <link rel="apple-touch-icon" href="icon-192.png?v=2">
@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #f0f2f5;
+            --bg-color: #fafbfc;
             --card-bg: #ffffff;
             --text-main: #1c1e21;
             --text-muted: #65676b;
@@ -58,7 +58,7 @@
         /* Default / System / Light Mode */
         :root.theme-light {
             color-scheme: light;
-            --bg-color: #f0f2f5;
+            --bg-color: #fafbfc;
             --card-bg: #ffffff;
             --text-main: #1c1e21;
             --text-muted: #65676b;
@@ -87,7 +87,7 @@
         /* Morning Theme (5:00 - 11:59) */
         :root.theme-morning {
             color-scheme: light;
-            --bg-color: #fcf9f2;
+            --bg-color: #f8f8fb;
             --card-bg: #ffffff;
             --text-main: #2c2a29;
             --text-muted: #7c7267;
@@ -98,7 +98,7 @@
         /* Afternoon Theme (12:00 - 16:59) */
         :root.theme-afternoon {
             color-scheme: light;
-            --bg-color: #f0f4f8;
+            --bg-color: #fafbfc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
@@ -109,8 +109,8 @@
         /* Evening Theme (17:00 - 20:59) */
         :root.theme-evening {
             color-scheme: light;
-            --bg-color: #fdf5f2;
-            --card-bg: #fffbf8;
+            --bg-color: #f8f8fb;
+            --card-bg: #ffffff;
             --text-main: #3c2f2f;
             --text-muted: #8c736e;
             --border: #f8e9e2;
@@ -448,13 +448,14 @@
             margin-bottom: calc(0.6rem * var(--density));
             animation: fadeSlideDown 0.5s var(--transition-smooth) 0.1s both;
             max-height: 500px;
-            overflow: hidden;
+            overflow: visible;
             transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin-bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
             opacity: 1;
         }
 
         .sub-header-container.collapsed {
             max-height: 0;
+            overflow: hidden;
             margin-bottom: 0;
             opacity: 0;
             pointer-events: none;
@@ -463,11 +464,13 @@
         /* ===== Progress ===== */
         .progress-container {
             background: var(--card-bg);
-            padding: calc(0.6rem * var(--density)) calc(1rem * var(--density));
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            background: var(--card-bg);
+            padding: calc(0.7rem * var(--density)) calc(1rem * var(--density));
+            border-radius: 24px;
+            overflow: visible;
+            isolation: isolate;
+            background-clip: border-box;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.055), 0 2px 8px rgba(15, 23, 42, 0.025);
+            border: 0;
         }
 
         .sticky-header-wrapper {
@@ -527,6 +530,48 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
+        }
+
+        .overall-progress-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .overall-progress-ring {
+            --progress: 0%;
+            position: relative;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(
+                from -90deg,
+                var(--accent-gradient-start) 0 var(--progress),
+                rgba(148, 163, 184, 0.16) var(--progress) 100%
+            );
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+        }
+
+        .overall-progress-ring::after {
+            content: '';
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .overall-progress-ring span {
+            position: absolute;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            z-index: 1;
         }
 
         .progress-stats {
@@ -542,6 +587,9 @@
             background: var(--bg-color);
             padding: 0.32rem 0.85rem;
             border-radius: 14px;
+            overflow: hidden;
+            isolation: isolate;
+            background-clip: border-box;
             display: inline-flex;
             align-items: center;
             gap: 0.38rem;
@@ -549,19 +597,20 @@
             font-size: calc(0.875rem * var(--font-scale));
             transition: all var(--transition-fast);
             cursor: pointer;
-            border: 1.5px solid transparent;
+            border: 0;
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
             user-select: none;
         }
 
         .stat-pill:hover {
             background: var(--hover);
-            border-color: var(--border);
+            box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.14);
         }
 
         .stat-pill.active {
             background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
             color: white !important;
-            border-color: transparent;
+            border: 0;
             box-shadow: var(--shadow-sm);
         }
 
@@ -654,7 +703,7 @@
             width: 100%;
             padding: 0.38rem 0.7rem 0.38rem 2rem;
             border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-radius: 999px;
             font-size: calc(0.84rem * var(--font-scale));
             font-family: inherit;
             background: var(--card-bg);
@@ -941,10 +990,13 @@
 
         .day-card {
             background: var(--card-bg);
-            border-radius: var(--radius);
+            border-radius: 24px;
+            overflow: visible;
+            isolation: isolate;
+            background-clip: border-box;
             padding: calc(0.6rem * var(--density)) calc(0.8rem * var(--density));
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.055), 0 2px 8px rgba(15, 23, 42, 0.025);
+            border: 0;
             transition: all var(--transition-smooth);
             opacity: 0;
             transform: translateY(16px);
@@ -952,8 +1004,8 @@
         }
 
         .day-card:hover {
-            box-shadow: var(--shadow-md);
-            border-color: #d0d3d8;
+            box-shadow: 0 10px 28px rgba(30, 41, 59, 0.07), 0 3px 8px rgba(30, 41, 59, 0.04);
+            border-color: rgba(var(--accent-rgb), 0.16);
         }
 
         @keyframes cardEnter {
@@ -1002,26 +1054,10 @@
         .day-progress-wrap {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.55rem;
             flex-grow: 1;
-            max-width: 200px;
+            max-width: 230px;
             justify-content: flex-end;
-        }
-
-        .day-progress-bar {
-            height: 6px;
-            background: var(--bg-color);
-            border-radius: 3px;
-            overflow: hidden;
-            flex-grow: 1;
-            max-width: 120px;
-        }
-
-        .day-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-            border-radius: 3px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .day-progress-label {
@@ -1029,6 +1065,41 @@
             color: var(--text-muted);
             font-weight: 600;
             white-space: nowrap;
+        }
+
+        .day-progress-ring {
+            --progress: 0%;
+            position: relative;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(
+                from -90deg,
+                var(--accent-gradient-start) 0 var(--progress),
+                rgba(148, 163, 184, 0.16) var(--progress) 100%
+            );
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+        }
+
+        .day-progress-ring::after {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .day-progress-ring span {
+            position: absolute;
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            z-index: 1;
         }
 
         .task-list {
@@ -1040,10 +1111,12 @@
         .task-item-container {
             position: relative;
             list-style: none;
-            overflow: hidden;
-            border-radius: var(--radius);
+            overflow: visible;
+            border-radius: 18px;
             margin-bottom: calc(0.45rem * var(--density));
             background: transparent;
+            background-clip: border-box;
+            isolation: isolate;
             user-select: none;
             touch-action: pan-y;
             -webkit-user-select: none;
@@ -1106,13 +1179,16 @@
 
         .task-item {
             position: relative;
-            background: var(--card-bg);
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            overflow: visible;
+            isolation: isolate;
+            background-clip: border-box;
             z-index: 2;
-            padding: calc(0.6rem * var(--density)) calc(0.8rem * var(--density));
-            /* Improvement 8: Soften borders and cards styling */
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
-            border-radius: var(--radius);
+            padding: calc(0.68rem * var(--density)) calc(0.82rem * var(--density));
+            /* Soft nested-card treatment with no visible transparent outer border layer */
+            border: 0;
+            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.045), 0 2px 7px rgba(15, 23, 42, 0.022);
+            border-radius: 18px;
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s, box-shadow 0.2s;
             display: flex;
             align-items: center;
@@ -1120,10 +1196,15 @@
             gap: 0.6rem;
         }
 
+        .task-item:hover {
+            border-color: rgba(var(--accent-rgb), 0.13);
+            box-shadow: 0 8px 26px rgba(15, 23, 42, 0.052), 0 2px 8px rgba(15, 23, 42, 0.024);
+        }
+
         :root.theme-dark .task-item,
         :root.theme-night .task-item {
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
         .task-item.context-active {
@@ -1340,44 +1421,84 @@
 
         .task-actions {
             display: none;
-            gap: 0.3rem;
+            align-items: center;
+            gap: 0.28rem;
             margin-left: auto;
+            padding: 3px;
             flex-shrink: 0;
             z-index: 10;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 4px 12px rgba(30, 41, 59, 0.045);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .move-to-btn {
             width: auto;
-            min-width: 92px;
-            padding: 0 0.55rem;
-            gap: 0.28rem;
-            color: var(--text-muted);
-            background: var(--bg-color);
-            border-color: var(--border);
-            font-size: calc(0.68rem * var(--font-scale));
-            font-weight: 600;
+            min-width: 112px;
+            height: 30px;
+            padding: 0 0.68rem;
+            gap: 0.38rem;
+            border-radius: 10px;
+            color: var(--accent);
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.11), rgba(var(--accent-rgb), 0.045));
+            border: 1px solid rgba(var(--accent-rgb), 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            font-size: calc(0.72rem * var(--font-scale));
+            font-weight: 700;
             white-space: nowrap;
+            transition: all var(--transition-fast);
         }
 
         .move-to-btn svg {
-            width: 12px;
-            height: 12px;
+            width: 15px;
+            height: 15px;
             flex-shrink: 0;
+            opacity: 0.92;
         }
 
         .move-to-btn:hover {
+            color: white;
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.18);
+            transform: translateY(-1px);
+        }
+
+        .task-actions .edit-btn,
+        .task-actions .delete-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            border-color: transparent;
+            background: transparent;
+        }
+
+        .task-actions .edit-btn:hover {
+            background: rgba(var(--accent-rgb), 0.08);
             color: var(--accent);
-            border-color: rgba(var(--accent-rgb), 0.35);
-            background: rgba(var(--accent-rgb), 0.07);
-            transform: scale(1.05);
+        }
+
+        .task-actions .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+        }
+
+        :root.theme-dark .task-actions,
+        :root.theme-night .task-actions {
+            background: rgba(30, 41, 59, 0.82);
+            border-color: rgba(255, 255, 255, 0.07);
         }
 
         @media (max-width: 560px) {
             .move-to-btn {
-                min-width: 24px;
-                width: 24px;
+                min-width: 38px;
+                width: 38px;
                 padding: 0;
-                gap: 0;
+                justify-content: center;
             }
 
             .move-to-btn .move-to-label {
@@ -2200,6 +2321,60 @@
             background-size: 24px 24px;
         }
 
+        /* ===== Rounded Card Edge Cleanup ===== */
+        .progress-container,
+        .day-card,
+        .task-item-container,
+        .task-item,
+        .stat-pill {
+            background-clip: border-box !important;
+            -webkit-background-clip: border-box !important;
+        }
+
+        .progress-container,
+        .day-card,
+        .task-item,
+        .stat-pill {
+            border: 0 !important;
+        }
+
+        html.texture-gradientborder .day-card,
+        html.texture-gradientborder .progress-container {
+            border: 0 !important;
+            background-image: none !important;
+            background-clip: border-box !important;
+            box-shadow: 0 10px 28px rgba(30, 41, 59, 0.05), 0 2px 7px rgba(30, 41, 59, 0.03) !important;
+        }
+
+        /* ===== Soft Card Shadow Finish ===== */
+        .progress-container,
+        .day-card {
+            border: 0 !important;
+            box-shadow:
+                0 8px 28px rgba(15, 23, 42, 0.055),
+                0 2px 8px rgba(15, 23, 42, 0.025) !important;
+        }
+
+        .task-item {
+            border: 0 !important;
+            box-shadow:
+                0 6px 22px rgba(15, 23, 42, 0.045),
+                0 2px 7px rgba(15, 23, 42, 0.022) !important;
+        }
+
+        .progress-container:hover,
+        .day-card:hover {
+            box-shadow:
+                0 10px 32px rgba(15, 23, 42, 0.065),
+                0 3px 10px rgba(15, 23, 42, 0.028) !important;
+        }
+
+        .task-item:hover {
+            box-shadow:
+                0 8px 26px rgba(15, 23, 42, 0.055),
+                0 2px 8px rgba(15, 23, 42, 0.024) !important;
+        }
+
         /* ===== Parallel Universe 'Transfer' CSS ===== */
         body.mode-transfer .tasks-only-el {
             display: none !important;
@@ -3004,11 +3179,13 @@
                 <div class="progress-container">
                     <div class="progress-text">
                         <span>Overall Progress</span>
-                        <span><span id="completed-count">0</span>/<span id="total-count">0</span> (<span
-                                id="progress-percentage">0%</span>)</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
+                        <div class="overall-progress-summary">
+                            <span><span id="completed-count">0</span>/<span id="total-count">0</span></span>
+                            <div class="overall-progress-ring" id="overall-progress-ring" style="--progress: 0%"
+                                aria-label="0% overall progress">
+                                <span id="progress-percentage">0%</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="progress-stats">
                         <span class="stat-pill all-pill active" data-filter="all" title="All Tasks"
@@ -4387,10 +4564,10 @@
                         <span class="day-title-text">${escapeHtml(formatDate(date))}</span>
                     </div>
                     <div class="day-progress-wrap" title="${completedTasks}/${totalTasks} completed">
-                        <div class="day-progress-bar">
-                            <div class="day-progress-fill" style="width: ${progressPct}%"></div>
+                        <span class="day-progress-label">${completedTasks} of ${totalTasks} completed</span>
+                        <div class="day-progress-ring" style="--progress: ${progressPct}%" aria-label="${progressPct}% completed">
+                            <span>${progressPct}%</span>
                         </div>
-                        <span class="day-progress-label">${completedTasks}/${totalTasks}</span>
                     </div>
                 `;
                 card.appendChild(header);
@@ -4472,11 +4649,11 @@
                         ${metaPills.length ? `<div class="task-meta">${metaPills.join('')}</div>` : ''}
                     </div>
                     <div class="task-actions">
+                        <button class="action-btn edit-btn" title="Edit" onclick="editTask('${task.id}')">${ICONS.edit}</button>
                         <button class="action-btn move-to-btn" title="Move to date" aria-label="Move to date"
                             onclick="openMoveTaskDatePicker('${task.id}'); event.stopPropagation();">
                             ${ICONS.calendar}<span class="move-to-label">Move to date</span>
                         </button>
-                        <button class="action-btn edit-btn" title="Edit" onclick="editTask('${task.id}')">${ICONS.edit}</button>
                         <button class="action-btn delete-btn" title="Delete" onclick="confirmDelete('${task.id}')">${ICONS.trash}</button>
                     </div>
                 </div>
@@ -4710,7 +4887,12 @@
             document.getElementById('progress-percentage').textContent = `${pct}%`;
             document.getElementById('completed-count').textContent = completed;
             document.getElementById('total-count').textContent = total;
-            document.getElementById('progress-fill').style.width = `${pct}%`;
+
+            const overallProgressRing = document.getElementById('overall-progress-ring');
+            if (overallProgressRing) {
+                overallProgressRing.style.setProperty('--progress', `${pct}%`);
+                overallProgressRing.setAttribute('aria-label', `${pct}% overall progress`);
+            }
 
             document.getElementById('stat-all').textContent = total;
             document.getElementById('stat-done').textContent = completed;
