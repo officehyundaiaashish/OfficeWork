@@ -542,36 +542,82 @@
         .overall-progress-ring {
             --progress: 0%;
             position: relative;
-            width: 46px;
-            height: 46px;
-            flex: 0 0 46px;
-            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            flex: 0 0 52px;
             display: grid;
             place-items: center;
-            background: conic-gradient(
-                from -90deg,
-                var(--accent-gradient-start) 0 var(--progress),
-                rgba(148, 163, 184, 0.16) var(--progress) 100%
-            );
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+            isolation: isolate;
         }
 
-        .overall-progress-ring::after {
+        .wave-progress-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            transform: rotate(-90deg);
+        }
+
+        .wave-progress-track,
+        .wave-progress-path {
+            fill: none;
+            stroke-width: 7;
+            stroke-linecap: round;
+        }
+
+        .wave-progress-track {
+            stroke: rgba(148, 163, 184, 0.16);
+        }
+
+        .wave-progress-path {
+            stroke: var(--accent-gradient-start);
+            stroke-dasharray: 100;
+            stroke-dashoffset: calc(100 - (var(--progress-number, 0) * 1));
+            filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.14));
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .wave-progress-ring::before {
             content: '';
-            width: 35px;
-            height: 35px;
+            position: absolute;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--card-bg);
-            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.035);
+            z-index: -1;
         }
 
         .overall-progress-ring span {
-            position: absolute;
+            position: relative;
             font-size: 0.68rem;
             font-weight: 700;
             color: var(--text-main);
             line-height: 1;
-            z-index: 1;
+            z-index: 2;
+        }
+
+        .wave-progress-path {
+            animation: waveProgressGlow 2.2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes waveProgressGlow {
+            0%, 100% {
+                filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.10));
+            }
+            50% {
+                filter: drop-shadow(0 2px 7px rgba(124, 58, 237, 0.22));
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wave-progress-path,
+            .day-progress-path {
+                animation: none;
+                transition: none;
+            }
         }
 
         .progress-stats {
@@ -1070,36 +1116,61 @@
         .day-progress-ring {
             --progress: 0%;
             position: relative;
-            width: 42px;
-            height: 42px;
-            flex: 0 0 42px;
-            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
             display: grid;
             place-items: center;
-            background: conic-gradient(
-                from -90deg,
-                var(--accent-gradient-start) 0 var(--progress),
-                rgba(148, 163, 184, 0.16) var(--progress) 100%
-            );
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+            isolation: isolate;
         }
 
-        .day-progress-ring::after {
+        .day-progress-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            transform: rotate(-90deg);
+        }
+
+        .day-progress-track,
+        .day-progress-path {
+            fill: none;
+            stroke-width: 6.5;
+            stroke-linecap: round;
+        }
+
+        .day-progress-track {
+            stroke: rgba(148, 163, 184, 0.16);
+        }
+
+        .day-progress-path {
+            stroke: var(--accent-gradient-start);
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1.45s cubic-bezier(0.22, 1, 0.36, 1);
+            filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.13));
+            animation: waveProgressGlow 2.2s ease-in-out infinite;
+        }
+
+        .day-progress-ring::before {
             content: '';
-            width: 32px;
-            height: 32px;
+            position: absolute;
+            width: 31px;
+            height: 31px;
             border-radius: 50%;
             background: var(--card-bg);
-            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.035);
+            z-index: -1;
         }
 
         .day-progress-ring span {
-            position: absolute;
+            position: relative;
             font-size: 0.66rem;
             font-weight: 700;
             color: var(--text-main);
             line-height: 1;
-            z-index: 1;
+            z-index: 2;
         }
 
         .task-list {
@@ -2432,6 +2503,115 @@
                 0 8px 24px rgba(15, 23, 42, 0.08) !important;
         }
 
+
+        /* ===== Motivational Banner Rounded Fix ===== */
+        .greeting-banner,
+        .motivation-banner {
+            border-radius: 20px !important;
+            overflow: hidden !important;
+            background-clip: padding-box !important;
+            border: 0 !important;
+            box-shadow:
+                0 8px 24px rgba(15, 23, 42, 0.055),
+                0 2px 7px rgba(15, 23, 42, 0.025) !important;
+        }
+
+        :root.theme-dark .greeting-banner,
+        :root.theme-night .greeting-banner {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border: 0 !important;
+        }
+
+        /* ===== Rounded UI Finish ===== */
+        /* Motivational banner */
+        .motivation-banner {
+            border-radius: 20px !important;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.055), 0 2px 7px rgba(15, 23, 42, 0.025);
+        }
+
+        /* Global interactive controls */
+        button,
+        .action-btn,
+        .stat-pill,
+        .filter-btn,
+        .chip,
+        .tag,
+        .badge,
+        input,
+        textarea,
+        select {
+            border-radius: 999px;
+        }
+
+        /* Keep icon-only controls compact and properly circular/rounded */
+        button.icon-btn,
+        .icon-btn,
+        .header-btn,
+        .action-btn {
+            border-radius: 14px;
+        }
+
+        /* Transfer area: cards, controls and buttons */
+        .transfer-card,
+        .transfer-item,
+        .transfer-file-card,
+        .file-card,
+        .transfer-section,
+        .transfer-panel {
+            border-radius: 20px !important;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05), 0 2px 7px rgba(15, 23, 42, 0.025);
+        }
+
+        .transfer-card button,
+        .transfer-item button,
+        .transfer-file-card button,
+        .file-card button,
+        .transfer-section button,
+        .transfer-panel button {
+            border-radius: 999px;
+        }
+
+        /* Preserve icon-only buttons in Transfer as compact rounded squares */
+        .transfer-card .icon-btn,
+        .transfer-item .icon-btn,
+        .transfer-file-card .icon-btn,
+        .file-card .icon-btn,
+        .transfer-section .icon-btn,
+        .transfer-panel .icon-btn {
+            border-radius: 12px;
+        }
+
+        /* Mobile bottom sheets: top corners rounded, bottom edge flush with screen */
+        @media (max-width: 768px) {
+            .bottom-sheet,
+            .mobile-sheet,
+            .sheet,
+            .modal.bottom-sheet,
+            .modal-dialog.bottom-sheet,
+            .drawer.bottom-sheet {
+                border-radius: 24px 24px 0 0 !important;
+                overflow: hidden;
+            }
+
+            .bottom-sheet .sheet-content,
+            .mobile-sheet .sheet-content,
+            .sheet .sheet-content {
+                border-radius: 24px 24px 0 0 !important;
+            }
+
+            /* Any fixed mobile panel intended as a bottom sheet should sit flush
+               against the bottom instead of showing a rounded bottom edge. */
+            [class*="bottom-sheet"],
+            [class*="bottomsheet"],
+            [data-sheet-position="bottom"] {
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+            }
+        }
+
         /* ===== Parallel Universe 'Transfer' CSS ===== */
         body.mode-transfer .tasks-only-el {
             display: none !important;
@@ -3238,8 +3418,14 @@
                         <span>Overall Progress</span>
                         <div class="overall-progress-summary">
                             <span><span id="completed-count">0</span>/<span id="total-count">0</span></span>
-                            <div class="overall-progress-ring" id="overall-progress-ring" style="--progress: 0%"
-                                aria-label="0% overall progress">
+                            <div class="overall-progress-ring wave-progress-ring" id="overall-progress-ring"
+                                style="--progress: 0%" aria-label="0% overall progress">
+                                <svg class="wave-progress-svg" viewBox="0 0 100 100" aria-hidden="true">
+                                    <circle class="wave-progress-track" cx="50" cy="50" r="40"></circle>
+                                    <path class="wave-progress-path" id="overall-progress-wave"
+                                        d="M 50.00 10.00 L 52.68 9.06 L 55.41 8.90 L 58.00 9.76 L 60.35 11.36 L 62.53 13.09 L 64.75 14.38 L 67.24 15.04 L 70.00 15.36 L 72.79 15.89 L 75.23 17.12 L 77.05 19.16 L 78.28 21.72 L 79.30 24.30 L 80.58 26.53 L 82.41 28.35 L 84.64 30.00 L 86.79 31.85 L 88.29 34.14 L 88.85 36.81 L 88.64 39.65 L 88.23 42.40 L 88.22 44.97 L 88.89 47.45 L 90.00 50.00 L 90.94 52.68 L 91.10 55.41 L 90.24 58.00 L 88.64 60.35 L 86.91 62.53 L 85.62 64.75 L 84.96 67.24 L 84.64 70.00 L 84.11 72.79 L 82.88 75.23 L 80.84 77.05 L 78.28 78.28 L 75.70 79.30 L 73.47 80.58 L 71.65 82.41 L 70.00 84.64 L 68.15 86.79 L 65.86 88.29 L 63.19 88.85 L 60.35 88.64 L 57.60 88.23 L 55.03 88.22 L 52.55 88.89 L 50.00 90.00 L 47.32 90.94 L 44.59 91.10 L 42.00 90.24 L 39.65 88.64 L 37.47 86.91 L 35.25 85.62 L 32.76 84.96 L 30.00 84.64 L 27.21 84.11 L 24.77 82.88 L 22.95 80.84 L 21.72 78.28 L 20.70 75.70 L 19.42 73.47 L 17.59 71.65 L 15.36 70.00 L 13.21 68.15 L 11.71 65.86 L 11.15 63.19 L 11.36 60.35 L 11.77 57.60 L 11.78 55.03 L 11.11 52.55 L 10.00 50.00 L 9.06 47.32 L 8.90 44.59 L 9.76 42.00 L 11.36 39.65 L 13.09 37.47 L 14.38 35.25 L 15.04 32.76 L 15.36 30.00 L 15.89 27.21 L 17.12 24.77 L 19.16 22.95 L 21.72 21.72 L 24.30 20.70 L 26.53 19.42 L 28.35 17.59 L 30.00 15.36 L 31.85 13.21 L 34.14 11.71 L 36.81 11.15 L 39.65 11.36 L 42.40 11.77 L 44.97 11.78 L 47.45 11.11 L 50.00 10.00"
+                                        pathLength="100"></path>
+                                </svg>
                                 <span id="progress-percentage">0%</span>
                             </div>
                         </div>
@@ -4622,12 +4808,28 @@
                     </div>
                     <div class="day-progress-wrap" title="${completedTasks}/${totalTasks} completed">
                         <span class="day-progress-label">${completedTasks} of ${totalTasks} completed</span>
-                        <div class="day-progress-ring" style="--progress: ${progressPct}%" aria-label="${progressPct}% completed">
+                        <div class="day-progress-ring" data-progress="${progressPct}" aria-label="${progressPct}% completed">
+                            <svg class="day-progress-svg" viewBox="0 0 100 100" aria-hidden="true">
+                                <circle class="day-progress-track" cx="50" cy="50" r="40"></circle>
+                                <path class="day-progress-path" d="M 50.00 10.00 L 52.68 9.06 L 55.41 8.90 L 58.00 9.76 L 60.35 11.36 L 62.53 13.09 L 64.75 14.38 L 67.24 15.04 L 70.00 15.36 L 72.79 15.89 L 75.23 17.12 L 77.05 19.16 L 78.28 21.72 L 79.30 24.30 L 80.58 26.53 L 82.41 28.35 L 84.64 30.00 L 86.79 31.85 L 88.29 34.14 L 88.85 36.81 L 88.64 39.65 L 88.23 42.40 L 88.22 44.97 L 88.89 47.45 L 90.00 50.00 L 90.94 52.68 L 91.10 55.41 L 90.24 58.00 L 88.64 60.35 L 86.91 62.53 L 85.62 64.75 L 84.96 67.24 L 84.64 70.00 L 84.11 72.79 L 82.88 75.23 L 80.84 77.05 L 78.28 78.28 L 75.70 79.30 L 73.47 80.58 L 71.65 82.41 L 70.00 84.64 L 68.15 86.79 L 65.86 88.29 L 63.19 88.85 L 60.35 88.64 L 57.60 88.23 L 55.03 88.22 L 52.55 88.89 L 50.00 90.00 L 47.32 90.94 L 44.59 91.10 L 42.00 90.24 L 39.65 88.64 L 37.47 86.91 L 35.25 85.62 L 32.76 84.96 L 30.00 84.64 L 27.21 84.11 L 24.77 82.88 L 22.95 80.84 L 21.72 78.28 L 20.70 75.70 L 19.42 73.47 L 17.59 71.65 L 15.36 70.00 L 13.21 68.15 L 11.71 65.86 L 11.15 63.19 L 11.36 60.35 L 11.77 57.60 L 11.78 55.03 L 11.11 52.55 L 10.00 50.00 L 9.06 47.32 L 8.90 44.59 L 9.76 42.00 L 11.36 39.65 L 13.09 37.47 L 14.38 35.25 L 15.04 32.76 L 15.36 30.00 L 15.89 27.21 L 17.12 24.77 L 19.16 22.95 L 21.72 21.72 L 24.30 20.70 L 26.53 19.42 L 28.35 17.59 L 30.00 15.36 L 31.85 13.21 L 34.14 11.71 L 36.81 11.15 L 39.65 11.36 L 42.40 11.77 L 44.97 11.78 L 47.45 11.11 L 50.00 10.00" pathLength="100"></path>
+                            </svg>
                             <span>${progressPct}%</span>
                         </div>
                     </div>
                 `;
                 card.appendChild(header);
+
+                const dayProgressRing = header.querySelector('.day-progress-ring');
+                const dayProgressPath = header.querySelector('.day-progress-path');
+                if (dayProgressRing && dayProgressPath) {
+                    const dayProgressValue = Math.max(0, Math.min(100, Number(dayProgressRing.dataset.progress) || 0));
+                    dayProgressPath.style.strokeDashoffset = '100';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            dayProgressPath.style.strokeDashoffset = String(100 - dayProgressValue);
+                        });
+                    });
+                }
 
                 // Group tasks by priority status: high, medium, low, completed
                 const groups = [
@@ -4954,7 +5156,18 @@
             const overallProgressRing = document.getElementById('overall-progress-ring');
             if (overallProgressRing) {
                 overallProgressRing.style.setProperty('--progress', `${pct}%`);
+                overallProgressRing.style.setProperty('--progress-number', pct);
                 overallProgressRing.setAttribute('aria-label', `${pct}% overall progress`);
+
+                const wave = document.getElementById('overall-progress-wave');
+                if (wave) {
+                    wave.style.strokeDashoffset = '100';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            wave.style.strokeDashoffset = String(100 - pct);
+                        });
+                    });
+                }
             }
 
             document.getElementById('stat-all').textContent = total;
