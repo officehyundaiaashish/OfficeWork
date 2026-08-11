@@ -1147,8 +1147,16 @@
             color: white;
             z-index: 1;
             opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.15s ease, visibility 0s linear 0.15s;
+            border-radius: 18px;
+        }
+
+        .swipe-left-bg[style*="opacity: 1"],
+        .swipe-right-bg[style*="opacity: 1"] {
+            visibility: visible;
             transition: opacity 0.15s ease;
-            border-radius: var(--radius);
         }
 
         .swipe-left-bg {
@@ -1203,8 +1211,11 @@
 
         :root.theme-dark .task-item,
         :root.theme-night .task-item {
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.12);
+            background: var(--card-bg) !important;
+            background-image: none !important;
+            color: var(--text-main);
+            border: 0;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22), 0 2px 7px rgba(0, 0, 0, 0.12);
         }
 
         .task-item.context-active {
@@ -2373,6 +2384,52 @@
             box-shadow:
                 0 8px 26px rgba(15, 23, 42, 0.055),
                 0 2px 8px rgba(15, 23, 42, 0.024) !important;
+        }
+
+        /* ===== Dark / Night Task Surface ===== */
+        :root.theme-dark .task-item,
+        :root.theme-night .task-item {
+            background: var(--card-bg) !important;
+            background-image: none !important;
+            color: var(--text-main) !important;
+        }
+
+        :root.theme-dark .task-item .task-title,
+        :root.theme-dark .task-item .task-note,
+        :root.theme-dark .task-item .task-meta,
+        :root.theme-night .task-item .task-title,
+        :root.theme-night .task-item .task-note,
+        :root.theme-night .task-item .task-meta {
+            color: var(--text-main);
+        }
+
+        /* ===== Rounded Dialog Depth ===== */
+        .modal,
+        .confirm-modal {
+            border-radius: 28px !important;
+            box-shadow:
+                0 24px 60px rgba(15, 23, 42, 0.14),
+                0 8px 24px rgba(15, 23, 42, 0.08) !important;
+            border: 0 !important;
+            background-clip: padding-box;
+        }
+
+        .modal-close {
+            border-radius: 14px;
+        }
+
+        .modal-actions .btn,
+        .confirm-actions .btn {
+            border-radius: 14px;
+        }
+
+        html.texture-gradientborder .modal {
+            border: 0 !important;
+            background-image: none !important;
+            background-clip: padding-box !important;
+            box-shadow:
+                0 24px 60px rgba(15, 23, 42, 0.14),
+                0 8px 24px rgba(15, 23, 42, 0.08) !important;
         }
 
         /* ===== Parallel Universe 'Transfer' CSS ===== */
@@ -4763,7 +4820,7 @@
                 if (!isSwiping) return;
                 isSwiping = false;
 
-                // Improvement 11: Smooth spring transition animations
+                // Smooth spring transition animations
                 taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
                 window.removeEventListener('mousemove', handleMove);
@@ -4774,31 +4831,37 @@
                     e.preventDefault();
                 }
 
+                const resetSwipeVisuals = () => {
+                    taskItem.style.transform = 'translateX(0)';
+                    leftBg.style.opacity = '0';
+                    rightBg.style.opacity = '0';
+
+                    const leftIcon = leftBg.querySelector('.swipe-action-icon');
+                    const rightIcon = rightBg.querySelector('.swipe-action-icon');
+                    if (leftIcon) leftIcon.style.transform = 'scale(1)';
+                    if (rightIcon) rightIcon.style.transform = 'scale(1)';
+
+                    currentX = 0;
+                };
+
                 if (currentX < -threshold) {
                     // Swipe Left (drag to left): Edit Task
                     taskItem.style.transform = `translateX(-100%)`;
                     setTimeout(() => {
                         editTask(taskId);
-                        // Return with bounce spring
-                        taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                        taskItem.style.transform = 'translateX(0)';
+                        resetSwipeVisuals();
                     }, 200);
                 } else if (currentX > threshold) {
                     // Swipe Right (drag to right): Delete Task (with confirmation)
                     taskItem.style.transform = `translateX(100%)`;
                     setTimeout(() => {
                         confirmDelete(taskId).then(ok => {
-                            if (!ok) {
-                                // Return with bounce spring
-                                taskItem.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                                taskItem.style.transform = 'translateX(0)';
-                            }
+                            resetSwipeVisuals();
                         });
                     }, 200);
                 } else {
-                    taskItem.style.transform = 'translateX(0)';
+                    resetSwipeVisuals();
                 }
-                currentX = 0;
             }
 
             taskItem.addEventListener('touchstart', handleStart, { passive: true });
